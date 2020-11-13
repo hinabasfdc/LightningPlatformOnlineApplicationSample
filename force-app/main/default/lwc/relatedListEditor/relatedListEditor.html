@@ -1,0 +1,99 @@
+<template>
+  <div class="slds-var-p-bottom_medium">
+    <lightning-layout>
+
+      <!-- 左側メニューエリア -->
+      <lightning-layout-item>
+        <div class="slds-var-p-left_medium">
+
+          <!-- ナビゲーションメニューとして表示し、クリックされたら handleSelectRecord を呼出 -->
+          <lightning-vertical-navigation onselect={handleSelectRecord} selected-item="new">
+            <lightning-vertical-navigation-section label="一覧">
+
+              <!-- 新規追加のメニューアイテム -->
+              <lightning-vertical-navigation-item label="(新規追加)" name="new"></lightning-vertical-navigation-item>
+
+              <!-- 定義済みの項目をメニューアイテムとして一覧表示 -->
+              <template if:true={relatedRecords}>
+                <template for:each={relatedRecords} for:item="record">
+                  <lightning-vertical-navigation-item key={record.Id} label={record.DisplayName} name={record.Id}>
+                  </lightning-vertical-navigation-item>
+                </template>
+              </template>
+
+            </lightning-vertical-navigation-section>
+          </lightning-vertical-navigation>
+        </div>
+      </lightning-layout-item>
+
+      <!-- 右側項目表示エリア -->
+      <lightning-layout-item flexibility="grow">
+        <div class="slds-box slds-var-m-right_medium">
+
+          <!-- 新規作成パネル -->
+          <template if:true={isCreateRecord}>
+            <lightning-record-edit-form object-api-name={objectApiNameApplicationTemplateDetail} onsubmit={handleSubmit}
+              onsuccess={handleSuccess}>
+              <lightning-messages></lightning-messages>
+
+              <!-- 項目表示名 -->
+              <lightning-input-field field-name={fieldnameName}></lightning-input-field>
+              <!-- 補助説明 -->
+              <lightning-input-field field-name={fieldnameDescription}></lightning-input-field>
+              <!-- 項目カテゴリ -->
+              <lightning-input-field field-name={fieldnameCategory} onchange={handleChangeCategory}>
+              </lightning-input-field>
+              <!-- 標準項目名(項目カテゴリが標準の場合のみ) -->
+              <template if:true={isStandardColumn}>
+                <lightning-input-field field-name={fieldnameStdColumnName}></lightning-input-field>
+              </template>
+              <!-- データ型(項目カテゴリがカスタムの場合のみ) -->
+              <template if:true={isCustomColumn}>
+                <lightning-input-field field-name={fieldnameDataType} onchange={handleChangeDataType}>
+                </lightning-input-field>
+                <!-- 選択肢(データ型が選択肢の場合のみ) -->
+                <template if:true={isCustomColumnPicklist}>
+                  <lightning-input-field field-name={fieldnameOptions}></lightning-input-field>
+                </template>
+              </template>
+              <!-- 必須かどうか -->
+              <lightning-input-field field-name={fieldnameRequired}></lightning-input-field>
+              <!-- デフォルト値 -->
+              <lightning-input-field field-name={fieldnameValue}></lightning-input-field>
+              <!-- 表示順 -->
+              <lightning-input-field field-name={fieldnameSortOrder}></lightning-input-field>
+
+              <!-- 登録ボタン -->
+              <div class="slds-var-m-top_medium">
+                <lightning-button variant="brand" type="submit" name="save" label="追加登録">
+                </lightning-button>
+              </div>
+            </lightning-record-edit-form>
+          </template>
+
+          <!-- 既存編集パネル -->
+          <template if:true={isRecordSelected}>
+            <lightning-card title="詳細" icon-name="standard:custom" variant="text-destructive">
+              <div slot="actions">
+                <lightning-button label="項目削除" onclick={handleClickDeleteRecord}></lightning-button>
+              </div>
+
+              <!-- 各項目を表示(標準コンポーネントを使用) -->
+              <lightning-record-form record-id={selectedRecordId}
+                object-api-name={objectApiNameApplicationTemplateDetail} layout-type="Full" mode="view"
+                fields={editRecordColumns} onsuccess={handleSuccess}>
+              </lightning-record-form>
+            </lightning-card>
+          </template>
+
+          <!-- 新規作成でも項目選択でもない時(レコード保存時など) -->
+          <template if:false={isCreateRecord}>
+            <template if:false={isRecordSelected}>
+              左メニューより項目を選択してください。
+            </template>
+          </template>
+        </div>
+      </lightning-layout-item>
+    </lightning-layout>
+  </div>
+</template>

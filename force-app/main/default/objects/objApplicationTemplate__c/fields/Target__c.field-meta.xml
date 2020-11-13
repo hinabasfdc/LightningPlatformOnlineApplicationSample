@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Target__c</fullName>
+    <externalId>false</externalId>
+    <label>対象</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>住民</fullName>
+                <default>false</default>
+                <label>住民</label>
+            </value>
+            <value>
+                <fullName>事業者</fullName>
+                <default>false</default>
+                <label>事業者</label>
+            </value>
+            <value>
+                <fullName>両方</fullName>
+                <default>false</default>
+                <label>両方</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

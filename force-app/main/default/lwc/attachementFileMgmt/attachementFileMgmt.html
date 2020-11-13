@@ -1,0 +1,78 @@
+<template>
+
+  <div class="slds-card slds-var-p-around_medium">
+    <!-- ファイルアップロードコンポーネントの表示 -->
+    <div class="slds-var-p-around_medium slds-text-align_center slds-box">
+      <lightning-file-upload label="ファイルを追加" record-id={recordId} onuploadfinished={handleUploadFinished}>
+      </lightning-file-upload>
+    </div>
+
+    <!-- ファイル一覧表示 -->
+    <template if:true={records}>
+      <div class="slds-var-m-top_medium">
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+          <!-- テーブルヘッダー -->
+          <thead>
+            <tr>
+              <th>種類</th>
+              <th>タイトル</th>
+              <th>属性</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+
+          <!-- データ行 -->
+          <tbody>
+            <template for:each={records} for:item="record">
+              <tr key={record.Id}>
+                <!-- 種類アイコン -->
+                <td class="slds-align_absolute-center">
+                  <lightning-icon icon-name={record.IconName}></lightning-icon>
+                </td>
+                <!-- タイトル -->
+                <td>
+                  {record.Title}
+                </td>
+                <!-- 属性(作成日付・サイズ) -->
+                <td>
+                  <lightning-formatted-date-time value={record.ContentModifiedDate} year="numeric" month="2-digit"
+                    day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>,&nbsp;
+                  <lightning-formatted-number value={record.ContentSize}></lightning-formatted-number>
+                  KB,&nbsp;{record.FileType}
+                </td>
+                <!-- 操作 -->
+                <td class="slds-align_absolute-center">
+                  <lightning-button-icon icon-name="utility:delete" alternative-text="Delete"
+                    class="slds-var-m-right_xx-small" title="Delete" data-cdid={record.ContentDocumentId} data-cvid={record.Id}
+                    onclick={handleClickDelete} name={record.Title}></lightning-button-icon>
+                  <lightning-button-icon icon-name="utility:preview" alternative-text="Preview"
+                    class="slds-var-m-left_xx-small" title="Preview" data-cdid={record.ContentDocumentId} data-cvid={record.Id}
+                    onclick={handleClickPreview} name={record.Title}></lightning-button-icon>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </template>
+  </div>
+
+  <!-- プレビュー画像表示用モーダル -->
+  <template if:true={isDisplayModal}>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large"
+      aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+      <div class="slds-modal__container">
+        <div class="slds-modal__content slds-var-p-around_medium slds-text-align_center" id="modal-content-id-1">
+          <template if:true={previewUrl}>
+            <img src={previewUrl} />
+          </template>
+        </div>
+        <footer class="slds-modal__footer">
+          <lightning-button label="閉じる" onclick={handleClickCloseModal}></lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+
+</template>

@@ -1,0 +1,20 @@
+{
+    "packageDirectories": [
+        {
+            "path": "force-app",
+            "default": true,
+            "package": "オンライン申請",
+            "versionName": "ver 0.1",
+            "versionNumber": "0.1.0.NEXT"
+        }
+    ],
+    "namespace": "",
+    "sfdcLoginUrl": "https://login.salesforce.com",
+    "sourceApiVersion": "50.0",
+    "packageAliases": {
+        "オンライン申請": "0Ho2r000000CaRbCAK",
+        "オンライン申請@0.1.0-1": "04t2r000000HJK0AAO",
+        "オンライン申請@0.2.0-1": "04t2r000000HLHbAAO",
+        "オンライン申請@0.3.0-1": "04t2r000000HLHgAAO"
+    }
+}

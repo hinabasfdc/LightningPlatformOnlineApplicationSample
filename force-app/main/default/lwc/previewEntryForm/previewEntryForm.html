@@ -1,0 +1,156 @@
+<template>
+  <div class="slds-var-p-around_medium">
+
+    <!--
+      概要・条件エリア
+    -->
+    <lightning-card title="手続き概要・条件をご確認ください" icon-name="utility:description">
+
+      <template if:true={applicationtemplate}>
+        <template for:each={applicationtemplate} for:item="at">
+
+          <!--基本情報-->
+          <div key={at.Id} class="slds-box">
+            <!-- 手続き名 -->
+            <div class="slds-var-p-around_medium">
+              <p class="slds-text-title">手続き名</p>
+              <h2 class="slds-text-heading_medium">
+                <lightning-formatted-text value={at.Name}></lightning-formatted-text>
+              </h2>
+            </div>
+            <!-- 概要説明 -->
+            <div class="slds-box slds-var-m-top_medium">
+              <h3 class="slds-text-title_bold">概要</h3>
+              <p>
+                <lightning-formatted-rich-text value={at.Description__c}>
+                </lightning-formatted-rich-text>
+              </p>
+            </div>
+            <!-- 条件 -->
+            <template if:true={at.Condition__c}>
+              <div class="slds-box slds-var-m-top_medium">
+                <h3 class="slds-text-title_bold">各種条件</h3>
+                <p>
+                  <lightning-formatted-rich-text value={at.Condition__c}>
+                  </lightning-formatted-rich-text>
+                </p>
+              </div>
+            </template>
+            <!--確認・同意のチェックボックス-->
+            <template if:true={at.isAgreementCheckboxEnabled__c}>
+              <div class="slds-var-m-top_medium">
+                <lightning-input type="checkbox" label={at.AgreementCheckText__c} required></lightning-input>
+              </div>
+            </template>
+          </div>
+        </template>
+      </template>
+
+    </lightning-card>
+
+    <!--
+      項目の表示・更新ボタン
+    -->
+    <div class="slds-align_absolute-center slds-var-p-around_medium">
+      <lightning-button label="項目の表示・更新" onclick={handleClickRecordUpdate}></lightning-button>
+    </div>
+
+    <!--
+      項目表示エリア
+    -->
+    <template if:true={columns}>
+      <lightning-card title="必要情報を入力してください" icon-name="utility:edit_form">
+    <div class="slds-box">
+
+        <lightning-record-edit-form object-api-name="objApplication__c">
+          <!-- 定義された項目数繰り返し -->
+          <template for:each={columns} for:item="column">
+            <div key={column.Id} class="slds-var-m-top_small">
+              <!-- 標準項目の場合 -->
+              <template if:true={column.isStdColumn__c}>
+                <!-- オブジェクトに定義した項目名では無い設定した表示名をラベルとして使う -->
+                <label class="slds-form-element__label">
+                  <template if:true={column.Required__c}>
+                    <abbr class="slds-required" title="required">* </abbr>
+                  </template>
+                  {column.Name}
+                </label>
+                <!-- lightning-input-field を使ってデータ型もオブジェクト定義を踏まえた表示に -->
+                <lightning-input-field data-id={column.Id} field-name={column.StdColumnName__c}
+                  required={column.Required__c} variant="label-hidden" value={column.Value__c}
+                  onchange={handleChangeValue}></lightning-input-field>
+              </template>
+
+              <!-- カスタム項目の場合(データ型は個々に判別して表示) -->
+              <template if:false={column.isStdColumn__c}>
+                <!-- テキスト -->
+                <template if:true={column.isText__c}>
+                  <lightning-input data-id={column.Id} type="text" label={column.Name} required={column.Required__c}
+                    value={column.Value__c} onchange={handleChangeValue}></lightning-input>
+                </template>
+                <!-- ロングテキストエリア -->
+                <template if:true={column.isLongTextArea__c}>
+                  <lightning-textarea data-id={column.Id} label={column.Name} required={column.Required__c}
+                    value={column.Value__c} onchange={handleChangeValue}></lightning-textarea>
+                </template>
+                <!-- 数値 -->
+                <template if:true={column.isNumber__c}>
+                  <lightning-input data-id={column.Id} type="number" label={column.Name}
+                    required={column.Required__c} value={column.Value__c} onchange={handleChangeValue}>
+                  </lightning-input>
+                </template>
+                <!-- メール -->
+                <template if:true={column.isMail__c}>
+                  <lightning-input data-id={column.Id} type="email" label={column.Name}
+                    required={column.Required__c} value={column.Value__c} onchange={handleChangeValue}>
+                  </lightning-input>
+                </template>
+                <!-- URL -->
+                <template if:true={column.isURL__c}>
+                  <lightning-input data-id={column.Id} type="url" label={column.Name} required={column.Required__c}
+                    value={column.Value__c} onchange={handleChangeValue}></lightning-input>
+                </template>
+                <!-- 日付 -->
+                <template if:true={column.isDate__c}>
+                  <lightning-input data-id={column.Id} type="date" label={column.Name} required={column.Required__c}
+                    value={column.Value__c} onchange={handleChangeValue}></lightning-input>
+                </template>
+                <!-- 時刻 -->
+                <template if:true={column.isTime__c}>
+                  <lightning-input data-id={column.Id} type="time" label={column.Name} required={column.Required__c}
+                    value={column.Value__c} onchange={handleChangeValue}></lightning-input>
+                </template>
+                <!-- チェックボックス -->
+                <template if:true={column.isCheckbox__c}>
+                  <lightning-input data-id={column.Id} type="checkbox" label={column.Name}
+                    required={column.Required__c} value={column.Value__c} onchange={handleChangeValue}>
+                  </lightning-input>
+                </template>
+                <!-- 通貨 -->
+                <template if:true={column.isCurrency__c}>
+                  <lightning-input data-id={column.Id} type="number" formatter="currency" label={column.Name}
+                    required={column.Required__c} value={column.Value__c} onchange={handleChangeValue}>
+                  </lightning-input>
+                </template>
+                <!-- 選択リスト -->
+                <template if:true={column.isPicklist__c}>
+                  <lightning-combobox data-id={column.Id} label={column.Name} options={column.PicklistValues}
+                    required={column.Required__c} value={column.Value__c} onchange={handleChangeValue}>
+                  </lightning-combobox>
+                </template>
+
+                <!-- 補足説明(入力欄の直下に表示) -->
+                <template if:true={column.Description__c}>
+                  <p class="slds-text-color_weak">{column.Description__c}</p>
+                </template>
+              </template>
+            </div>
+          </template>
+        </lightning-record-edit-form>
+
+    </div>
+    </lightning-card>
+  </template>
+
+  </div>
+</template>

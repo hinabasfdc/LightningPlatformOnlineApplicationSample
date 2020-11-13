@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>cptApplicationTemplate</fullName>
+    <fields>Name</fields>
+    <fields>Status__c</fields>
+    <fields>Target__c</fields>
+    <fields>CloseDate__c</fields>
+    <label>申請定義コンパクトレイアウト</label>
+</CompactLayout>

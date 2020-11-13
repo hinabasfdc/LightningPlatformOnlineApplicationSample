@@ -1,0 +1,10 @@
+<template>
+  <lightning-card title="標準項目" icon-name="utility:database">
+    <div class="slds-var-p-around_small">
+      <!-- 表示する項目一覧がセットされたら表示 -->
+      <template if:true={stdColumnNames}>
+        <lightning-record-form record-id={recordId} object-api-name={objectApiName} fields={stdColumnNames}></lightning-record-form>
+      </template>
+    </div>
+  </lightning-card>
+</template>
