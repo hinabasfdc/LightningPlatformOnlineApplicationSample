@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>AgreementCheckText__c</fullName>
+    <defaultValue>&quot;内容・条件を確認しました。&quot;</defaultValue>
     <externalId>false</externalId>
     <label>同意チェック文言</label>
     <length>255</length>

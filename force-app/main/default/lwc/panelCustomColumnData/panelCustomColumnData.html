@@ -14,67 +14,67 @@
               <!-- 項目表示エリア -->
               <div class="slds-col slds-grow slds-align-bottom slds-col_bump-right">
                 <!-- テキスト項目 -->
-                <template if:true={item.isText__c}>
+                <template if:true={item.jpseps__isText__c}>
                   <div class="slds-border_bottom slds-var-m-bottom_small">
-                    <lightning-input type="text" label={item.ColumnName__c} value={item.Text__c} readonly>
+                    <lightning-input type="text" label={item.jpseps__ColumnName__c} value={item.jpseps__Text__c} readonly>
                     </lightning-input>
                   </div>
                 </template>
                 <!-- ロングテキストエリア項目 -->
-                <template if:true={item.isLongTextArea__c}>
+                <template if:true={item.jpseps__isLongTextArea__c}>
                   <div class="slds-var-m-bottom_small">
-                    <lightning-textarea label={item.ColumnName__c} value={item.LongTextArea__c} read-only>
+                    <lightning-textarea label={item.jpseps__ColumnName__c} value={item.jpseps__LongTextArea__c} read-only>
                     </lightning-textarea>
                   </div>
                 </template>
                 <!-- 数値項目 -->
-                <template if:true={item.isNumber__c}>
+                <template if:true={item.jpseps__isNumber__c}>
                   <div class="slds-border_bottom slds-var-m-bottom_small">
-                    <lightning-input type="number" label={item.ColumnName__c} value={item.Number__c} readonly>
+                    <lightning-input type="number" label={item.jpseps__ColumnName__c} value={item.jpseps__Number__c} readonly>
                     </lightning-input>
                   </div>
                 </template>
                 <!-- 通貨項目 -->
-                <template if:true={item.isCurrency__c}>
+                <template if:true={item.jpseps__isCurrency__c}>
                   <div class="slds-border_bottom slds-var-m-bottom_small">
-                    <lightning-input type="number" label={item.ColumnName__c} value={item.Number__c}
+                    <lightning-input type="number" label={item.jpseps__ColumnName__c} value={item.jpseps__Number__c}
                       formatter="currency" readonly></lightning-input>
                   </div>
                 </template>
                 <!-- 日付項目 -->
-                <template if:true={item.isDate__c}>
+                <template if:true={item.jpseps__isDate__c}>
                   <div class="slds-border_bottom slds-var-m-bottom_small">
-                    <lightning-input type="date" label={item.ColumnName__c} value={item.Text__c} readonly>
+                    <lightning-input type="date" label={item.jpseps__ColumnName__c} value={item.jpseps__Text__c} readonly>
                     </lightning-input>
                   </div>
                 </template>
                 <!-- 時間項目 -->
-                <template if:true={item.isTime__c}>
+                <template if:true={item.jpseps__isTime__c}>
                   <div class="slds-var-m-bottom_small">
-                    <lightning-input type="time" label={item.ColumnName__c} value={item.Text__c} readonly>
+                    <lightning-input type="time" label={item.jpseps__ColumnName__c} value={item.jpseps__Text__c} readonly>
                     </lightning-input>
                   </div>
                 </template>
                 <!-- チェックボックス項目 -->
-                <template if:true={item.isCheckbox__c}>
+                <template if:true={item.jpseps__isCheckbox__c}>
                   <div class="slds-border_bottom slds-var-m-bottom_small">
                     <!-- チェックボックスの場合、属性への true/false 設定が反映されないので項目自体の表示を切り替えで対応 -->
                     <!-- チェック付きの場合 -->
                     <template if:true={item.isCheckboxChecked}>
-                      <lightning-input type="checkbox" label={item.ColumnName__c} checked readonly>
+                      <lightning-input type="checkbox" label={item.jpseps__ColumnName__c} checked readonly>
                       </lightning-input>
                     </template>
                     <!-- チェックなしの場合 -->
                     <template if:false={item.isCheckboxChecked}>
-                      <lightning-input type="checkbox" label={item.ColumnName__c} readonly>
+                      <lightning-input type="checkbox" label={item.jpseps__ColumnName__c} readonly>
                       </lightning-input>
                     </template>
                   </div>
                 </template>
                 <!-- 選択リスト項目 -->
-                <template if:true={item.isPickList__c}>
+                <template if:true={item.jpseps__isPicklist__c}>
                   <div class="slds-border_bottom slds-var-m-bottom_small">
-                    <lightning-input type="text" label={item.ColumnName__c} value={item.Text__c} readonly>
+                    <lightning-input type="text" label={item.jpseps__ColumnName__c} value={item.jpseps__Text__c} readonly>
                     </lightning-input>
                   </div>
                 </template>
@@ -100,54 +100,54 @@
           <template for:each={recordApplicationDetails} for:item="item">
             <div key={item.Id} class="slds-var-m-bottom_small">
               <!-- テキスト項目 -->
-              <template if:true={item.isText__c}>
-                <lightning-input type="text" label={item.ColumnName__c} value={item.Text__c} data-id={item.Id}
+              <template if:true={item.jpseps__isText__c}>
+                <lightning-input type="text" label={item.jpseps__ColumnName__c} value={item.jpseps__Text__c} data-id={item.Id}
                   onchange={handleChangeValue}></lightning-input>
               </template>
               <!-- ロングテキストエリア項目 -->
-              <template if:true={item.isLongTextArea__c}>
-                <lightning-textarea label={item.ColumnName__c} value={item.LongTextArea__c} data-id={item.Id}
+              <template if:true={item.jpseps__isLongTextArea__c}>
+                <lightning-textarea label={item.jpseps__ColumnName__c} value={item.jpseps__LongTextArea__c} data-id={item.Id}
                   onchange={handleChangeValue}>
                 </lightning-textarea>
               </template>
               <!-- 数値項目 -->
-              <template if:true={item.isNumber__c}>
-                <lightning-input type="number" label={item.ColumnName__c} value={item.Number__c} data-id={item.Id}
+              <template if:true={item.jpseps__isNumber__c}>
+                <lightning-input type="number" label={item.jpseps__ColumnName__c} value={item.jpseps__Number__c} data-id={item.Id}
                   onchange={handleChangeValue}>
                 </lightning-input>
               </template>
               <!-- 通貨項目 -->
-              <template if:true={item.isCurrency__c}>
-                <lightning-input type="number" label={item.ColumnName__c} value={item.Number__c} formatter="currency"
+              <template if:true={item.jpseps__isCurrency__c}>
+                <lightning-input type="number" label={item.jpseps__ColumnName__c} value={item.jpseps__Number__c} formatter="currency"
                   data-id={item.Id} onchange={handleChangeValue}></lightning-input>
               </template>
               <!-- 日付項目 -->
-              <template if:true={item.isDate__c}>
-                <lightning-input type="date" label={item.ColumnName__c} value={item.Text__c} data-id={item.Id}
+              <template if:true={item.jpseps__isDate__c}>
+                <lightning-input type="date" label={item.jpseps__ColumnName__c} value={item.jpseps__Text__c} data-id={item.Id}
                   onchange={handleChangeValue}></lightning-input>
               </template>
               <!-- 時間項目 -->
-              <template if:true={item.isTime__c}>
-                <lightning-input type="time" label={item.ColumnName__c} value={item.Text__c} data-id={item.Id}
+              <template if:true={item.jpseps__isTime__c}>
+                <lightning-input type="time" label={item.jpseps__ColumnName__c} value={item.jpseps__Text__c} data-id={item.Id}
                   onchange={handleChangeValue}></lightning-input>
               </template>
               <!-- チェックボックス項目 -->
-              <template if:true={item.isCheckbox__c}>
+              <template if:true={item.jpseps__isCheckbox__c}>
                 <!-- チェックボックスの場合、属性への true/false 設定が反映されないので項目自体の表示を切り替えで対応 -->
                 <!-- チェック付きの場合 -->
                 <template if:true={item.isCheckboxChecked}>
-                  <lightning-input type="checkbox" label={item.ColumnName__c} data-id={item.Id}
+                  <lightning-input type="checkbox" label={item.jpseps__ColumnName__c} data-id={item.Id}
                     onchange={handleChangeValue} checked></lightning-input>
                 </template>
                 <!-- チェック無しの場合 -->
                 <template if:false={item.isCheckboxChecked}>
-                  <lightning-input type="checkbox" label={item.ColumnName__c} data-id={item.Id}
+                  <lightning-input type="checkbox" label={item.jpseps__ColumnName__c} data-id={item.Id}
                     onchange={handleChangeValue}></lightning-input>
                 </template>
               </template>
               <!-- 選択リスト項目 -->
-              <template if:true={item.isPickList__c}>
-                <lightning-combobox label={item.ColumnName__c} value={item.Text__c} options={item.PickListValues}
+              <template if:true={item.jpseps__isPicklist__c}>
+                <lightning-combobox label={item.jpseps__ColumnName__c} value={item.jpseps__Text__c} options={item.PickListValues}
                   data-id={item.Id} onchange={handleChangeValue}></lightning-combobox>
               </template>
             </div>

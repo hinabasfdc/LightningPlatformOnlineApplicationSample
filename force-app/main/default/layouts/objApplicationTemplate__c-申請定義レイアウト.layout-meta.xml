@@ -13,7 +13,7 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Target__c</field>
+                <field>Category__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -124,7 +124,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h2x000002aEDa</masterLabel>
+        <masterLabel>00h0l00000184QP</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

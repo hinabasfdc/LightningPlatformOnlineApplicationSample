@@ -3,7 +3,11 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>displayEntryForm</componentName>
+                <componentInstanceProperties>
+                    <name>includeDraftApp</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>webForm</componentName>
             </componentInstance>
         </itemInstances>
         <name>main</name>

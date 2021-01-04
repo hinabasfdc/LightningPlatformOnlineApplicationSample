@@ -1,50 +1,74 @@
 @isTest
 public with sharing class DAF_EADACTest {
+  @TestSetup
+  static void setup() {
+    jpseps__objApplicationTemplate__c at = new jpseps__objApplicationTemplate__c(
+      Name = 'テスト用申請手続き'
+    );
+    insert at;
 
-    @TestSetup
-    static void setup(){
-        objApplicationTemplate__c at = new objApplicationTemplate__c(Name='テスト用申請手続き');
-        insert at;
+    List<jpseps__objApplicationTemplateDetail__c> atds = new List<jpseps__objApplicationTemplateDetail__c>();
+    jpseps__objApplicationTemplateDetail__c atd1 = new jpseps__objApplicationTemplateDetail__c(
+      jpseps__objApplicationTemplate__c = at.Id,
+      Name = '氏名',
+      jpseps__Category__c = '標準'
+    );
+    atds.add(atd1);
+    jpseps__objApplicationTemplateDetail__c atd2 = new jpseps__objApplicationTemplateDetail__c(
+      jpseps__objApplicationTemplate__c = at.Id,
+      Name = '事業者名',
+      jpseps__Category__c = 'カスタム'
+    );
+    atds.add(atd2);
+    insert atds;
 
-        List<objApplicationTemplateDetail__c> atds = new List<objApplicationTemplateDetail__c>();
-        objApplicationTemplateDetail__c atd1 = new objApplicationTemplateDetail__c(objApplicationTemplate__c=at.Id,Name='氏名',Category__c='標準');
-        atds.add(atd1);
-        objApplicationTemplateDetail__c atd2 = new objApplicationTemplateDetail__c(objApplicationTemplate__c=at.Id,Name='事業者名',Category__c='カスタム');
-        atds.add(atd2);
-        insert atds;
+    jpseps__objApplication__c a = new jpseps__objApplication__c(
+      jpseps__objApplicationTemplate__c = at.Id,
+      jpseps__FirstnameKanji__c = 'アストロ'
+    );
+    insert a;
 
-        objApplication__c a = new objApplication__c(objApplicationTemplate__c=at.Id,FirstnameKanji__c='アストロ');
-        insert a;
+    jpseps__objApplicationDetail__c ad = new jpseps__objApplicationDetail__c(
+      jpseps__objApplication__c = a.Id,
+      jpseps__objApplicationTemplateDetail__c = atds[1].Id,
+      jpseps__Text__c = 'アストロフォース'
+    );
+    insert ad;
+  }
 
-        objApplicationDetail__c ad = new objApplicationDetail__c(objApplication__c=a.Id,objApplicationTemplateDetail__c=atds[1].Id,Text__c='アストロフォース');
-        insert ad;
-    }
+  @isTest
+  static void testGetApplicationTemplates() {
+    List<jpseps__objApplicationTemplate__c> records = DAF_ExportApplicationDataApexController.getApplicationTemplates();
+    System.assertEquals(1, records.size());
+  }
 
-    @isTest
-    static void testGetApplicationTemplates(){
-        String ret = DAF_ExportApplicationDataApexController.getApplicationTemplates();
+  @isTest
+  static void testGetApplicationData() {
+    jpseps__objApplication__c at = [
+      SELECT Id, jpseps__objApplicationTemplate__c
+      FROM jpseps__objApplication__c
+      WHERE jpseps__FirstnameKanji__c = :'アストロ'
+      LIMIT 1
+    ];
+    List<jpseps__objApplication__c> records = DAF_ExportApplicationDataApexController.getApplicationData(
+      at.jpseps__objApplicationTemplate__c
+    );
+    System.assertEquals(1, records.size());
+  }
 
-        List<Object> records = (List<Object>) System.JSON.deserializeUntyped(ret);
-        System.assertEquals(1, records.size());
-    }  
+  @isTest
+  static void testNoParameter() {
+    List<jpseps__objApplication__c> records = DAF_ExportApplicationDataApexController.getApplicationData(
+      ''
+    );
+    System.assertEquals(null, records);
+  }
 
-    @isTest
-    static void testGetApplicationData(){
-        objApplication__c at = [SELECT Id FROM objApplication__c WHERE FirstnameKanji__c=:'アストロ' LIMIT 1];
-        String ret = DAF_ExportApplicationDataApexController.getApplicationData(at.Id);
-        System.assertEquals(True, String.isBlank(ret));
-    }  
-
-    @isTest
-    static void testNoParameter(){
-        String ret = DAF_ExportApplicationDataApexController.getApplicationData('');
-        System.assertEquals(True, String.isBlank(ret));
-    }  
-
-    @isTest
-    static void testInvalidParameter(){
-        String ret = DAF_ExportApplicationDataApexController.getApplicationData('ABCDEDF');
-        System.assertEquals(True, String.isBlank(ret));
-    }  
-
+  @isTest
+  static void testInvalidParameter() {
+    List<jpseps__objApplication__c> records = DAF_ExportApplicationDataApexController.getApplicationData(
+      'ABCDEDF'
+    );
+    System.assertEquals(0, records.size());
+  }
 }

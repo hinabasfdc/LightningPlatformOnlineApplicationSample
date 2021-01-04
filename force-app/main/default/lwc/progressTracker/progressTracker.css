@@ -1,0 +1,23 @@
+.jpseps-tooltip {
+  position: absolute;
+  display: none;
+}
+
+.jpseps-step:hover div.jpseps-tooltip{
+  display: block;
+  overflow: hidden;  
+  text-align: center;
+  width: 96%;
+  background-color: var(--lwc-colorBackgroundInputCheckboxDisabled, #dddbda);
+}
+
+.jpseps-step:hover div.jpseps-tooltip span{
+  display: inline-block;
+  white-space: nowrap;
+  padding-left: 100%;
+  animation: scrollAnime 3s linear infinite;
+}
+@keyframes scrollAnime{
+  0% { transform: translateX(0)}
+100% { transform: translateX(-100%)}
+}

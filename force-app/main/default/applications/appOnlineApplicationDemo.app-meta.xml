@@ -58,15 +58,15 @@
         <headerColor>#B900FD</headerColor>
         <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
     </brand>
-    <description>オンライン申請の管理アプリです</description>
+    <description>オンライン申請の管理アプリのデモパッケージです</description>
     <formFactors>Small</formFactors>
     <formFactors>Large</formFactors>
     <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
-    <label>オンライン申請</label>
+    <label>オンライン申請デモパッケージ</label>
     <navType>Standard</navType>
     <tabs>standard-home</tabs>
-    <tabs>tabEntry</tabs>
+    <tabs>tabWebForm</tabs>
     <tabs>objApplication__c</tabs>
     <tabs>objApplicationDetail__c</tabs>
     <tabs>objApplicationTemplate__c</tabs>

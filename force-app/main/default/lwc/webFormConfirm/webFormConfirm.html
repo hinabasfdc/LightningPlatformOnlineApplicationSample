@@ -1,0 +1,142 @@
+<template>
+  <div>
+    <lightning-card title="内容確認" icon-name="utility:cases">
+      <div class="slds-var-m-left_medium slds-var-m-right_medium">
+        <div class="slds-box">
+          <template if:true={columns}>
+
+            <lightning-record-edit-form object-api-name={objectApiName}>
+              <!-- 定義された項目数繰り返し -->
+              <template for:each={columns} for:item="column">
+                <div key={column.Id} class="slds-var-m-top_small">
+                  <!-- 標準項目の場合 -->
+                  <template if:true={column.jpseps__isStdColumn__c}>
+                    <!-- オブジェクトに定義した項目名では無い設定した表示名をラベルとして使う -->
+                    <label class="slds-form-element__label">
+                      <template if:true={column.jpseps__Required__c}>
+                        <abbr class="slds-required" title="required">* </abbr>
+                      </template>
+                      {column.Name}
+                    </label>
+                    <!-- lightning-input-field を使ってデータ型もオブジェクト定義を踏まえた表示に -->
+                    <lightning-input-field readonly disabled data-id={column.Id} field-name={column.jpseps__StdColumnName__c}
+                      required={column.jpseps__Required__c} variant="label-hidden" value={column.jpseps__Value__c}>
+                    </lightning-input-field>
+                  </template>
+
+                  <!-- カスタム項目の場合(データ型は個々に判別して表示) -->
+                  <template if:false={column.jpseps__isStdColumn__c}>
+                    <!-- テキスト -->
+                    <template if:true={column.jpseps__isText__c}>
+                      <lightning-input readonly data-id={column.Id} type="text" label={column.Name}
+                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}></lightning-input>
+                    </template>
+                    <!-- ロングテキストエリア -->
+                    <template if:true={column.isLongTextArea__c}>
+                      <lightning-textarea readonly disabled data-id={column.Id} label={column.Name}
+                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}></lightning-textarea>
+                    </template>
+                    <!-- 数値 -->
+                    <template if:true={column.jpseps__isNumber__c}>
+                      <lightning-input readonly data-id={column.Id} type="number" label={column.Name}
+                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}>
+                      </lightning-input>
+                    </template>
+                    <!-- メール -->
+                    <template if:true={column.jpseps__isMail__c}>
+                      <lightning-input readonly data-id={column.Id} type="email" label={column.Name}
+                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}>
+                      </lightning-input>
+                    </template>
+                    <!-- URL -->
+                    <template if:true={column.jpseps__isURL__c}>
+                      <lightning-input readonly data-id={column.Id} type="url" label={column.Name}
+                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}></lightning-input>
+                    </template>
+                    <!-- 日付 -->
+                    <template if:true={column.jpseps__isDate__c}>
+                      <lightning-input readonly data-id={column.Id} type="date" label={column.Name}
+                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}></lightning-input>
+                    </template>
+                    <!-- 時刻 -->
+                    <template if:true={column.jpseps__isTime__c}>
+                      <lightning-input readonly data-id={column.Id} type="time" label={column.Name}
+                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}></lightning-input>
+                    </template>
+                    <!-- チェックボックス -->
+                    <template if:true={column.jpseps__isCheckbox__c}>
+                      <!-- チェック付きの場合 -->
+                      <template if:true={column.isCheckboxChecked}>
+                        <lightning-input readonly data-id={column.Id} type="checkbox" label={column.Name}
+                          required={column.jpseps__Required__c} value={column.jpseps__Value__c} checked>
+                        </lightning-input>
+                      </template>
+                      <!-- チェックなしの場合 -->
+                      <template if:false={column.isCheckboxChecked}>
+                        <lightning-input readonly data-id={column.Id} type="checkbox" label={column.Name}
+                          required={column.jpseps__Required__c} value={column.jpseps__Value__c}>
+                        </lightning-input>
+                      </template>
+                    </template>
+                    <!-- 通貨 -->
+                    <template if:true={column.jpseps__isCurrency__c}>
+                      <lightning-input readonly data-id={column.Id} type="number" formatter="currency"
+                        label={column.Name} required={column.jpseps__Required__c} value={column.jpseps__Value__c}>
+                      </lightning-input>
+                    </template>
+                    <!-- 選択リスト -->
+                    <template if:true={column.jpseps__isPicklist__c}>
+                      <lightning-combobox disabled data-id={column.Id} label={column.Name}
+                        options={column.PicklistValues} required={column.jpseps__Required__c}
+                        value={column.jpseps__Value__c}>
+                      </lightning-combobox>
+                    </template>
+
+                    <!-- 補足説明(入力欄の直下に表示) -->
+                    <template if:true={column.jpseps__Description__c}>
+                      <p class="slds-text-color_weak">{column.jpseps__Description__c}</p>
+                    </template>
+                  </template>
+                </div>
+              </template>
+            </lightning-record-edit-form>
+
+            <!-- 添付ファイル数 -->
+            <template if:true={isFileUploadAccepted}>
+              <div class="slds-var-m-top_x-small">
+                <lightning-input readonly type="number" label="添付ファイル数" value={numOfUploadedFiled}>
+                </lightning-input>
+              </div>
+            </template>
+          </template>
+        </div>
+
+        <template if:true={applicationTemplate}>
+          <!--確認チェックが有効な場合は表示-->
+          <template if:true={checkboxConfirmEnabled}>
+            <div class="slds-form-element slds-var-m-top_small">
+              <div class="slds-form-element__control">
+                <div class="slds-checkbox">
+                  <abbr class="slds-required" title="required">*</abbr>
+                  <input type="checkbox" id="checkboxConfirm" onchange={handleChangeConfirmCheck} />
+                  <label class="slds-checkbox__label" for="checkboxConfirm">
+                    <span class="slds-checkbox_faux"></span>
+                    <span class="slds-form-element__label">{checkboxConfirmText}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </template>
+        </template>
+
+      </div>
+      <!--フッター(ボタン部分)表示-->
+      <div slot="footer">
+        <c-web-form-footer button-previous-enabled={buttonPreviousEnabled} button-previous-label="戻る"
+          button-next-enabled={buttonNextEnabled} button-next-label="登録実行" onclickpageprevious={handleClickPagePrevious}
+          onclickpagenext={handleClickPageNext}></c-web-form-footer>
+      </div>
+    </lightning-card>
+  </div>
+
+</template>

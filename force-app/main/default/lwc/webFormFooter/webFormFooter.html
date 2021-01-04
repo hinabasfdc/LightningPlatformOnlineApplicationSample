@@ -1,0 +1,20 @@
+<template>
+  <lightning-layout>
+    <lightning-layout-item flexibility="auto, no-grow" >
+      <template if:true={buttonPreviousLabel}>
+        <lightning-button label={buttonPreviousLabel} onclick={handleClickPagePrevious} disabled={isButtonPreviousDisabled}></lightning-button>
+      </template>
+    </lightning-layout-item>
+    <lightning-layout-item flexibility="auto" >
+      &nbsp;
+    </lightning-layout-item>
+    <lightning-layout-item flexibility="auto, no-grow" alignment-bump="left">
+      <template if:true={buttonCancelLabel}>
+        <lightning-button label={buttonCancelLabel} onclick={handleClickPageCancel} disabled={isButtonCancelDisabled}></lightning-button>
+      </template>
+      <template if:true={buttonNextLabel}>
+        <lightning-button label={buttonNextLabel} onclick={handleClickPageNext} variant="brand" class="slds-var-m-left_xx-small" disabled={isButtonNextDisabled}></lightning-button>
+      </template>
+    </lightning-layout-item>
+  </lightning-layout>
+</template>

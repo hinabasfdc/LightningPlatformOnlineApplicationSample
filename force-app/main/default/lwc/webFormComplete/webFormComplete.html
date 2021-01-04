@@ -1,0 +1,30 @@
+<template>
+  <div>
+    <lightning-card title="申請完了" icon-name="utility:check">
+      <div class="slds-var-m-left_medium slds-var-m-right_medium ">
+        <div class="jpseps-box slds-var-p-around_medium slds-var-m-top_medium slds-text-align_left">
+          <!--お問い合わせ番号表示-->
+          <div class="slds-text-align_center">
+            <p class="slds-var-m-bottom_small jpseps-wrapper">お問い合わせ番号</p>
+            <span class="jpseps-askcode">{askcode}</span>
+          </div>
+          <div class="slds-var-m-top_medium slds-text-align_center">
+            <p>お問い合わせは上記番号をお伝えいただけるとスムーズです。</p>
+          </div>
+          <!--完了時のメッセージ表示-->
+          <template if:true={applicationTemplate}>
+            <div class="slds-var-m-top_medium">
+              <lightning-formatted-rich-text value={message}></lightning-formatted-rich-text>
+            </div>
+          </template>
+        </div>
+      </div>
+      <!--フッター(ボタン部分)表示-->
+      <div slot="footer">
+        <c-web-form-footer button-previous-enabled={buttonPreviousEnabled} button-previous-label="戻る"
+          button-next-enabled={buttonNextEnabled} button-next-label="手続き選択画面に戻る"
+          onclickpageprevious={handleClickPagePrevious} onclickpagenext={handleClickPageNext}></c-web-form-footer>
+      </div>
+    </lightning-card>
+  </div>
+</template>

@@ -1,0 +1,19 @@
+.jpseps-wrapper {
+  font-size: 1.25em;
+}
+
+.jpseps-box {
+  border: 1px solid #CCC;
+  border-radius: 3px;
+}
+
+.jpseps-askcode {
+  font-size: 2em;
+  font-weight: bold;
+  letter-spacing: 0.2em;
+  color: #000;
+  background-color: #EEE;
+  border-radius: 3px;
+  padding: 0.25em 0.8em 0.25em 1em;
+  text-align: center;
+}

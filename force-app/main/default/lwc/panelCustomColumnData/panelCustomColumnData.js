@@ -2,15 +2,30 @@ import { LightningElement, api, wire } from 'lwc';
 import getApplicationCustomColumns from '@salesforce/apex/DAF_RecordOperationApexController.getApplicationCustomColumns';
 import upsertApplicationDetails from '@salesforce/apex/DAF_RecordOperationApexController.upsertApplicationDetails';
 
+const nsPrefix = 'jpseps__';
+
 //申請定義明細のオブジェクト・各項目のAPI参照名
-import OPTIONS_FIELD from '@salesforce/schema/objApplicationTemplateDetail__c.Options__c';
-import TEXT_FIELD from '@salesforce/schema/objApplicationDetail__c.Text__c';
-import LONGTEXTAREA_FIELD from '@salesforce/schema/objApplicationDetail__c.LongTextArea__c';
-import NUMBER_FIELD from '@salesforce/schema/objApplicationDetail__c.Number__c';
-import DATATYPE_FIELD from '@salesforce/schema/objApplicationDetail__c.DataType__c';
+const fnATD_OPTIONS_FIELD = nsPrefix + 'Options__c';
+const fnATD_DATATYPE_FIELD = nsPrefix + 'DataType__c';
+const fnAD_TEXT_FIELD = nsPrefix + 'Text__c';
+const fnAD_LONGTEXTAREA_FIELD = nsPrefix + 'LongTextArea__c';
+const fnAD_NUMBER_FIELD = nsPrefix + 'Number__c';
+
+const fnATD_Relation = nsPrefix + 'objApplicationTemplateDetail__r';
+
+const fnATD_ISTEXT_FIELD = nsPrefix + 'isText__c';
+const fnATD_ISLONGTEXTAREA_FIELD = nsPrefix + 'isLongTextArea__c';
+const fnATD_ISNUMBER_FIELD = nsPrefix + 'isNumber__c';
+const fnATD_ISMAIL_FIELD = nsPrefix + 'isMail__c';
+const fnATD_ISURL_FIELD = nsPrefix + 'isURL__c';
+const fnATD_ISDATE_FIELD = nsPrefix + 'isDate__c';
+const fnATD_ISTIME_FIELD = nsPrefix + 'isTime__c';
+const fnATD_ISCURRENCY_FIELD = nsPrefix + 'isCurrency__c';
+const fnATD_ISCHECKBOX_FIELD = nsPrefix + 'isCheckbox__c';
+const fnATD_ISPICKLIST_FIELD = nsPrefix + 'isPicklist__c';
 
 export default class PanelCustomColumnData extends LightningElement {
-  @api recordId;
+  @api recordId = 'a030l000008LGIzAAO';
 
   // レコードの値格納用変数
   recordApplicationDetails;
@@ -20,14 +35,6 @@ export default class PanelCustomColumnData extends LightningElement {
   // 表示状態設定用変数
   isModeView = true;
   isModeEdit = false;
-
-  // 各所で項目名を使えるように getter 化
-  get fieldnameApplicationTenplateDetailR() { return 'objApplicationTemplateDetail__r' };
-  get fieldnameOptions() { return OPTIONS_FIELD['fieldApiName'] };
-  get fieldnameText() { return TEXT_FIELD['fieldApiName'] };
-  get fieldnameLongTextArea() { return LONGTEXTAREA_FIELD['fieldApiName'] };
-  get fieldnameNumber() { return NUMBER_FIELD['fieldApiName'] };
-  get fieldnameDataType() { return DATATYPE_FIELD['fieldApiName'] };
 
   /**
   * @description  : 申請のカスタム項目データを取得する wire
@@ -45,35 +52,37 @@ export default class PanelCustomColumnData extends LightningElement {
         array[i]['isRecordValueChanged'] = false;
 
         // 画面表示切替え用。デフォルト値設定後にデータ型に応じて true に設定
-        array[i]['isText__c'] = false;
-        array[i]['isLongTextArea__c'] = false;
-        array[i]['isNumber__c'] = false;
-        array[i]['isDate__c'] = false;
-        array[i]['isTime__c'] = false;
-        array[i]['isCurrency__c'] = false;
-        array[i]['isCheckbox__c'] = false;
-        array[i]['isPickList__c'] = false;
+        array[i][fnATD_ISTEXT_FIELD] = false;
+        array[i][fnATD_ISLONGTEXTAREA_FIELD] = false;
+        array[i][fnATD_ISNUMBER_FIELD] = false;
+        array[i][fnATD_ISDATE_FIELD] = false;
+        array[i][fnATD_ISTIME_FIELD] = false;
+        array[i][fnATD_ISCURRENCY_FIELD] = false;
+        array[i][fnATD_ISCHECKBOX_FIELD] = false;
+        array[i][fnATD_ISPICKLIST_FIELD] = false;
 
-        if (array[i][this.fieldnameDataType] === '数値') array[i]['isNumber__c'] = true;
-        else if (array[i][this.fieldnameDataType] === '日付') array[i]['isDate__c'] = true;
-        else if (array[i][this.fieldnameDataType] === '時間') array[i]['isTime__c'] = true;
-        else if (array[i][this.fieldnameDataType] === 'チェックボックス') array[i]['isCheckbox__c'] = true;
-        else if (array[i][this.fieldnameDataType] === '通貨') array[i]['isCurrency__c'] = true;
-        else if (array[i][this.fieldnameDataType] === 'ロングテキストエリア') array[i]['isLongTextArea__c'] = true;
-        else if (array[i][this.fieldnameDataType] === '選択リスト') array[i]['isPickList__c'] = true;
-        else array[i]['isText__c'] = true;
+        if (array[i][fnATD_DATATYPE_FIELD] === '数値') array[i][fnATD_ISNUMBER_FIELD] = true;
+        else if (array[i][fnATD_DATATYPE_FIELD] === '日付') array[i][fnATD_ISDATE_FIELD] = true;
+        else if (array[i][fnATD_DATATYPE_FIELD] === '時間') array[i][fnATD_ISTIME_FIELD] = true;
+        else if (array[i][fnATD_DATATYPE_FIELD] === 'チェックボックス') array[i][fnATD_ISCHECKBOX_FIELD] = true;
+        else if (array[i][fnATD_DATATYPE_FIELD] === '通貨') array[i][fnATD_ISCURRENCY_FIELD] = true;
+        else if (array[i][fnATD_DATATYPE_FIELD] === 'ロングテキストエリア') array[i][fnATD_ISLONGTEXTAREA_FIELD] = true;
+        else if (array[i][fnATD_DATATYPE_FIELD] === 'URL') array[i][fnATD_ISLONGTEXTAREA_FIELD] = true;
+        else if (array[i][fnATD_DATATYPE_FIELD] === 'メール') array[i][fnATD_ISTEXT_FIELD] = true;
+        else if (array[i][fnATD_DATATYPE_FIELD] === '選択リスト') array[i][fnATD_ISPICKLIST_FIELD] = true;
+        else array[i][fnATD_ISTEXT_FIELD] = true;
 
         // チェックボックスの場合の画面表示切替え用
-        if (array[i].DataType__c === 'チェックボックス') {
-          if (array[i].Text__c === 'true') array[i].isCheckboxChecked = true;
+        if (array[i][fnATD_DATATYPE_FIELD] === 'チェックボックス') {
+          if (array[i][fnAD_TEXT_FIELD] === 'true') array[i].isCheckboxChecked = true;
           else array[i].isCheckboxChecked = false;
         }
 
         // データ型が選択リストの場合は、選択肢を生成
-        if (array[i].DataType__c === '選択リスト') {
+        if (array[i][fnATD_DATATYPE_FIELD] === '選択リスト') {
           let options = []
           //カンマ区切りをオブジェクトの配列に変換
-          let arrayOptions = array[i][this.fieldnameApplicationTenplateDetailR][this.fieldnameOptions].split(',');
+          let arrayOptions = array[i][fnATD_Relation][fnATD_OPTIONS_FIELD].split(',');
           for (let j = 0; j < arrayOptions.length; j++) {
             let option = {
               label: arrayOptions[j],
@@ -85,11 +94,11 @@ export default class PanelCustomColumnData extends LightningElement {
         }
 
         // 値変更時の検索に使用するために Id の配列を生成
-        this.recordApplicationDetailIds.push(array[i].Id);
+        this.recordApplicationDetailIds.push(array[i]['Id']);
       }
 
       // 各種追加が完了した配列を共通変数に代入
-      this.recordApplicationDetails = array;
+      this.recordApplicationDetails = [...array];
     } else if (error) {
       console.log(error);
     }
@@ -104,14 +113,14 @@ export default class PanelCustomColumnData extends LightningElement {
     if (idx < 0) return;
 
     // データタイプごとに適した格納項目に値を設定
-    const datatype = this.recordApplicationDetails[idx][this.fieldnameDataType];
+    const datatype = this.recordApplicationDetails[idx][fnATD_DATATYPE_FIELD];
     if (datatype === 'チェックボックス') {
-      this.recordApplicationDetails[idx][this.fieldnameText] = evt.target.checked;
+      this.recordApplicationDetails[idx][fnAD_TEXT_FIELD] = evt.target.checked;
       this.recordApplicationDetails[idx].isCheckboxChecked = evt.target.checked;
     }
-    else if (datatype === '数値' || datatype === '通貨') this.recordApplicationDetails[idx][this.fieldnameNumber] = evt.target.value;
-    else if (datatype === 'ロングテキストエリア') this.recordApplicationDetails[idx][this.fieldnameLongTextArea] = evt.target.value;
-    else this.recordApplicationDetails[idx][this.fieldnameText] = evt.target.value;
+    else if (datatype === '数値' || datatype === '通貨') this.recordApplicationDetails[idx][fnATD_ISNUMBER_FIELD] = evt.target.value;
+    else if (datatype === 'ロングテキストエリア') this.recordApplicationDetails[idx][fnAD_LONGTEXTAREA_FIELD] = evt.target.value;
+    else this.recordApplicationDetails[idx][fnAD_TEXT_FIELD] = evt.target.value;
 
     // 変更があったことを記録
     this.recordApplicationDetails[idx]['isRecordValueChanged'] = true;
@@ -156,9 +165,9 @@ export default class PanelCustomColumnData extends LightningElement {
       let o = {
         Id: records[i]['Id'],
       };
-      if (records[i][this.fieldnameNumber]) o[this.fieldnameNumber] = records[i][this.fieldnameNumber];
-      else if (records[i][this.fieldnameLongTextArea]) o[this.fieldnameLongTextArea] = records[i][this.fieldnameLongTextArea];
-      else o[this.fieldnameText] = records[i][this.fieldnameText];
+      if (records[i][fnATD_ISNUMBER_FIELD]) o[fnATD_ISNUMBER_FIELD] = records[i][fnATD_ISNUMBER_FIELD];
+      else if (records[i][fnAD_LONGTEXTAREA_FIELD]) o[fnAD_LONGTEXTAREA_FIELD] = records[i][fnAD_LONGTEXTAREA_FIELD];
+      else o[fnAD_TEXT_FIELD] = records[i][fnAD_TEXT_FIELD];
 
       // 保存用データの配列に追加
       a.push(o);

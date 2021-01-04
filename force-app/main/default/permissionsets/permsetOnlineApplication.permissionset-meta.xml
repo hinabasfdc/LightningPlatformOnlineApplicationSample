@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <applicationVisibilities>
-        <application>appOnlineApplication</application>
+        <application>appOnlineApplicationDemo</application>
         <visible>true</visible>
     </applicationVisibilities>
     <classAccesses>
@@ -157,11 +157,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>objApplicationTemplate__c.AttachedFileMessage__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>objApplicationTemplate__c.CloseDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -188,11 +183,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>objApplicationTemplate__c.Status__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>objApplicationTemplate__c.Target__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -311,7 +301,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>オンライン申請</label>
+    <label>オンライン申請デモパッケージ</label>
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>true</allowDelete>
@@ -369,11 +359,11 @@
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
-        <tab>tabEntry</tab>
+        <tab>tabExport</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
-        <tab>tabExport</tab>
+        <tab>tabWebForm</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>

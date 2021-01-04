@@ -3,7 +3,7 @@
     <fullName>isConfirmationCheckboxEnabled__c</fullName>
     <defaultValue>true</defaultValue>
     <externalId>false</externalId>
-    <label>内容確認チェック</label>
+    <label>内容確認チェック有効化</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>
 </CustomField>

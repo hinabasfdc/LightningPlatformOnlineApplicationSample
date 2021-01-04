@@ -76,6 +76,11 @@
         </itemInstances>
         <itemInstances>
             <fieldInstance>
+                <fieldItem>Record.Category__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
                 <fieldItem>Record.Description__c</fieldItem>
             </fieldInstance>
         </itemInstances>
@@ -428,7 +433,63 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>previewEntryForm</componentName>
+                <componentName>webFormAppOverview</componentName>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-51f4c2e7-7207-4aca-96ae-1f0e87f195f0</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentName>webFormDataEntry</componentName>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-be62ad6b-c78f-4510-ab0b-f241d9158cf8</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>active</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-51f4c2e7-7207-4aca-96ae-1f0e87f195f0</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>title</name>
+                    <value>手続き概要</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tab</componentName>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-be62ad6b-c78f-4510-ab0b-f241d9158cf8</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>title</name>
+                    <value>入力</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tab</componentName>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-06a4c97a-2be6-4589-aa63-37d976348e88</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>tabs</name>
+                    <value>Facet-06a4c97a-2be6-4589-aa63-37d976348e88</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tabset</componentName>
             </componentInstance>
         </itemInstances>
         <name>Facet-33f54698-9966-4894-b4bd-f5293bddef91</name>

@@ -3,7 +3,7 @@
     <fullName>isFileUploadAccepted__c</fullName>
     <defaultValue>false</defaultValue>
     <externalId>false</externalId>
-    <label>添付ファイル</label>
+    <label>添付ファイル有効化</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>
 </CustomField>

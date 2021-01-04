@@ -1,0 +1,56 @@
+<template>
+
+  <template if:true={displayPageSelector}>
+    <c-web-form-app-selector include-draft-app={includeDraftApp} onchangepagenext={handleNextPage}>
+    </c-web-form-app-selector>
+  </template>
+
+  <template if:true={displayPageOverview}>
+    <div class="slds-card slds-var-p-around_medium">
+      <c-progress-tracker active-steps={activeSteps} current-step={currentStep}></c-progress-tracker>
+    </div>
+    <c-web-form-app-overview record-id={selectedAppId} onchangepagenext={handleNextPage}
+      onchangepageprevious={handlePreviousPage}>
+    </c-web-form-app-overview>
+  </template>
+
+  <template if:true={displayPageDataEntry}>
+    <div class="slds-card slds-var-p-around_medium">
+      <c-progress-tracker active-steps={activeSteps} current-step={currentStep}></c-progress-tracker>
+    </div>
+    <c-web-form-data-entry record-id={selectedAppId} input-data={inputData}
+      created-application-record-id={createdApplicationRecordId} onchangepagenext={handleNextPage}
+      onchangepageprevious={handlePreviousPage}>
+    </c-web-form-data-entry>
+  </template>
+
+  <template if:true={displayPageAttachFile}>
+    <div class="slds-card slds-var-p-around_medium">
+      <c-progress-tracker active-steps={activeSteps} current-step={currentStep}></c-progress-tracker>
+    </div>
+    <c-web-form-attach-file application-template={applicationTemplate}
+      uploaded-file-document-ids={uploadedFileDocumentIds} onchangepagenext={handleNextPage}
+      onchangepageprevious={handlePreviousPage}>
+    </c-web-form-attach-file>
+  </template>
+
+  <template if:true={displayPageConfirm}>
+    <div class="slds-card slds-var-p-around_medium">
+      <c-progress-tracker active-steps={activeSteps} current-step={currentStep}></c-progress-tracker>
+    </div>
+    <c-web-form-confirm selected-app-id={selectedAppId} uploaded-file-document-ids={uploadedFileDocumentIds}
+      application-template={applicationTemplate} input-data={inputData} onchangepagenext={handleNextPage}
+      onchangepageprevious={handlePreviousPage}>
+    </c-web-form-confirm>
+  </template>
+
+  <template if:true={displayPageComplete}>
+    <div class="slds-card slds-var-p-around_medium">
+      <c-progress-tracker active-steps={activeSteps} current-step={currentStep}></c-progress-tracker>
+    </div>
+    <c-web-form-complete created-app-record-id={createdAppRecordId} onchangepagenext={handleNextPage}
+      application-template={applicationTemplate} onchangepageprevious={handlePreviousPage}>
+    </c-web-form-complete>
+  </template>
+
+</template>

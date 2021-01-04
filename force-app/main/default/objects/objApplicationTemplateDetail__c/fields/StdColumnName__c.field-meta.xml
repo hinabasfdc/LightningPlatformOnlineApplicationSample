@@ -10,77 +10,77 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>LastnameKanji__c</fullName>
+                <fullName>jpseps__LastnameKanji__c</fullName>
                 <default>false</default>
                 <label>姓</label>
             </value>
             <value>
-                <fullName>FirstnameKanji__c</fullName>
+                <fullName>jpseps__FirstnameKanji__c</fullName>
                 <default>false</default>
                 <label>名</label>
             </value>
             <value>
-                <fullName>LastnameYomi__c</fullName>
+                <fullName>jpseps__LastnameYomi__c</fullName>
                 <default>false</default>
                 <label>姓(読み仮名)</label>
             </value>
             <value>
-                <fullName>FirstnameYomi__c</fullName>
+                <fullName>jpseps__FirstnameYomi__c</fullName>
                 <default>false</default>
                 <label>名(読み仮名)</label>
             </value>
             <value>
-                <fullName>Gender__c</fullName>
+                <fullName>jpseps__Gender__c</fullName>
                 <default>false</default>
                 <label>性別</label>
             </value>
             <value>
-                <fullName>Birthdate__c</fullName>
+                <fullName>jpseps__Birthdate__c</fullName>
                 <default>false</default>
                 <label>生年月日</label>
             </value>
             <value>
-                <fullName>Mail__c</fullName>
+                <fullName>jpseps__Mail__c</fullName>
                 <default>false</default>
                 <label>メールアドレス</label>
             </value>
             <value>
-                <fullName>Tel__c</fullName>
+                <fullName>jpseps__Tel__c</fullName>
                 <default>false</default>
                 <label>電話番号</label>
             </value>
             <value>
-                <fullName>Zipcode__c</fullName>
+                <fullName>jpseps__Zipcode__c</fullName>
                 <default>false</default>
                 <label>郵便番号</label>
             </value>
             <value>
-                <fullName>State__c</fullName>
+                <fullName>jpseps__State__c</fullName>
                 <default>false</default>
                 <label>都道府県</label>
             </value>
             <value>
-                <fullName>City__c</fullName>
+                <fullName>jpseps__City__c</fullName>
                 <default>false</default>
                 <label>市区町村</label>
             </value>
             <value>
-                <fullName>Street__c</fullName>
+                <fullName>jpseps__Street__c</fullName>
                 <default>false</default>
                 <label>丁目字番地</label>
             </value>
             <value>
-                <fullName>Building__c</fullName>
+                <fullName>jpseps__Building__c</fullName>
                 <default>false</default>
                 <label>建物名</label>
             </value>
             <value>
-                <fullName>JobCategory__c</fullName>
+                <fullName>jpseps__JobCategory__c</fullName>
                 <default>false</default>
                 <label>勤労形態</label>
             </value>
             <value>
-                <fullName>Comment__c</fullName>
+                <fullName>jpseps__Comment__c</fullName>
                 <default>false</default>
                 <label>コメント</label>
             </value>

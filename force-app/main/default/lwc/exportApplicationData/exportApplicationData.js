@@ -3,9 +3,11 @@ import getApplicationTemplates from '@salesforce/apex/DAF_ExportApplicationDataA
 import getApplicationData from '@salesforce/apex/DAF_ExportApplicationDataApexController.getApplicationData';
 
 //申請定義明細のオブジェクト・各項目のAPI参照名
-import TEXT_FIELD from '@salesforce/schema/objApplicationDetail__c.Text__c';
-import LONGTEXTAREA_FIELD from '@salesforce/schema/objApplicationDetail__c.LongTextArea__c';
-import NUMBER_FIELD from '@salesforce/schema/objApplicationDetail__c.Number__c';
+const nsPrefix = 'jpseps__';
+const fnAD_TEXT_FIELD = nsPrefix + 'Text__c';
+const fnAD_LONGTEXTAREA_FIELD = nsPrefix + 'LongTextArea__c';
+const fnAD_NUMBER_FIELD = nsPrefix + 'Number__c';
+const fnA_RELATION = nsPrefix + 'objApplicationDetail__r';
 
 export default class ExportApplicationData extends LightningElement {
   // ドロップダウンリストの選択肢(有効な申請一覧)
@@ -17,31 +19,24 @@ export default class ExportApplicationData extends LightningElement {
   // ボタン状態変更
   isButtonDisabled = true;
 
-  // 各所で項目名を使えるように getter 化
-  get fieldnameApplicationDetailR() { return 'objApplicationDetail__r' }; // 参照関係はスキーマ定義から取得できないのでここで定義
-  get fieldnameText() { return TEXT_FIELD['fieldApiName'] };
-  get fieldnameLongTextArea() { return LONGTEXTAREA_FIELD['fieldApiName'] };
-  get fieldnameNumber() { return NUMBER_FIELD['fieldApiName'] };
-
   /**
   * @description  : 申請一覧を取得する wire
   **/
   @wire(getApplicationTemplates)
   wiredapplicationtemplates({ data, error }) {
     if (data) {
-      // 取得した JSON をオブジェクト化し、combobox の選択肢として使えるように加工
-      const a = JSON.parse(data);
+      console.log(data);
       let localOptions = [];
-      for (let i = 0; i < a.length; i++) {
+      for (let i = 0; i < data.length; i++) {
         let o = {};
-        o['value'] = a[i].Id;
-        o['label'] = a[i].Name;
+        o['value'] = data[i].Id;
+        o['label'] = data[i].Name;
 
         localOptions.push(o);
       }
 
       // データ保管用変数に代入
-      this.options = localOptions;
+      this.options = [...localOptions];
     } else if (error) {
       console.log(error);
     }
@@ -67,7 +62,8 @@ export default class ExportApplicationData extends LightningElement {
     };
     getApplicationData(params)
       .then((ret) => {
-        if (ret) this.exportData = this._json2lines(ret);
+        console.log(ret);
+        if (ret) this.exportData = this._list2lines(ret);
       })
       .catch((err) => {
         console.log(err);
@@ -75,32 +71,31 @@ export default class ExportApplicationData extends LightningElement {
   }
 
   /**
-  * @description  : 一部オブジェクト形式がネストされているデータの一列化する処理
-  **/
-  _json2lines(json) {
+* @description  : 一部オブジェクト形式がネストされているデータの一列化する処理
+**/
+  _list2lines(list) {
     // レコードごとに結果を加工し CSV 形式として lines に代入
     let lines = '';
-    let a = JSON.parse(json);
-    for (let i = 0; i < a.length; i++) {
+    for (let i = 0; i < list.length; i++) {
       // 一レコードの処理。オブジェクトの要素名(key)を配列化してループ
       let line = ''
-      const keys = Object.keys(a[i]);
+      const keys = Object.keys(list[i]);
       for (let j = 0; j < keys.length; j++) {
         // attribute 要素はスキップ
         if (keys[j] === 'attributes') continue;
 
         // 明細側(カスタム)の項目(オブジェクトの配列になっているので、再度ループ処理)
-        if (keys[j] === this.fieldnameApplicationDetailR) {
-          const records = a[i][this.fieldnameApplicationDetailR]['records'];
+        if (keys[j] === fnA_RELATION) {
+          const records = list[i][fnA_RELATION];
           for (let k = 0; k < records.length; k++) {
-            if (this.fieldnameText in records[k]) line += '"' + records[k][this.fieldnameText] + '",';
-            else if (this.fieldnameLongTextArea in records[k]) line += '"' + records[k][this.fieldnameLongTextArea] + '",';
-            else if (this.fieldnameNumber in records[k]) line += '"' + records[k][this.fieldnameNumber] + '",';
+            if (fnAD_TEXT_FIELD in records[k]) line += '"' + records[k][fnAD_TEXT_FIELD] + '",';
+            else if (fnAD_LONGTEXTAREA_FIELD in records[k]) line += '"' + records[k][fnAD_LONGTEXTAREA_FIELD] + '",';
+            else if (fnAD_NUMBER_FIELD in records[k]) line += '"' + records[k][fnAD_NUMBER_FIELD] + '",';
             else line += '"",'; // 桁を揃えるため空の場合でも追記
           }
           // 通常(標準)の項目
         } else {
-          line += '"' + a[i][keys[j]] + '",'
+          line += '"' + list[i][keys[j]] + '",'
         }
       }
       // 末尾のカンマを削除して追加
@@ -108,4 +103,5 @@ export default class ExportApplicationData extends LightningElement {
     }
     return lines;
   }
+
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Target__c</fullName>
+    <fullName>Category__c</fullName>
     <externalId>false</externalId>
-    <label>対象</label>
+    <label>分類</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
@@ -11,19 +11,24 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>住民</fullName>
+                <fullName>くらし</fullName>
                 <default>false</default>
-                <label>住民</label>
+                <label>くらし</label>
             </value>
             <value>
-                <fullName>事業者</fullName>
+                <fullName>子育て・教育・福祉</fullName>
                 <default>false</default>
-                <label>事業者</label>
+                <label>子育て・教育・福祉</label>
             </value>
             <value>
-                <fullName>両方</fullName>
+                <fullName>観光・文化・スポーツ</fullName>
                 <default>false</default>
-                <label>両方</label>
+                <label>観光・文化・スポーツ</label>
+            </value>
+            <value>
+                <fullName>まちづくり・事業者</fullName>
+                <default>false</default>
+                <label>まちづくり・事業者</label>
             </value>
         </valueSetDefinition>
     </valueSet>

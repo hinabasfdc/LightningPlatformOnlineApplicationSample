@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ConfirmationCheckDescription__c</fullName>
-    <defaultValue>(&quot;入力内容を確認しました&quot;)</defaultValue>
+    <defaultValue>&quot;入力内容を確認しました。&quot;</defaultValue>
     <externalId>false</externalId>
-    <label>内容確認チェック説明文</label>
+    <label>内容確認チェック文言</label>
     <length>255</length>
     <required>false</required>
     <trackTrending>false</trackTrending>
