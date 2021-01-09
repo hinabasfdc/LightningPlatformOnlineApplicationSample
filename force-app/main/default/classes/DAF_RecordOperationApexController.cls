@@ -1,7 +1,7 @@
 /**
  * @description       : オンライン申請パッケージ 各種オブジェクトレコード操作用 Apex クラス
  * @author            : Hiroyuki Inaba @ Salesforce
- * @last modified on  : 2020-12-30
+ * @last modified on  : 2020-01-09
  **/
 public with sharing class DAF_RecordOperationApexController {
   /**
@@ -22,6 +22,7 @@ public with sharing class DAF_RecordOperationApexController {
           (jpseps__Status__c = '公開中'
           OR jpseps__Status__c = '下書き')
           AND jpseps__CloseDate__c >= TODAY
+        ORDER BY jpseps__Category__c, Name ASC
       ];
     } else {
       // 公開中で、期限が本日より先のもののみ抽出し返却
@@ -29,6 +30,7 @@ public with sharing class DAF_RecordOperationApexController {
         SELECT Id, Name, jpseps__Description__c, jpseps__Category__c
         FROM jpseps__objApplicationTemplate__c
         WHERE jpseps__Status__c = '公開中' AND jpseps__CloseDate__c >= TODAY
+        ORDER BY jpseps__Category__c, Name ASC
       ];
     }
   }

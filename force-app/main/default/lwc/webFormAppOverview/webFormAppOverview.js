@@ -41,6 +41,8 @@ export default class WebFormAppOverview extends LightningElement {
 
   @api recordId;
   applicationTemplate;
+  noAppTemplate = false;
+
 
   // 取得した申請定義の内容説明と条件を取得(特殊文字が変換されているので html 表示ができるように元に戻す(LDS の仕様？))
   get description() {
@@ -51,11 +53,14 @@ export default class WebFormAppOverview extends LightningElement {
   }
 
   /**
-  * @description : 選択された申請手続きのレコードを取得する
+  * @description : 選択された申請手続きのレコードを取得する(実運用においては状態や有効期限をチェックして処理を行うべき。その場合は uiRecordApi ではなくカスタム Apex メソッドの方が適しているかもしれない)
   */
   @wire(getRecord, { recordId: '$recordId', fields: GETRECORD_FIELDS })
   wiredGetRecord({ data, error }) {
+    
     if (data) {
+      // 申請定義が見つかった場合
+      this.noAppTemplate = false;
       this.applicationTemplate = { ...data };
 
       // 同意チェックが必要ない場合は「次へ」ボタンを有効化
@@ -63,6 +68,9 @@ export default class WebFormAppOverview extends LightningElement {
     } else if (error) {
       console.log(error);
       this._showToast('wiredGetRecordId', error, 'error');
+    } else {
+      // 申請定義が見つからなかった場合
+      this.noAppTemplate = true;
     }
   }
 

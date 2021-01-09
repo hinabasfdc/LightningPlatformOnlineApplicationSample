@@ -10,6 +10,8 @@ const fnATD_DATATYPE_FIELD = nsPrefix + 'DataType__c';
 const fnATD_OPTIONS_FIELD = nsPrefix + 'Options__c';
 const fnATD_VALUE_FIELD = nsPrefix + 'Value__c';
 const fnATD_TEXT_FIELD = nsPrefix + 'Text__c';
+const fnATD_REQUIRED_FIELD = nsPrefix + 'Required__c';
+const fnATD_NAME_FIELD = 'Name';
 
 export default class WebFormDataEntry extends LightningElement {
   buttonPreviousEnabled = true;
@@ -62,7 +64,6 @@ export default class WebFormDataEntry extends LightningElement {
             this.detailIds.push(localColumns[i].Id);
           }
           this.columns = [...localColumns];
-          console.log(this.columns);
         })
         .catch((err) => {
           console.log(err);
@@ -88,12 +89,12 @@ export default class WebFormDataEntry extends LightningElement {
 
     // データタイプがチェックボックスだった場合のみ、設定する値の取り方を変更
     let datatype = this.columns[idx][fnATD_DATATYPE_FIELD];
-    if (datatype === 'チェックボックス'){
+    if (datatype === 'チェックボックス') {
       this.columns[idx][fnATD_VALUE_FIELD] = evt.target.checked;
       this.columns[idx]['isCheckboxChecked'] = evt.target.checked;
     } else {
       this.columns[idx][fnATD_VALUE_FIELD] = evt.target.value; // チェックボックス以外は値をそのまま代入
-    } 
+    }
   }
 
   /**
@@ -111,12 +112,31 @@ export default class WebFormDataEntry extends LightningElement {
   * @description : 「次へ」ボタンを押した時の処理(WebForm のメソッドをコール)
   */
   handleClickPageNext() {
-    this.dispatchEvent(new CustomEvent("changepagenext", {
-      detail: {
-        currentpage: 'dataentry',
-        inputData: JSON.stringify(this.columns),
+    if (this._isRequiredValuesCheck()) {
+      this.dispatchEvent(new CustomEvent("changepagenext", {
+        detail: {
+          currentpage: 'dataentry',
+          inputData: JSON.stringify(this.columns),
+        }
+      }))
+    }
+  }
+
+  /**
+  * @description : 必須項目に全て値が入力されているかの確認
+  * @return : 必須項目には値が全て入っている or このまま続けるとされた場合は true を返す
+  */
+  _isRequiredValuesCheck() {
+
+    // 実運用時には、未入力であれば先に進めなくする & より詳細な形式チェックを行うなどをすべき
+    for (let i = 0; i < this.columns.length; i++) {
+      if (this.columns[i][fnATD_REQUIRED_FIELD] == true && this.columns[i][fnATD_DATATYPE_FIELD] != 'チェックボックス' && !this.columns[i][fnATD_VALUE_FIELD]) {
+        const result = confirm(`項目「 ${this.columns[i][fnATD_NAME_FIELD]} 」が入力されていません。このまま続けますか？`);
+        if (!result) return false;
       }
-    }))
+    }
+
+    return true;
   }
 
   /**

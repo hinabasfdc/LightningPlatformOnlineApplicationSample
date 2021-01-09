@@ -37,8 +37,14 @@
         </template>
         <!--読み込みが完了するまでの表示-->
         <template if:false={applicationTemplate}>
-          <p>データを読み込んでいます...</p>
+          <template if:false={noAppTemplate}>
+            <p>データを読み込んでいます...</p>
+          </template>
         </template>
+        <!--指定された定義が見つからない場合の表示-->
+        <template if:true={noAppTemplate}>
+          <p>指定された申請定義が見つかりませんでした。申請選択画面に戻って、手続きを行う申請を選択してください。</p>
+        </template>        
       </div>
       <!--フッター(ボタン部分)表示-->
       <div slot="footer">

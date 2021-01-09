@@ -39,6 +39,20 @@ export default class WebForm extends LightningElement {
     localPages.set('confirm', false);
     localPages.set('complete', false);
     this.pages = new Map(localPages);
+
+    // URL パラメータ c__templateId をチェックし、直接 overviews 画面に遷移
+    let c__templateId = this._getURLParameter('c__templateId');
+    if (c__templateId) {
+      // event オブジェクト構造を模倣
+      const o = {
+        detail: {
+          currentpage: 'selector',
+          selectedappid: c__templateId
+        }
+      }
+      this.handleNextPage(o);
+    }
+
   }
 
   /**
@@ -132,4 +146,12 @@ export default class WebForm extends LightningElement {
     }
     this.pages = new Map(localPages);
   }
+
+  /**
+  * @description  : 指定された URL パラメータの値を返す(c__XXXX のパラメータ名にする必要あり)
+  **/
+  _getURLParameter(key) {
+    return new URL(window.location.href).searchParams.get(key);
+  }
+
 }
