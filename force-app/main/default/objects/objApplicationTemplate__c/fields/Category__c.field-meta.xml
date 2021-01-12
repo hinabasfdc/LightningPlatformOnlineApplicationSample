@@ -11,24 +11,24 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>くらし</fullName>
+                <fullName>01_くらし</fullName>
                 <default>false</default>
-                <label>くらし</label>
+                <label>01_くらし</label>
             </value>
             <value>
-                <fullName>子育て・教育・福祉</fullName>
+                <fullName>02_子育て・教育・福祉</fullName>
                 <default>false</default>
-                <label>子育て・教育・福祉</label>
+                <label>02_子育て・教育・福祉</label>
             </value>
             <value>
-                <fullName>観光・文化・スポーツ</fullName>
+                <fullName>03_観光・文化・スポーツ</fullName>
                 <default>false</default>
-                <label>観光・文化・スポーツ</label>
+                <label>03_観光・文化・スポーツ</label>
             </value>
             <value>
-                <fullName>まちづくり・事業者</fullName>
+                <fullName>04_まちづくり・事業者</fullName>
                 <default>false</default>
-                <label>まちづくり・事業者</label>
+                <label>04_まちづくり・事業者</label>
             </value>
         </valueSetDefinition>
     </valueSet>

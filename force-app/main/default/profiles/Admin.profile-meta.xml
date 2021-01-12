@@ -182,11 +182,6 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>objApplicationTemplate__c.AttachedFileMessage__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>true</editable>
         <field>objApplicationTemplate__c.Category__c</field>
         <readable>true</readable>
@@ -219,11 +214,6 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>objApplicationTemplate__c.Status__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>objApplicationTemplate__c.Target__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>

@@ -14,7 +14,7 @@ public with sharing class DAF_TestTemplateCreator {
 
     jpseps__objApplicationTemplate__c at = new jpseps__objApplicationTemplate__c(
       Name = APPTEMP_NAME,
-      jpseps__Category__c = 'くらし',
+      jpseps__Category__c = '01_くらし',
       jpseps__Description__c = '<p>くらうど市役所にある市民広場の利用申請です。</p>',
       jpseps__Condition__c = '<p>くらうど市にお住まいの方が申込できます。</p><p>利用予定日の7日前までに申し込んでください。</p>',
       jpseps__Status__c = '公開中',

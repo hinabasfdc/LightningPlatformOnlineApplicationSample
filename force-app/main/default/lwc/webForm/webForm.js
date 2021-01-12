@@ -3,6 +3,8 @@ import { LightningElement, api } from 'lwc';
 export default class WebForm extends LightningElement {
   // WebFormAppSelector に渡す。true の場合は下書きのものも選択肢に含める(動作確認用)
   @api includeDraftApp = false;
+  // WebFormAttachFile に渡す。プレビュー画像表示 URL を書き換える
+  @api isCommunityPage = false;
 
   // 矢羽の表示ラベルと現在位置の初期化
   activeSteps = '手続き概要,入力,ファイル添付,確認,完了';

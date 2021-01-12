@@ -4,8 +4,8 @@
             "path": "force-app",
             "default": true,
             "package": "オンライン申請デモパッケージ",
-            "versionName": "ver 0.3",
-            "versionNumber": "0.3.0.NEXT"
+            "versionName": "ver 0.4",
+            "versionNumber": "0.4.0.NEXT"
         }
     ],
     "namespace": "jpseps",
@@ -17,6 +17,7 @@
         "オンライン申請デモパッケージ@0.1.0-2": "04t2r000000HO0sAAG",
         "オンライン申請デモパッケージ@0.1.0-3": "04t2r000000HO0xAAG",
         "オンライン申請デモパッケージ@0.2.0-1": "04t2r000000HO1CAAW",
-        "オンライン申請デモパッケージ@0.3.0-1": "04t2r000000HO1HAAW"
+        "オンライン申請デモパッケージ@0.3.0-1": "04t2r000000HO1HAAW",
+        "オンライン申請デモパッケージ@0.4.0-1": "04t2r000000HO1RAAW"
     }
 }

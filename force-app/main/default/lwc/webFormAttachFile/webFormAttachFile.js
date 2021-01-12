@@ -11,12 +11,14 @@ const fnAT_FILEUPLOADDESCRIPTION_FIELD = nsPrefix + 'FileUploadDescription__c';
 
 // 標準のプレビュー表示用(全ファイル共通とするため rendition に THUMB720BY480 を指定)
 const BASEURL_THUMNAILIMAGE = '/sfc/servlet.shepherd/version/renditionDownload?rendition=THUMB720BY480&versionId=';
-const BASEURL_ORIGINALFILE = '/sfc/servlet.shepherd/version/download/';
+const URL_ORIGINALFILE = '/sfc/servlet.shepherd/version/download/';
+const URL_ORIGINALFILE_COMMUNITY = '/sfsites/c/sfc/servlet.shepherd/version/download/';
 
 export default class WebFormAttachFile extends LightningElement {
   buttonPreviousEnabled = true;
   buttonNextEnabled = true;
 
+  @api isCommunityPage = false;
   @api applicationTemplate;
   @api uploadedFileDocumentIds; // 一度アップロード後に、前後の画面に移動して戻ってきた場合にはここに値が入る
   files;
@@ -80,7 +82,7 @@ export default class WebFormAttachFile extends LightningElement {
   * @description  : ファイルのプレビュー処理
   **/
   handleClickPreview(evt) {
-    this.previewUrl = BASEURL_ORIGINALFILE + evt.target.dataset.cvid;
+    this.previewUrl = (this.isCommunityPage) ? URL_ORIGINALFILE_COMMUNITY + evt.target.dataset.cvid : URL_ORIGINALFILE + evt.target.dataset.cvid;
     this.isDisplayModal = true;
   }
 
@@ -114,22 +116,22 @@ export default class WebFormAttachFile extends LightningElement {
         // 画面表示用に値加工
         let localFiles = JSON.parse(ret);
         for (let i = 0; i < localFiles.length; i++) {
-          localFiles[i]['downloadUrl'] = BASEURL_ORIGINALFILE + localFiles[i].Id;
           localFiles[i]['isImage'] = false;
           localFiles[i]['ContentModifiedDate'] = Date.parse(localFiles[i]['ContentModifiedDate']);
           localFiles[i]['ContentSize'] = Number.parseFloat(Number.parseInt(localFiles[i]['ContentSize']) / 1024).toFixed(2);
+          localFiles[i]['downloadUrl'] = (this.isCommunityPage) ? URL_ORIGINALFILE_COMMUNITY + localFiles[i].Id : URL_ORIGINALFILE + localFiles[i].Id;
 
           // リストでのアイコン表示用設定
           localFiles[i]['IconName'] = 'doctype:unknown';
           if (localFiles[i]['FileType'] === 'PDF') localFiles[i]['IconName'] = 'doctype:pdf';
-          else if (localFiles[i]['FileType'] === 'JPG' || localFiles[i]['FileType'] === 'PNG') localFiles[i]['IconName'] = 'doctype:image';
+          else if (localFiles[i]['FileType'] === 'JPG' || localFiles[i]['FileType'] === 'JPEG' || localFiles[i]['FileType'] === 'PNG') localFiles[i]['IconName'] = 'doctype:image';
           else if (localFiles[i]['FileType'] === 'CSV') localFiles[i]['IconName'] = 'doctype:csv';
           else if (localFiles[i]['FileType'] === 'EXCEL' || localFiles[i]['FileType'] === 'EXCEL_X') localFiles[i]['IconName'] = 'doctype:excel';
           else if (localFiles[i]['FileType'] === 'WORD' || localFiles[i]['FileType'] === 'WORD_X') localFiles[i]['IconName'] = 'doctype:word';
           else if (localFiles[i]['FileType'] === 'POWER_POINT' || localFiles[i]['FileType'] === 'POWER_POINT__X') localFiles[i]['IconName'] = 'doctype:ppt';
 
           // 画像の場合のフラグ設定
-          if (localFiles[i]['FileType'] === 'JPG' || localFiles[i]['FileType'] === 'PNG' || localFiles[i]['FileType'] === 'HEIC') localFiles[i]['isImage'] = true;
+          if (localFiles[i]['FileType'] === 'JPG' || localFiles[i]['FileType'] === 'JPEG' || localFiles[i]['FileType'] === 'PNG' || localFiles[i]['FileType'] === 'HEIC') localFiles[i]['isImage'] = true;
         }
         this.files = [...localFiles];
       })

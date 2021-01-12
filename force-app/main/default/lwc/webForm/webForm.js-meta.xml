@@ -15,6 +15,7 @@
         </targetConfig>
         <targetConfig targets="lightningCommunity__Default">
             <property name="includeDraftApp" type="Boolean" label="リスト表示に下書きの申請手続きを含める" description="リスト表示に下書きの申請手続きを含める" default="false" />
+            <property name="isCommunityPage" type="Boolean" label="コミュニティページでの使用" description="コミュニティページで使う場合はチェックを入れる" default="true" />
         </targetConfig>
     </targetConfigs>      
 </LightningComponentBundle>
