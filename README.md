@@ -17,7 +17,7 @@ sfdx が使えるようになっている必要があります。インストー
 ```
 2. スクラッチ組織の作成
 ```
-sfdx force:org:create -s -f config/project-scratch-def.json -a OnlineAppSample01
+sfdx force:org:create -s -f config/project-scratch-def.json --nonamespace -a OnlineAppSample01
 ```
 3. ソースの入れ込み
 ```
