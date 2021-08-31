@@ -10,100 +10,100 @@
               <template for:each={columns} for:item="column">
                 <div key={column.Id} class="slds-var-m-top_small">
                   <!-- 標準項目の場合 -->
-                  <template if:true={column.jpseps__isStdColumn__c}>
+                  <template if:true={column.isStdColumn__c}>
                     <!-- オブジェクトに定義した項目名では無い設定した表示名をラベルとして使う -->
                     <label class="slds-form-element__label">
-                      <template if:true={column.jpseps__Required__c}>
+                      <template if:true={column.Required__c}>
                         <abbr class="slds-required" title="required">* </abbr>
                       </template>
                       {column.Name}
                     </label>
                     <!-- lightning-input-field を使ってデータ型もオブジェクト定義を踏まえた表示に -->
-                    <lightning-input-field data-id={column.Id} field-name={column.jpseps__StdColumnName__c}
-                      required={column.jpseps__Required__c} variant="label-hidden" value={column.jpseps__Value__c}
+                    <lightning-input-field data-id={column.Id} field-name={column.StdColumnName__c}
+                      required={column.Required__c} variant="label-hidden" value={column.Value__c}
                       onchange={handleChangeValue}></lightning-input-field>
                   </template>
 
                   <!-- カスタム項目の場合(データ型は個々に判別して表示) -->
-                  <template if:false={column.jpseps__isStdColumn__c}>
+                  <template if:false={column.isStdColumn__c}>
                     <!-- テキスト -->
-                    <template if:true={column.jpseps__isText__c}>
+                    <template if:true={column.isText__c}>
                       <lightning-input data-id={column.Id} type="text" label={column.Name}
-                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}
+                        required={column.Required__c} value={column.Value__c}
                         onchange={handleChangeValue}></lightning-input>
                     </template>
                     <!-- ロングテキストエリア -->
-                    <template if:true={column.jpseps__isLongTextArea__c}>
-                      <lightning-textarea data-id={column.Id} label={column.Name} required={column.jpseps__Required__c}
-                        value={column.jpseps__Value__c} onchange={handleChangeValue}></lightning-textarea>
+                    <template if:true={column.isLongTextArea__c}>
+                      <lightning-textarea data-id={column.Id} label={column.Name} required={column.Required__c}
+                        value={column.Value__c} onchange={handleChangeValue}></lightning-textarea>
                     </template>
                     <!-- 数値 -->
-                    <template if:true={column.jpseps__isNumber__c}>
+                    <template if:true={column.isNumber__c}>
                       <lightning-input data-id={column.Id} type="number" label={column.Name}
-                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}
+                        required={column.Required__c} value={column.Value__c}
                         onchange={handleChangeValue}>
                       </lightning-input>
                     </template>
                     <!-- メール -->
-                    <template if:true={column.jpseps__isMail__c}>
+                    <template if:true={column.isMail__c}>
                       <lightning-input data-id={column.Id} type="email" label={column.Name}
-                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}
+                        required={column.Required__c} value={column.Value__c}
                         onchange={handleChangeValue}>
                       </lightning-input>
                     </template>
                     <!-- URL -->
-                    <template if:true={column.jpseps__isURL__c}>
+                    <template if:true={column.isURL__c}>
                       <lightning-input data-id={column.Id} type="url" label={column.Name}
-                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}
+                        required={column.Required__c} value={column.Value__c}
                         onchange={handleChangeValue}></lightning-input>
                     </template>
                     <!-- 日付 -->
-                    <template if:true={column.jpseps__isDate__c}>
+                    <template if:true={column.isDate__c}>
                       <lightning-input data-id={column.Id} type="date" label={column.Name}
-                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}
+                        required={column.Required__c} value={column.Value__c}
                         onchange={handleChangeValue}></lightning-input>
                     </template>
                     <!-- 時刻 -->
-                    <template if:true={column.jpseps__isTime__c}>
+                    <template if:true={column.isTime__c}>
                       <lightning-input data-id={column.Id} type="time" label={column.Name}
-                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}
+                        required={column.Required__c} value={column.Value__c}
                         onchange={handleChangeValue}></lightning-input>
                     </template>
                     <!-- チェックボックス -->
-                    <template if:true={column.jpseps__isCheckbox__c}>
+                    <template if:true={column.isCheckbox__c}>
                       <!-- チェック付きの場合 -->
                       <template if:true={column.isCheckboxChecked}>
                         <lightning-input data-id={column.Id} type="checkbox" label={column.Name}
-                          required={column.jpseps__Required__c} value={column.jpseps__Value__c} checked
+                          required={column.Required__c} value={column.Value__c} checked
                           onchange={handleChangeValue}>
                         </lightning-input>
                       </template>
                       <!-- チェックなしの場合 -->
                       <template if:false={column.isCheckboxChecked}>
                         <lightning-input data-id={column.Id} type="checkbox" label={column.Name}
-                          required={column.jpseps__Required__c} value={column.jpseps__Value__c}
+                          required={column.Required__c} value={column.Value__c}
                           onchange={handleChangeValue}>
                         </lightning-input>
                       </template>
                     </template>
                     <!-- 通貨 -->
-                    <template if:true={column.jpseps__isCurrency__c}>
+                    <template if:true={column.isCurrency__c}>
                       <lightning-input data-id={column.Id} type="number" formatter="currency" label={column.Name}
-                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}
+                        required={column.Required__c} value={column.Value__c}
                         onchange={handleChangeValue}>
                       </lightning-input>
                     </template>
                     <!-- 選択リスト -->
-                    <template if:true={column.jpseps__isPicklist__c}>
+                    <template if:true={column.isPicklist__c}>
                       <lightning-combobox data-id={column.Id} label={column.Name} options={column.PicklistValues}
-                        required={column.jpseps__Required__c} value={column.jpseps__Value__c}
+                        required={column.Required__c} value={column.Value__c}
                         onchange={handleChangeValue}>
                       </lightning-combobox>
                     </template>
 
                     <!-- 補足説明(入力欄の直下に表示) -->
-                    <template if:true={column.jpseps__Description__c}>
-                      <p class="slds-text-color_weak">{column.jpseps__Description__c}</p>
+                    <template if:true={column.Description__c}>
+                      <p class="slds-text-color_weak">{column.Description__c}</p>
                     </template>
                   </template>
                 </div>

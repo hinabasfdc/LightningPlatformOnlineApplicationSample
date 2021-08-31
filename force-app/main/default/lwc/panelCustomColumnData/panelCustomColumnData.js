@@ -2,7 +2,7 @@ import { LightningElement, api, wire } from 'lwc';
 import getApplicationCustomColumns from '@salesforce/apex/DAF_RecordOperationApexController.getApplicationCustomColumns';
 import upsertApplicationDetails from '@salesforce/apex/DAF_RecordOperationApexController.upsertApplicationDetails';
 
-const nsPrefix = 'jpseps__';
+const nsPrefix = '';
 
 //申請定義明細のオブジェクト・各項目のAPI参照名
 const fnATD_OPTIONS_FIELD = nsPrefix + 'Options__c';

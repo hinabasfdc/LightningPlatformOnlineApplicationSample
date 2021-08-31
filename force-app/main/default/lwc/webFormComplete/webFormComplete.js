@@ -2,13 +2,13 @@ import { LightningElement, api, wire } from 'lwc';
 import { getRecord } from 'lightning/uiRecordApi';
 
 // 名前空間、項目の API 参照名を定義
-const nsPrefix = 'jpseps__';
+const nsPrefix = '';
 const fnA_NAME_FIELD = 'Name';
 const fnAT_THANKYOUPAGEDESCRIPTION_FIELD = nsPrefix + 'ThankyouPageDescription__c';
 
 // getRecord で取得するようにオブジェクト名を付加した配列を生成
 const GETRECORD_FIELDS = [
-  'jpseps__objApplication__c.' + fnA_NAME_FIELD,
+  'objApplication__c.' + fnA_NAME_FIELD,
 ]
 
 export default class WebFormComplete extends LightningElement {

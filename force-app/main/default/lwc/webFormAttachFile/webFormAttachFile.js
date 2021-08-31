@@ -5,7 +5,7 @@ import getContentVersionListJson from '@salesforce/apex/DAF_FileAttachementApexC
 import deleteFile from '@salesforce/apex/DAF_FileAttachementApexController.deleteFile';
 
 // 名前空間、項目の API 参照名を定義
-const nsPrefix = 'jpseps__';
+const nsPrefix = '';
 const fnAT_ISFILEUPLOADACCEPTED_FIELD = nsPrefix + 'isFileUploadAccepted__c';
 const fnAT_FILEUPLOADDESCRIPTION_FIELD = nsPrefix + 'FileUploadDescription__c';
 

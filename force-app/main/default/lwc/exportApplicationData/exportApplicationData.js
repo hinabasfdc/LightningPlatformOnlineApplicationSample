@@ -3,7 +3,7 @@ import getApplicationTemplates from '@salesforce/apex/DAF_ExportApplicationDataA
 import getApplicationData from '@salesforce/apex/DAF_ExportApplicationDataApexController.getApplicationData';
 
 //申請定義明細のオブジェクト・各項目のAPI参照名
-const nsPrefix = 'jpseps__';
+const nsPrefix = '';
 const fnAD_TEXT_FIELD = nsPrefix + 'Text__c';
 const fnAD_LONGTEXTAREA_FIELD = nsPrefix + 'LongTextArea__c';
 const fnAD_NUMBER_FIELD = nsPrefix + 'Number__c';

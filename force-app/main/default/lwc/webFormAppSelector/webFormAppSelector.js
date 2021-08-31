@@ -13,26 +13,27 @@ export default class WebFormAppSelector extends LightningElement {
   @wire(getActiveApplications, { includeDraftApp: '$includeDraftApp' })
   wiredActiveApplications({ data, error }) {
     if (data) {
+      console.log(data);
       let localCategories = [];
       let localApplications = [];
       for (let i = 0; i < data.length; i++) {
         const o = {
           Id: data[i]['Id'],
           label: data[i]['Name'],
-          description: data[i]['jpseps__Description__c']
+          description: data[i]['Description__c']
         }
 
-        const categoryIdx = localCategories.indexOf(data[i].jpseps__Category__c);
+        const categoryIdx = localCategories.indexOf(data[i].Category__c);
         if (categoryIdx >= 0) {
           localApplications[categoryIdx]['apps'].push(o);
           localApplications[categoryIdx]['numofapps']++;
           localApplications[categoryIdx]['label'] = localApplications[categoryIdx]['category'] + '(' + localApplications[categoryIdx]['numofapps'] + ')';
         } else {
-          localCategories.push(data[i].jpseps__Category__c);
+          localCategories.push(data[i].Category__c);
           const c = {
-            category: data[i].jpseps__Category__c,
+            category: data[i].Category__c,
             numofapps: 1,
-            label: data[i].jpseps__Category__c + '(' + 1 + ')',
+            label: data[i].Category__c + '(' + 1 + ')',
             apps: []
           }
           c['apps'].push(o);

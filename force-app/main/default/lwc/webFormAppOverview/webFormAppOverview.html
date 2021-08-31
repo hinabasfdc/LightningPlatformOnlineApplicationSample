@@ -19,7 +19,7 @@
             <lightning-formatted-rich-text value={condition}></lightning-formatted-rich-text>
           </div>
           <!--同意チェックが有効な場合は表示-->
-          <template if:true={applicationTemplate.fields.jpseps__isAgreementCheckboxEnabled__c.value}>
+          <template if:true={applicationTemplate.fields.isAgreementCheckboxEnabled__c.value}>
             <div class="slds-form-element">
               <div class="slds-form-element__control">
                 <div class="slds-checkbox">
@@ -28,7 +28,7 @@
                   <label class="slds-checkbox__label" for="checkboxAgreement">
                     <span class="slds-checkbox_faux"></span>
                     <span
-                      class="slds-form-element__label">{applicationTemplate.fields.jpseps__AgreementCheckText__c.value}</span>
+                      class="slds-form-element__label">{applicationTemplate.fields.AgreementCheckText__c.value}</span>
                   </label>
                 </div>
               </div>

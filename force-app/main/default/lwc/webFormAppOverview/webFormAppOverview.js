@@ -3,7 +3,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { getRecord } from 'lightning/uiRecordApi';
 
 // 名前空間の前置詞、および各項目の API 参照名を定義
-const nsPrefix = 'jpseps__';
+const nsPrefix = '';
 const fnAT_TITLE_FIELD = 'Name';
 const fnAT_CATEGORY_FIELD = nsPrefix + 'Category__c';
 const fnAT_DESCRIPTION_FIELD = nsPrefix + 'Description__c';
@@ -20,19 +20,19 @@ const fnAT_THANKYOUPAGEDESCRIPTION_FIELD = nsPrefix + 'ThankyouPageDescription__
 
 // getRecord で取得するようにオブジェクト名を付加した配列を生成
 const GETRECORD_FIELDS = [
-  'jpseps__objApplicationTemplate__c.' + fnAT_TITLE_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_CATEGORY_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_DESCRIPTION_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_CONDITION_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_CLOSEDATE_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_STATUS_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_ISAGREEMENTCHECKBOXENABLED_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_AGREEMENTCHECKBOXTEXT_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_ISFILEUPLOADACCEPTED_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_FILEUPLOADDESCRIPTION_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD,
-  'jpseps__objApplicationTemplate__c.' + fnAT_THANKYOUPAGEDESCRIPTION_FIELD,
+  'objApplicationTemplate__c.' + fnAT_TITLE_FIELD,
+  'objApplicationTemplate__c.' + fnAT_CATEGORY_FIELD,
+  'objApplicationTemplate__c.' + fnAT_DESCRIPTION_FIELD,
+  'objApplicationTemplate__c.' + fnAT_CONDITION_FIELD,
+  'objApplicationTemplate__c.' + fnAT_CLOSEDATE_FIELD,
+  'objApplicationTemplate__c.' + fnAT_STATUS_FIELD,
+  'objApplicationTemplate__c.' + fnAT_ISAGREEMENTCHECKBOXENABLED_FIELD,
+  'objApplicationTemplate__c.' + fnAT_AGREEMENTCHECKBOXTEXT_FIELD,
+  'objApplicationTemplate__c.' + fnAT_ISFILEUPLOADACCEPTED_FIELD,
+  'objApplicationTemplate__c.' + fnAT_FILEUPLOADDESCRIPTION_FIELD,
+  'objApplicationTemplate__c.' + fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD,
+  'objApplicationTemplate__c.' + fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD,
+  'objApplicationTemplate__c.' + fnAT_THANKYOUPAGEDESCRIPTION_FIELD,
 ];
 
 export default class WebFormAppOverview extends LightningElement {

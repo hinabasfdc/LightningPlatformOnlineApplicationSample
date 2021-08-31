@@ -8,7 +8,7 @@
             "versionNumber": "0.4.0.NEXT"
         }
     ],
-    "namespace": "jpseps",
+    "namespace": "",
     "sfdcLoginUrl": "https://login.salesforce.com",
     "sourceApiVersion": "50.0",
     "packageAliases": {

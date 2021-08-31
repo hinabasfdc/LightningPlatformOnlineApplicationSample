@@ -6,7 +6,7 @@ import upsertApplicationDetails from '@salesforce/apex/DAF_RecordOperationApexCo
 import createContentDocumentLink from '@salesforce/apex/DAF_FileAttachementApexController.createContentDocumentLink';
 
 // 名前空間、項目の API 参照名を定義
-const nsPrefix = 'jpseps__';
+const nsPrefix = '';
 const fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD = nsPrefix + 'isConfirmationCheckboxEnabled__c';
 const fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD = nsPrefix + 'ConfirmationCheckDescription__c';
 const fnAT_ISFILEUPLOADACCEPTED_FIELD = nsPrefix + 'isFileUploadAccepted__c';

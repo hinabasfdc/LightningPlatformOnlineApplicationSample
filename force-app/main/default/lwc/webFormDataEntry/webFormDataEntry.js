@@ -4,7 +4,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getApplicationTemplateDetailsJson from '@salesforce/apex/DAF_RecordOperationApexController.getApplicationTemplateDetailsJson';
 
 // 名前空間、オブジェクト・項目の API 参照名を定義
-const nsPrefix = 'jpseps__';
+const nsPrefix = '';
 const onAPPLICATION_OBJECT = nsPrefix + 'objApplication__c';
 const fnATD_DATATYPE_FIELD = nsPrefix + 'DataType__c';
 const fnATD_OPTIONS_FIELD = nsPrefix + 'Options__c';

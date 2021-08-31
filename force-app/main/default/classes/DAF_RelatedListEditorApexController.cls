@@ -16,10 +16,10 @@ public with sharing class DAF_RelatedListEditorApexController {
 
     String retval = '';
     List<objApplicationTemplateDetail__c> atds = [
-      SELECT Id, Name, jpseps__SortOrder__c
-      FROM jpseps__objApplicationTemplateDetail__c
-      WHERE jpseps__objApplicationTemplate__c = :recordId
-      ORDER BY jpseps__SortOrder__c ASC
+      SELECT Id, Name, SortOrder__c
+      FROM objApplicationTemplateDetail__c
+      WHERE objApplicationTemplate__c = :recordId
+      ORDER BY SortOrder__c ASC
     ];
     if (atds.size() > 0)
       retval = System.JSON.serialize(atds);
