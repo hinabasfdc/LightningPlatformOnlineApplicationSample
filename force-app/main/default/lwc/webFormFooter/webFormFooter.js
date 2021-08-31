@@ -1,4 +1,4 @@
-import { LightningElement, api } from 'lwc';
+import { LightningElement, api } from "lwc";
 
 export default class WebFormFooter extends LightningElement {
   @api buttonPreviousLabel;
@@ -8,13 +8,13 @@ export default class WebFormFooter extends LightningElement {
   @api buttonNextLabel;
   @api buttonNextEnabled = false;
 
-  get isButtonPreviousDisabled(){
+  get isButtonPreviousDisabled() {
     return !this.buttonPreviousEnabled;
   }
-  get isButtonCancelDisabled(){
+  get isButtonCancelDisabled() {
     return !this.buttonPreviousEnabled;
   }
-  get isButtonNextDisabled(){
+  get isButtonNextDisabled() {
     return !this.buttonNextEnabled;
   }
 

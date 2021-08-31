@@ -185,5 +185,4 @@ public with sharing class DAF_RecordOperationApexControllerTest {
     String ret = DAF_RecordOperationApexController.upsertApplicationDetails('');
     System.assertEquals(true, String.isBlank(ret));
   }
-
 }

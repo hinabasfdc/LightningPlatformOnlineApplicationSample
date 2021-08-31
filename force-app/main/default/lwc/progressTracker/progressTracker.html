@@ -1,6 +1,5 @@
 <template>
   <template if:true={steps}>
-
     <!-- 表示種別が path の場合 -->
     <template if:true={isTypePath}>
       <div class={divClass}>
@@ -9,39 +8,65 @@
             <div class="slds-grid slds-path__scroller-container">
               <div class="slds-path__scroller">
                 <div class="slds-path__scroller_inner">
-
                   <!-- 左のボタン -->
                   <template if:true={isDisplayMoveButton}>
-                    <div class="slds-path__scroll-controls slds-var-m-right_x-small" style="padding-left: 0px;">
-                      <lightning-button-icon icon-name="utility:jump_to_left" onclick={handleClickLeft}>
+                    <div
+                      class="slds-path__scroll-controls slds-var-m-right_x-small"
+                      style="padding-left: 0px"
+                    >
+                      <lightning-button-icon
+                        icon-name="utility:jump_to_left"
+                        onclick={handleClickLeft}
+                      >
                       </lightning-button-icon>
                     </div>
                   </template>
 
                   <!-- ステップ表示 -->
-                  <ul class="slds-path__nav slds-grow" role="listbox" aria-orientation="horizontal">
+                  <ul
+                    class="slds-path__nav slds-grow"
+                    role="listbox"
+                    aria-orientation="horizontal"
+                  >
                     <template for:each={steps} for:item="step">
                       <template if:false={step.isComplete}>
                         <template if:false={step.isCurrent}>
-                          <li key={step.Id} class="slds-path__item slds-is-incomplete" role="presentation">
-                            <div aria-selected="false" class="slds-path__link jpseps-step" id={step.Id} role="option"
-                              tabindex="-1">
+                          <li
+                            key={step.Id}
+                            class="slds-path__item slds-is-incomplete"
+                            role="presentation"
+                          >
+                            <div
+                              aria-selected="false"
+                              class="slds-path__link jpseps-step"
+                              id={step.Id}
+                              role="option"
+                              tabindex="-1"
+                            >
                               <span class="slds-path__title">
                                 {step.label}
                               </span>
                               <template if:true={isTextScroll}>
                                 <div class="jpseps-tooltip">
-                                  <span>
-                                    {step.label}
-                                  </span>
+                                  <span> {step.label} </span>
                                 </div>
                               </template>
                             </div>
                           </li>
                         </template>
                         <template if:true={step.isCurrent}>
-                          <li key={step.Id} class="slds-path__item slds-is-active slds-is-current" role="presentation">
-                            <div aria-selected="false" class="slds-path__link" id={step.Id} role="option" tabindex="-1">
+                          <li
+                            key={step.Id}
+                            class="slds-path__item slds-is-active slds-is-current"
+                            role="presentation"
+                          >
+                            <div
+                              aria-selected="false"
+                              class="slds-path__link"
+                              id={step.Id}
+                              role="option"
+                              tabindex="-1"
+                            >
                               <span class="slds-path__title">
                                 {step.label}
                               </span>
@@ -50,15 +75,27 @@
                         </template>
                       </template>
                       <template if:true={step.isComplete}>
-                        <li key={step.Id} class="slds-path__item slds-is-complete" role="presentation">
-                          <div aria-selected="false" class="slds-path__link" id={step.Id} role="option" tabindex="-1">
+                        <li
+                          key={step.Id}
+                          class="slds-path__item slds-is-complete"
+                          role="presentation"
+                        >
+                          <div
+                            aria-selected="false"
+                            class="slds-path__link"
+                            id={step.Id}
+                            role="option"
+                            tabindex="-1"
+                          >
                             <span class="slds-path__stage">
-                              <lightning-icon icon-name="utility:check" size="x-small" variant="inverse">
+                              <lightning-icon
+                                icon-name="utility:check"
+                                size="x-small"
+                                variant="inverse"
+                              >
                               </lightning-icon>
                             </span>
-                            <span class="slds-path__title">
-                              {step.label}
-                            </span>
+                            <span class="slds-path__title"> {step.label} </span>
                           </div>
                         </li>
                       </template>
@@ -68,27 +105,36 @@
                   <!-- 右のボタン -->
                   <template if:true={isDisplayMoveButton}>
                     <div class="slds-path__scroll-controls">
-                      <lightning-button-icon icon-name="utility:jump_to_right" onclick={handleClickRight}>
+                      <lightning-button-icon
+                        icon-name="utility:jump_to_right"
+                        onclick={handleClickRight}
+                      >
                       </lightning-button-icon>
                     </div>
                   </template>
-
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-
     </template>
 
     <!-- 表示種別が base の場合 -->
     <template if:false={isTypePath}>
       <div class={divClass}>
-        <div style="min-width: 120px; width: 100%;">
-          <lightning-progress-indicator current-step={currentStep} type="base" variant={variant}>
+        <div style="min-width: 120px; width: 100%">
+          <lightning-progress-indicator
+            current-step={currentStep}
+            type="base"
+            variant={variant}
+          >
             <template for:each={steps} for:item="step">
-              <lightning-progress-step label={step.label} value={step.value} key={step.label}>
+              <lightning-progress-step
+                label={step.label}
+                value={step.value}
+                key={step.label}
+              >
               </lightning-progress-step>
             </template>
           </lightning-progress-indicator>
@@ -96,5 +142,4 @@
       </div>
     </template>
   </template>
-
 </template>

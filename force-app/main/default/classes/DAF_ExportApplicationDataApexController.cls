@@ -4,7 +4,6 @@
  * @last modified on  : 2020-12-30
  **/
 public with sharing class DAF_ExportApplicationDataApexController {
-    
   /**
    * @description : 選択リストでの選択用に登録されている申請定義の一覧を取得して返す
    * @return List : 申請定義のリスト
@@ -20,9 +19,7 @@ public with sharing class DAF_ExportApplicationDataApexController {
    * @return List    : 登録された申請データの一覧
    **/
   @AuraEnabled(cacheable=true)
-  public static List<objApplication__c> getApplicationData(
-    String recordId
-  ) {
+  public static List<objApplication__c> getApplicationData(String recordId) {
     if (String.isBlank(recordId))
       return null;
 
@@ -33,14 +30,12 @@ public with sharing class DAF_ExportApplicationDataApexController {
     List<objApplicationTemplateDetail__c> atds = [
       SELECT StdColumnName__c
       FROM objApplicationTemplateDetail__c
-      WHERE
-        objApplicationTemplate__c = :recordId
-        AND Category__c = '標準'
+      WHERE objApplicationTemplate__c = :recordId AND Category__c = '標準'
       ORDER BY SortOrder__c ASC
     ];
     if (atds.size() > 0)
       for (Integer i = 0; i < atds.size(); i++)
-        if(String.isNotBlank(atds[i].StdColumnName__c))
+        if (String.isNotBlank(atds[i].StdColumnName__c))
           DefinedStandardColumns += atds[i].StdColumnName__c + ',';
 
     // データ抽出の SOQL を組み立てて実行し、返却

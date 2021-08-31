@@ -4,31 +4,54 @@
       <div class="slds-var-m-left_medium slds-var-m-right_medium">
         <template if:true={applicationTemplate}>
           <!--手続き名表示-->
-          <div class="slds-var-m-bottom_medium slds-var-m-top_x-small slds-text-heading_small"
-            style="font-weight: bold;">
+          <div
+            class="slds-var-m-bottom_medium slds-var-m-top_x-small slds-text-heading_small"
+            style="font-weight: bold"
+          >
             {applicationTemplate.fields.Name.value}
           </div>
           <!--内容説明-->
           <div class="slds-box slds-var-m-bottom_medium">
-            <h2 class="slds-text-color_weak slds-var-m-bottom_xx-small" style="font-weight: bold;">手続内容</h2>
-            <lightning-formatted-rich-text value={description}></lightning-formatted-rich-text>
+            <h2
+              class="slds-text-color_weak slds-var-m-bottom_xx-small"
+              style="font-weight: bold"
+            >
+              手続内容
+            </h2>
+            <lightning-formatted-rich-text
+              value={description}
+            ></lightning-formatted-rich-text>
           </div>
           <!--各種条件-->
           <div class="slds-box slds-var-m-bottom_medium">
-            <h2 class="slds-text-color_weak slds-var-m-bottom_xx-small" style="font-weight: bold;">各種条件</h2>
-            <lightning-formatted-rich-text value={condition}></lightning-formatted-rich-text>
+            <h2
+              class="slds-text-color_weak slds-var-m-bottom_xx-small"
+              style="font-weight: bold"
+            >
+              各種条件
+            </h2>
+            <lightning-formatted-rich-text
+              value={condition}
+            ></lightning-formatted-rich-text>
           </div>
           <!--同意チェックが有効な場合は表示-->
-          <template if:true={applicationTemplate.fields.isAgreementCheckboxEnabled__c.value}>
+          <template
+            if:true={applicationTemplate.fields.isAgreementCheckboxEnabled__c.value}
+          >
             <div class="slds-form-element">
               <div class="slds-form-element__control">
                 <div class="slds-checkbox">
                   <abbr class="slds-required" title="required">*</abbr>
-                  <input type="checkbox" id="checkboxAgreement" onchange={handleChangeAgreementCheck} />
+                  <input
+                    type="checkbox"
+                    id="checkboxAgreement"
+                    onchange={handleChangeAgreementCheck}
+                  />
                   <label class="slds-checkbox__label" for="checkboxAgreement">
                     <span class="slds-checkbox_faux"></span>
-                    <span
-                      class="slds-form-element__label">{applicationTemplate.fields.AgreementCheckText__c.value}</span>
+                    <span class="slds-form-element__label"
+                      >{applicationTemplate.fields.AgreementCheckText__c.value}</span
+                    >
                   </label>
                 </div>
               </div>
@@ -43,14 +66,21 @@
         </template>
         <!--指定された定義が見つからない場合の表示-->
         <template if:true={noAppTemplate}>
-          <p>指定された申請定義が見つかりませんでした。申請選択画面に戻って、手続きを行う申請を選択してください。</p>
-        </template>        
+          <p>
+            指定された申請定義が見つかりませんでした。申請選択画面に戻って、手続きを行う申請を選択してください。
+          </p>
+        </template>
       </div>
       <!--フッター(ボタン部分)表示-->
       <div slot="footer">
-        <c-web-form-footer button-previous-enabled={buttonPreviousEnabled} button-previous-label="戻る"
-          button-next-enabled={buttonNextEnabled} button-next-label="次へ" onclickpageprevious={handleClickPagePrevious}
-          onclickpagenext={handleClickPageNext}></c-web-form-footer>
+        <c-web-form-footer
+          button-previous-enabled={buttonPreviousEnabled}
+          button-previous-label="戻る"
+          button-next-enabled={buttonNextEnabled}
+          button-next-label="次へ"
+          onclickpageprevious={handleClickPagePrevious}
+          onclickpagenext={handleClickPageNext}
+        ></c-web-form-footer>
       </div>
     </lightning-card>
   </div>

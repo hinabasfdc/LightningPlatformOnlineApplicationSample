@@ -1,35 +1,47 @@
 <template>
   <div>
     <lightning-card title="手続きの選択" icon-name="utility:record_lookup">
-
       <template if:true={applications}>
         <div class="slds-var-m-left_medium slds-var-m-right_medium">
           <!-- 分類 -->
           <lightning-accordion allow-multiple-sections-open>
             <template for:each={applications} for:item="c">
-              <lightning-accordion-section key={c.category} name={c.category} label={c.label}>
-
+              <lightning-accordion-section
+                key={c.category}
+                name={c.category}
+                label={c.label}
+              >
                 <!-- 分類内の手続き -->
                 <lightning-accordion allow-multiple-sections-open>
                   <template for:each={c.apps} for:item="a">
-                    <lightning-accordion-section key={a.Id} name={a.Id} label={a.label}>
+                    <lightning-accordion-section
+                      key={a.Id}
+                      name={a.Id}
+                      label={a.label}
+                    >
                       <div class="slds-box">
-                        <lightning-formatted-rich-text value={a.description}></lightning-formatted-rich-text>
-                        <div class="slds-text-align_center slds-var-m-top_medium">
-                          <lightning-button label="手続に進む" variant="brand" data-id={a.Id}
-                            onclick={handleClickAppProcedure}></lightning-button>
+                        <lightning-formatted-rich-text
+                          value={a.description}
+                        ></lightning-formatted-rich-text>
+                        <div
+                          class="slds-text-align_center slds-var-m-top_medium"
+                        >
+                          <lightning-button
+                            label="手続に進む"
+                            variant="brand"
+                            data-id={a.Id}
+                            onclick={handleClickAppProcedure}
+                          ></lightning-button>
                         </div>
                       </div>
                     </lightning-accordion-section>
                   </template>
                 </lightning-accordion>
-
               </lightning-accordion-section>
             </template>
           </lightning-accordion>
         </div>
       </template>
-
     </lightning-card>
   </div>
 </template>

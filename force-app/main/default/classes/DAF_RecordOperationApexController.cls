@@ -106,8 +106,7 @@ public with sharing class DAF_RecordOperationApexController {
         SELECT StdColumnName__c
         FROM objApplicationTemplateDetail__c
         WHERE
-          objApplicationTemplate__c = :apps[0]
-            .objApplicationTemplate__c
+          objApplicationTemplate__c = :apps[0].objApplicationTemplate__c
           AND Category__c = '標準'
         ORDER BY SortOrder__c ASC
       ];
