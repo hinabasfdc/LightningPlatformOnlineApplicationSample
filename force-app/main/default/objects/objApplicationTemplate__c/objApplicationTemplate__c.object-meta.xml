@@ -154,6 +154,7 @@
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
     <label>申請定義</label>
+    <pluralLabel>申請定義</pluralLabel>
     <nameField>
         <label>申請名</label>
         <type>Text</type>

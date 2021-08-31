@@ -149,6 +149,7 @@
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
     <label>申請</label>
+    <pluralLabel>申請</pluralLabel>
     <nameField>
         <displayFormat>A{000000000}</displayFormat>
         <label>管理番号</label>

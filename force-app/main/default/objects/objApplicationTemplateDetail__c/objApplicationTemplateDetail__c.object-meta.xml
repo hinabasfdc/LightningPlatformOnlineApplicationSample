@@ -154,6 +154,7 @@
     <enableStreamingApi>false</enableStreamingApi>
     <externalSharingModel>ControlledByParent</externalSharingModel>
     <label>申請定義明細</label>
+    <pluralLabel>申請定義明細</pluralLabel>
     <nameField>
         <label>表示名</label>
         <type>Text</type>
