@@ -9,9 +9,12 @@
               <div class="slds-path__scroller">
                 <div class="slds-path__scroller_inner">
                   <!-- 左のボタン -->
-                  <template if:true={isDisplayMoveButton}>
+                  <template if:true={_isDisplayMoveButton}>
                     <div
-                      class="slds-path__scroll-controls slds-var-m-right_x-small"
+                      class="
+                        slds-path__scroll-controls
+                        slds-var-m-right_x-small
+                      "
                       style="padding-left: 0px"
                     >
                       <lightning-button-icon
@@ -57,7 +60,10 @@
                         <template if:true={step.isCurrent}>
                           <li
                             key={step.Id}
-                            class="slds-path__item slds-is-active slds-is-current"
+                            class="
+                              slds-path__item
+                              slds-is-active slds-is-current
+                            "
                             role="presentation"
                           >
                             <div
@@ -103,7 +109,7 @@
                   </ul>
 
                   <!-- 右のボタン -->
-                  <template if:true={isDisplayMoveButton}>
+                  <template if:true={_isDisplayMoveButton}>
                     <div class="slds-path__scroll-controls">
                       <lightning-button-icon
                         icon-name="utility:jump_to_right"

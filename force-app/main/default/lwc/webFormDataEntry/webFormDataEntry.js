@@ -48,9 +48,8 @@ export default class WebFormDataEntry extends LightningElement {
             // 項目が選択リストだった場合は、選択肢の項目値からコンボボックスの選択肢形式に変換
             if (localColumns[i][fnATD_DATATYPE_FIELD] === "選択リスト") {
               let options = [];
-              let arrayOptions = localColumns[i][fnATD_OPTIONS_FIELD].split(
-                ","
-              );
+              let arrayOptions =
+                localColumns[i][fnATD_OPTIONS_FIELD].split(",");
               for (let j = 0; j < arrayOptions.length; j++) {
                 let option = {
                   label: arrayOptions[j],
@@ -136,8 +135,8 @@ export default class WebFormDataEntry extends LightningElement {
     // 実運用時には、未入力であれば先に進めなくする & より詳細な形式チェックを行うなどをすべき
     for (let i = 0; i < this.columns.length; i++) {
       if (
-        this.columns[i][fnATD_REQUIRED_FIELD] == true &&
-        this.columns[i][fnATD_DATATYPE_FIELD] != "チェックボックス" &&
+        this.columns[i][fnATD_REQUIRED_FIELD] === true &&
+        this.columns[i][fnATD_DATATYPE_FIELD] !== "チェックボックス" &&
         !this.columns[i][fnATD_VALUE_FIELD]
       ) {
         const result = confirm(

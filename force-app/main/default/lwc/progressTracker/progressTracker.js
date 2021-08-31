@@ -12,6 +12,8 @@ export default class ProgressTracker extends LightningElement {
   @api isDisplayMoveButton = false;
   @api isTextScroll = false;
 
+  _isDisplayMoveButton = false;
+
   get divClass() {
     let divClass = "";
     if (this.isAroundMargin) divClass += "slds-var-p-around_medium ";
@@ -31,9 +33,9 @@ export default class ProgressTracker extends LightningElement {
           this.getStepWidth(el.scrollWidth) * (this.idxCurrent - 2);
       }
 
-      if (!this.isDisplayMoveButton && el.scrollWidth > el.clientWidth) {
+      if (!this._isDisplayMoveButton && el.scrollWidth > el.clientWidth) {
         console.log("[LWC-ProgressTracker] display move button");
-        this.isDisplayMoveButton = true;
+        this._isDisplayMoveButton = true;
       }
     }
   }
@@ -68,6 +70,7 @@ export default class ProgressTracker extends LightningElement {
 
       this.steps = [...localSteps];
     }
+    this._isDisplayMoveButton = this.isDisplayMoveButton;
   }
 
   sanitize(str) {

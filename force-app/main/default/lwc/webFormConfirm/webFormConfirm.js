@@ -108,9 +108,8 @@ export default class WebFormConfirm extends LightningElement {
           this.columns[i][fnATD_STDCOLUMNNAME_FIELD] &&
           this.columns[i][fnATD_VALUE_FIELD]
         )
-          std[this.columns[i][fnATD_STDCOLUMNNAME_FIELD]] = this.columns[i][
-            fnATD_VALUE_FIELD
-          ];
+          std[this.columns[i][fnATD_STDCOLUMNNAME_FIELD]] =
+            this.columns[i][fnATD_VALUE_FIELD];
 
       // データ登録用オブジェクトを JSON 化して、Apex メソッドを呼び出し
       const params = {
@@ -156,17 +155,15 @@ export default class WebFormConfirm extends LightningElement {
           if (this.columns[i][fnATD_ISTEXT_FIELD])
             custom[fnAD_TEXT_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
           else if (this.columns[i][fnATD_ISLONGTEXTAREA_FIELD])
-            custom[fnAD_LONGTEXTAREA_FIELD] = this.columns[i][
-              fnATD_VALUE_FIELD
-            ];
+            custom[fnAD_LONGTEXTAREA_FIELD] =
+              this.columns[i][fnATD_VALUE_FIELD];
           else if (this.columns[i][fnATD_ISNUMBER_FIELD])
             custom[fnAD_NUMBER_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
           else if (this.columns[i][fnATD_ISMAIL_FIELD])
             custom[fnAD_TEXT_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
           else if (this.columns[i][fnATD_ISURL_FIELD])
-            custom[fnAD_LONGTEXTAREA_FIELD] = this.columns[i][
-              fnATD_VALUE_FIELD
-            ];
+            custom[fnAD_LONGTEXTAREA_FIELD] =
+              this.columns[i][fnATD_VALUE_FIELD];
           else if (this.columns[i][fnATD_ISDATE_FIELD])
             custom[fnAD_TEXT_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
           else if (this.columns[i][fnATD_ISTIME_FIELD])

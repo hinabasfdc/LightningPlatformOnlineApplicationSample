@@ -145,7 +145,7 @@ export default class WebForm extends LightningElement {
       if (currentPageIdx >= 0 && currentPageIdx + 1 < arrayPages.length) {
         for (let page of localPages.keys()) localPages.set(page, false);
         localPages.set(arrayPages[currentPageIdx + 1], true);
-      } else if (currentPageIdx + 1 == arrayPages.length) {
+      } else if (currentPageIdx + 1 === arrayPages.length) {
         for (let page of localPages.keys()) localPages.set(page, false);
         // 手続き選択ページに戻る
         localPages.set(arrayPages[0], true);

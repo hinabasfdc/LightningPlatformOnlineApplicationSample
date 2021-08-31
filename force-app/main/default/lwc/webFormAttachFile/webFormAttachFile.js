@@ -10,8 +10,8 @@ const fnAT_ISFILEUPLOADACCEPTED_FIELD = nsPrefix + "isFileUploadAccepted__c";
 const fnAT_FILEUPLOADDESCRIPTION_FIELD = nsPrefix + "FileUploadDescription__c";
 
 // 標準のプレビュー表示用(全ファイル共通とするため rendition に THUMB720BY480 を指定)
-const BASEURL_THUMNAILIMAGE =
-  "/sfc/servlet.shepherd/version/renditionDownload?rendition=THUMB720BY480&versionId=";
+// const BASEURL_THUMNAILIMAGE =
+//   "/sfc/servlet.shepherd/version/renditionDownload?rendition=THUMB720BY480&versionId=";
 const URL_ORIGINALFILE = "/sfc/servlet.shepherd/version/download/";
 const URL_ORIGINALFILE_COMMUNITY =
   "/sfsites/c/sfc/servlet.shepherd/version/download/";
@@ -91,7 +91,6 @@ export default class WebFormAttachFile extends LightningElement {
           );
         });
     }
-    return;
   }
 
   /**
@@ -140,7 +139,7 @@ export default class WebFormAttachFile extends LightningElement {
             localFiles[i]["ContentModifiedDate"]
           );
           localFiles[i]["ContentSize"] = Number.parseFloat(
-            Number.parseInt(localFiles[i]["ContentSize"]) / 1024
+            Number.parseInt(localFiles[i]["ContentSize"], 10) / 1024
           ).toFixed(2);
           localFiles[i]["downloadUrl"] = this.isCommunityPage
             ? URL_ORIGINALFILE_COMMUNITY + localFiles[i].Id

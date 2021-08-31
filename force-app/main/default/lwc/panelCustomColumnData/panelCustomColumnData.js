@@ -9,15 +9,15 @@ const fnATD_OPTIONS_FIELD = nsPrefix + "Options__c";
 const fnATD_DATATYPE_FIELD = nsPrefix + "DataType__c";
 const fnAD_TEXT_FIELD = nsPrefix + "Text__c";
 const fnAD_LONGTEXTAREA_FIELD = nsPrefix + "LongTextArea__c";
-const fnAD_NUMBER_FIELD = nsPrefix + "Number__c";
+// const fnAD_NUMBER_FIELD = nsPrefix + "Number__c";
 
 const fnATD_Relation = nsPrefix + "objApplicationTemplateDetail__r";
 
 const fnATD_ISTEXT_FIELD = nsPrefix + "isText__c";
 const fnATD_ISLONGTEXTAREA_FIELD = nsPrefix + "isLongTextArea__c";
 const fnATD_ISNUMBER_FIELD = nsPrefix + "isNumber__c";
-const fnATD_ISMAIL_FIELD = nsPrefix + "isMail__c";
-const fnATD_ISURL_FIELD = nsPrefix + "isURL__c";
+// const fnATD_ISMAIL_FIELD = nsPrefix + "isMail__c";
+// const fnATD_ISURL_FIELD = nsPrefix + "isURL__c";
 const fnATD_ISDATE_FIELD = nsPrefix + "isDate__c";
 const fnATD_ISTIME_FIELD = nsPrefix + "isTime__c";
 const fnATD_ISCURRENCY_FIELD = nsPrefix + "isCurrency__c";
@@ -90,9 +90,8 @@ export default class PanelCustomColumnData extends LightningElement {
         if (array[i][fnATD_DATATYPE_FIELD] === "選択リスト") {
           let options = [];
           //カンマ区切りをオブジェクトの配列に変換
-          let arrayOptions = array[i][fnATD_Relation][
-            fnATD_OPTIONS_FIELD
-          ].split(",");
+          let arrayOptions =
+            array[i][fnATD_Relation][fnATD_OPTIONS_FIELD].split(",");
           for (let j = 0; j < arrayOptions.length; j++) {
             let option = {
               label: arrayOptions[j],
@@ -142,7 +141,7 @@ export default class PanelCustomColumnData extends LightningElement {
   /**
    * @description  : 画面表示を編集モードに変更
    **/
-  handleClickEditMode(evt) {
+  handleClickEditMode() {
     // キャンセルボタンを押した時に元に戻せるように変更前の値を退避
     this.previousRecordApplicationDetails = JSON.stringify(
       this.recordApplicationDetails
@@ -199,7 +198,7 @@ export default class PanelCustomColumnData extends LightningElement {
       customs: JSON.stringify(a)
     };
     upsertApplicationDetails(params)
-      .then((ret) => {
+      .then(() => {
         // 変更フラグを元に戻す
         for (let i = 0; i < this.recordApplicationDetails.length; i++) {
           this.recordApplicationDetails[i]["isRecordValueChanged"] = false;
