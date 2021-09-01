@@ -89,6 +89,15 @@
                 <fieldItem>Record.Condition__c</fieldItem>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.InputPageNames__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-558cb719-048d-42ff-af72-b9ae1847db20</name>
         <type>Facet</type>
     </flexiPageRegions>
