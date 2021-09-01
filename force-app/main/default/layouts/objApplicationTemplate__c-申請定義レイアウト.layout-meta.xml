@@ -45,6 +45,10 @@
                 <behavior>Edit</behavior>
                 <field>CloseDate__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>InputPageNames__c</field>
+            </layoutItems>
         </layoutColumns>
         <style>TwoColumnsLeftToRight</style>
     </layoutSections>
