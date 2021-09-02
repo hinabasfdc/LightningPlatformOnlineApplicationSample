@@ -61,11 +61,11 @@
                 <field>LastModifiedById</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Required</behavior>
+                <behavior>Edit</behavior>
                 <field>PageNumber__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Required</behavior>
+                <behavior>Edit</behavior>
                 <field>RowNumber__c</field>
             </layoutItems>
         </layoutColumns>

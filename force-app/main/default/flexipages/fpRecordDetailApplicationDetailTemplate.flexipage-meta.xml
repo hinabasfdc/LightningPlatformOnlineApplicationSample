@@ -151,6 +151,16 @@
                 </visibilityRule>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.PageNumber__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.RowNumber__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-6ea99965-6b36-4b12-84c5-bfe77191fc28</name>
         <type>Facet</type>
     </flexiPageRegions>

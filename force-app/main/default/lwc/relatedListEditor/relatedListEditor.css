@@ -1,0 +1,33 @@
+.nav-item-wrapper {
+  position: relative;
+}
+.nav-item-wrapper:hover .sort-wrapper {
+  display: flex;
+}
+.sort-wrapper {
+  position: absolute;
+  z-index: 100;
+  top: 0;
+  bottom: 0;
+  left: 0.75rem;
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.field-v-nav {
+  max-width: 200px;
+  display: block;
+  overflow: hidden;
+}
+lightning-vertical-navigation-item.draft,
+lightning-vertical-navigation-item-badge.draft {
+  --lwc-brandPrimaryTransparent10: rgba(200, 200, 0, 0.2);
+  --lwc-brandPrimary: rgba(200, 200, 0, 1);
+  background-color: rgba(200, 200, 0, 0.1);
+}
+lightning-vertical-navigation-item.draft.slds-is-active,
+lightning-vertical-navigation-item-badge.draft.slds-is-active {
+  --lwc-brandPrimaryTransparent10: rgba(255, 255, 0, 0.2);
+  --lwc-brandPrimary: rgba(255, 255, 0, 1);
+  background-color: rgba(255, 255, 0, 0.1);
+}

@@ -11,19 +11,64 @@ public with sharing class DAF_RelatedListEditorApexController {
    **/
   @AuraEnabled(cacheable=true)
   public static String getApplicationTemplateDetailRecordIds(String recordId) {
-    if (String.isBlank(recordId))
+    if (String.isBlank(recordId)) {
       return null;
+    }
 
     String retval = '';
     List<objApplicationTemplateDetail__c> atds = [
-      SELECT Id, Name, SortOrder__c
+      SELECT
+        Id,
+        Name,
+        Description__c,
+        Options__c,
+        Required__c,
+        SortOrder__c,
+        RowNumber__c,
+        PageNumber__c,
+        StdColumnName__c,
+        DataType__c,
+        Category__c,
+        Value__c,
+        objApplicationTemplate__r.InputPageNames__c
       FROM objApplicationTemplateDetail__c
       WHERE objApplicationTemplate__c = :recordId
       ORDER BY SortOrder__c ASC
     ];
-    if (atds.size() > 0)
+    if (atds.size() > 0) {
       retval = System.JSON.serialize(atds);
-
+    }
     return retval;
+  }
+
+  @AuraEnabled
+  public static List<objApplicationTemplateDetail__c> saveApplicationTemplateDetails(
+    Id recordId,
+    String pageNames,
+    String details
+  ) {
+    try {
+      List<objApplicationTemplateDetail__c> data = (List<objApplicationTemplateDetail__c>) JSON.deserialize(
+        details,
+        List<objApplicationTemplateDetail__c>.class
+      );
+      objApplicationTemplate__c template = [
+        SELECT Id, InputPageNames__c
+        FROM objApplicationTemplate__c
+        WHERE Id = :recordId
+      ];
+      template.InputPageNames__c = pageNames;
+      update template;
+
+      for (objApplicationTemplateDetail__c detail : data) {
+        if (String.isBlank(detail.objApplicationTemplate__c)) {
+          detail.objApplicationTemplate__c = recordId;
+        }
+      }
+      upsert data;
+      return data;
+    } catch (Exception e) {
+      throw new AuraHandledException(e.getMessage());
+    }
   }
 }
