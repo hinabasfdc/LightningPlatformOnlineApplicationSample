@@ -218,8 +218,7 @@ export default class WebFormAttachFile extends LightningElement {
     this.dispatchEvent(
       new CustomEvent("changepagenext", {
         detail: {
-          currentpage: "attachfile",
-          uploadedFileDocumentIds: JSON.stringify(this.documentIds)
+          data: JSON.stringify(this.documentIds)
         }
       })
     );

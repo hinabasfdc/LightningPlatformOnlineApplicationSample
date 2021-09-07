@@ -1,43 +1,12 @@
 import { LightningElement, api, wire } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { getRecord } from "lightning/uiRecordApi";
-
-// 名前空間の前置詞、および各項目の API 参照名を定義
-const nsPrefix = "";
-const fnAT_TITLE_FIELD = "Name";
-const fnAT_CATEGORY_FIELD = nsPrefix + "Category__c";
-const fnAT_DESCRIPTION_FIELD = nsPrefix + "Description__c";
-const fnAT_CONDITION_FIELD = nsPrefix + "Condition__c";
-const fnAT_CLOSEDATE_FIELD = nsPrefix + "CloseDate__c";
-const fnAT_STATUS_FIELD = nsPrefix + "Status__c";
-const fnAT_ISAGREEMENTCHECKBOXENABLED_FIELD =
-  nsPrefix + "isAgreementCheckboxEnabled__c";
-const fnAT_AGREEMENTCHECKBOXTEXT_FIELD = nsPrefix + "AgreementCheckText__c";
-const fnAT_ISFILEUPLOADACCEPTED_FIELD = nsPrefix + "isFileUploadAccepted__c";
-const fnAT_FILEUPLOADDESCRIPTION_FIELD = nsPrefix + "FileUploadDescription__c";
-const fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD =
-  nsPrefix + "isConfirmationCheckboxEnabled__c";
-const fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD =
-  nsPrefix + "ConfirmationCheckDescription__c";
-const fnAT_THANKYOUPAGEDESCRIPTION_FIELD =
-  nsPrefix + "ThankyouPageDescription__c";
-
-// getRecord で取得するようにオブジェクト名を付加した配列を生成
-const GETRECORD_FIELDS = [
-  "objApplicationTemplate__c." + fnAT_TITLE_FIELD,
-  "objApplicationTemplate__c." + fnAT_CATEGORY_FIELD,
-  "objApplicationTemplate__c." + fnAT_DESCRIPTION_FIELD,
-  "objApplicationTemplate__c." + fnAT_CONDITION_FIELD,
-  "objApplicationTemplate__c." + fnAT_CLOSEDATE_FIELD,
-  "objApplicationTemplate__c." + fnAT_STATUS_FIELD,
-  "objApplicationTemplate__c." + fnAT_ISAGREEMENTCHECKBOXENABLED_FIELD,
-  "objApplicationTemplate__c." + fnAT_AGREEMENTCHECKBOXTEXT_FIELD,
-  "objApplicationTemplate__c." + fnAT_ISFILEUPLOADACCEPTED_FIELD,
-  "objApplicationTemplate__c." + fnAT_FILEUPLOADDESCRIPTION_FIELD,
-  "objApplicationTemplate__c." + fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD,
-  "objApplicationTemplate__c." + fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD,
-  "objApplicationTemplate__c." + fnAT_THANKYOUPAGEDESCRIPTION_FIELD
-];
+import {
+  fnAT_DESCRIPTION_FIELD,
+  fnAT_CONDITION_FIELD,
+  GETRECORD_FIELDS,
+  fnAT_ISAGREEMENTCHECKBOXENABLED_FIELD
+} from "../webForm/schema";
 
 export default class WebFormAppOverview extends LightningElement {
   buttonPreviousEnabled = true;
@@ -124,8 +93,7 @@ export default class WebFormAppOverview extends LightningElement {
     this.dispatchEvent(
       new CustomEvent("changepagenext", {
         detail: {
-          currentpage: "overview",
-          applicationTemplate: this.applicationTemplate
+          data: this.applicationTemplate
         }
       })
     );

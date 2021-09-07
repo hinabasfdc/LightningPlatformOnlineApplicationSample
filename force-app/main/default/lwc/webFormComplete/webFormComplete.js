@@ -71,11 +71,7 @@ export default class WebFormComplete extends LightningElement {
    */
   handleClickPageNext() {
     this.dispatchEvent(
-      new CustomEvent("changepagenext", {
-        detail: {
-          currentpage: "complete"
-        }
-      })
+      new CustomEvent("changepagenext")
     );
   }
 }

@@ -14,38 +14,27 @@ export default class WebFormAppSelector extends LightningElement {
   wiredActiveApplications({ data, error }) {
     if (data) {
       console.log(data);
-      let localCategories = [];
-      let localApplications = [];
-      for (let i = 0; i < data.length; i++) {
+
+      this.applications = data.reduce((apps, a) => {
         const o = {
-          Id: data[i]["Id"],
-          label: data[i]["Name"],
-          description: data[i]["Description__c"]
+          Id: a.Id,
+          label: a.Name,
+          description: a.Description__c
         };
-
-        const categoryIdx = localCategories.indexOf(data[i].Category__c);
-        if (categoryIdx >= 0) {
-          localApplications[categoryIdx]["apps"].push(o);
-          localApplications[categoryIdx]["numofapps"]++;
-          localApplications[categoryIdx]["label"] =
-            localApplications[categoryIdx]["category"] +
-            "(" +
-            localApplications[categoryIdx]["numofapps"] +
-            ")";
+        const c = apps.find((app) => app.category === a.Category__c);
+        if (c) {
+          c.apps.push(o);
         } else {
-          localCategories.push(data[i].Category__c);
-          const c = {
-            category: data[i].Category__c,
-            numofapps: 1,
-            label: data[i].Category__c + "(" + 1 + ")",
-            apps: []
-          };
-          c["apps"].push(o);
-          localApplications.push(c);
+          apps.push({
+            category: a.Category__c,
+            apps: [o]
+          });
         }
-      }
-
-      this.applications = [...localApplications];
+        return apps;
+      }, []).map(a => {
+        a.label = `${a.category}(${a.apps.length})`;
+        return a;
+      });
     } else if (error) {
       console.log(error);
       this._showToast("wiredActiveApplications", error, "error");
@@ -59,8 +48,7 @@ export default class WebFormAppSelector extends LightningElement {
     this.dispatchEvent(
       new CustomEvent("changepagenext", {
         detail: {
-          currentpage: "selector",
-          selectedappid: evt.target.dataset.id
+          data: evt.target.dataset.id
         }
       })
     );

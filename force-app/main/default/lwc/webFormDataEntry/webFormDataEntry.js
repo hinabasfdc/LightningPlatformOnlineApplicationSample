@@ -119,8 +119,7 @@ export default class WebFormDataEntry extends LightningElement {
       this.dispatchEvent(
         new CustomEvent("changepagenext", {
           detail: {
-            currentpage: "dataentry",
-            inputData: JSON.stringify(this.columns)
+            data: JSON.stringify(this.columns)
           }
         })
       );

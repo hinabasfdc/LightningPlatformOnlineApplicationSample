@@ -263,8 +263,7 @@ export default class WebFormConfirm extends LightningElement {
       this.dispatchEvent(
         new CustomEvent("changepagenext", {
           detail: {
-            currentpage: "confirm",
-            createdAppRecordId: this.createdAppRecordId
+            data: this.createdAppRecordId
           }
         })
       );
