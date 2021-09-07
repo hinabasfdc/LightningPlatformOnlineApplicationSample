@@ -1,13 +1,8 @@
 import { LightningElement, api } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
-
 import getContentVersionListJson from "@salesforce/apex/DAF_FileAttachementApexController.getContentVersionListJson";
 import deleteFile from "@salesforce/apex/DAF_FileAttachementApexController.deleteFile";
-
-// 名前空間、項目の API 参照名を定義
-const nsPrefix = "";
-const fnAT_ISFILEUPLOADACCEPTED_FIELD = nsPrefix + "isFileUploadAccepted__c";
-const fnAT_FILEUPLOADDESCRIPTION_FIELD = nsPrefix + "FileUploadDescription__c";
+import { fnAT_FILEUPLOADDESCRIPTION_FIELD, fnAT_ISFILEUPLOADACCEPTED_FIELD } from "c/appTemplateSchema";
 
 // 標準のプレビュー表示用(全ファイル共通とするため rendition に THUMB720BY480 を指定)
 // const BASEURL_THUMNAILIMAGE =
@@ -21,7 +16,7 @@ export default class WebFormAttachFile extends LightningElement {
   buttonNextEnabled = true;
 
   @api isCommunityPage = false;
-  @api applicationTemplate;
+  @api appTemplate;
   @api uploadedFileDocumentIds; // 一度アップロード後に、前後の画面に移動して戻ってきた場合にはここに値が入る
   files;
   documentIds = []; // アップロードしたファイルの ID を格納
@@ -32,16 +27,16 @@ export default class WebFormAttachFile extends LightningElement {
 
   // 取得した申請定義の項目を返す(特殊文字が変換されているので html 表示ができるように元に戻す(LDS の仕様？))
   get message() {
-    return this.applicationTemplate.fields[fnAT_FILEUPLOADDESCRIPTION_FIELD]
+    return this.appTemplate.fields[fnAT_FILEUPLOADDESCRIPTION_FIELD]
       .value
       ? this._decodeHtml(
-          this.applicationTemplate.fields[fnAT_FILEUPLOADDESCRIPTION_FIELD]
+          this.appTemplate.fields[fnAT_FILEUPLOADDESCRIPTION_FIELD]
             .value
         )
       : false;
   }
   get isFileUploadAccepted() {
-    return this.applicationTemplate.fields[fnAT_ISFILEUPLOADACCEPTED_FIELD]
+    return this.appTemplate.fields[fnAT_ISFILEUPLOADACCEPTED_FIELD]
       .value
       ? true
       : false;

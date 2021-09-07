@@ -15,7 +15,7 @@ const STEP_CONFIRM = "確認";
 const STEP_COMPLETE = "完了";
 
 const NEXT = "next";
-const PREV = "previous"
+const PREV = "previous";
 
 export default class WebForm extends LightningElement {
   // WebFormAppSelector に渡す。true の場合は下書きのものも選択肢に含める(動作確認用)
@@ -33,6 +33,7 @@ export default class WebForm extends LightningElement {
   @track
   inputPages = [];
   currentStep = "";
+  currentInputPage = 1;
 
   // サブコンポーネントにまたがって使用する変数を定義 & 初期化
   currentPage = PAGE_SELECTOR; // ページ遷移現在位置
@@ -41,7 +42,6 @@ export default class WebForm extends LightningElement {
   createdAppRecordId = ""; // 作成された申請レコードの SalesforceID
   uploadedFileDocumentIds = ""; // アップロードしたファイルの SalesforceID を格納しておく。JSON 化するので文字列
   pages;
-
 
   /**
    * @description : 選択された申請手続きのレコードを取得する(実運用においては状態や有効期限をチェックして処理を行うべき。その場合は uiRecordApi ではなくカスタム Apex メソッドの方が適しているかもしれない)
@@ -141,7 +141,7 @@ export default class WebForm extends LightningElement {
       return;
     }
 
-    const { data } = evt?.detail ?? {};
+    const { data, inputPage } = evt?.detail ?? {};
     console.log("data", data);
 
     switch (this.currentPage) {
@@ -153,8 +153,20 @@ export default class WebForm extends LightningElement {
         // いったん selector まで戻った場合は入力値を空にする
         this.inputData = "";
         break;
+      case PAGE_OVERVIEW:
+        console.log(data);
+        break;
       case PAGE_DATA_ENTRY:
+        if (!inputPage) {
+          return;
+        }
+        // TODO: pageごとに分割
+        console.log('input data', data);
         this.inputData = data;
+        if(inputPage !== this.inputPages.length) {
+          this.currentInputPage++;
+          return;
+        }
         break;
       case PAGE_ATTACH_FILE:
         this.uploadedFileDocumentIds = data;
@@ -166,9 +178,10 @@ export default class WebForm extends LightningElement {
         // 完了画面から次へ移動は手続き選択画面のみ。各変数を初期状態へ
         this.recordId = null;
         this.appTemplate = null;
-        this.inputData = "";
-        this.createdAppRecordId = "";
-        this.uploadedFileDocumentIds = "";
+        this.inputData = null;
+        this.createdAppRecordId = null;
+        this.uploadedFileDocumentIds = null;
+        this.currentInputPage = 1;
         break;
       default:
     }
@@ -178,13 +191,25 @@ export default class WebForm extends LightningElement {
   /**
    * @description: 各ページコンポーネントから呼び出される「戻る」相当のボタンが押された時の処理関数
    */
-  handlePreviousPage() {
+  handlePreviousPage(evt) {
     console.log("handlePreviousPage");
     if (this.previewFor) {
       return;
     }
+    const { data, inputPage } = evt?.detail ?? {};
     if (this.currentPage === PAGE_OVERVIEW) {
       this.selectedApplicationId = "";
+    } else if(this.currentPage === PAGE_DATA_ENTRY) {
+      if (!inputPage) {
+        return;
+      }
+      // TODO: pageごとに分割
+      console.log('input data', data, inputPage);
+      this.inputData = data;
+      if(inputPage > 1) {
+        this.currentInputPage--;
+        return;
+      }
     }
     this._movePage(PREV);
   }
@@ -198,10 +223,11 @@ export default class WebForm extends LightningElement {
       return;
     }
     if (direction === NEXT) {
+      // 完了時に次へでリセット
       this.currentPage =
-        pageIndex <= this.pages.length
-          ? this.pages[pageIndex + 1]
-          : this.pages[0];
+        pageIndex === this.pages.length - 1
+          ? this.pages[0]
+          : this.pages[pageIndex + 1];
     } else if (direction === PREV) {
       this.currentPage =
         pageIndex === 0 ? this.pages[0] : this.pages[pageIndex - 1];
@@ -222,6 +248,8 @@ export default class WebForm extends LightningElement {
           dir === NEXT
             ? this.inputPages[0]
             : this.inputPages[this.inputPages.length - 1];
+        this.currentInputPage = dir === NEXT ? 1 : this.inputPages.length;
+        console.log('cur input page', this.currentStep, this.currentInputPage);
         break;
       case PAGE_ATTACH_FILE:
         this.currentStep = STEP_FILE_ATTACH;

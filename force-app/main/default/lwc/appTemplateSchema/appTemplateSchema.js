@@ -24,6 +24,7 @@ export const fnAT_PAGE_NAMES_FIELD = nsPrefix + "InputPageNames__c";
 
 // getRecord で取得するようにオブジェクト名を付加した配列を生成
 export const GETRECORD_FIELDS = [
+  'Id',
   fnAT_TITLE_FIELD,
   fnAT_CATEGORY_FIELD,
   fnAT_DESCRIPTION_FIELD,
@@ -39,3 +40,34 @@ export const GETRECORD_FIELDS = [
   fnAT_THANKYOUPAGEDESCRIPTION_FIELD,
   fnAT_PAGE_NAMES_FIELD
 ].map((f) => `objApplicationTemplate__c.${f}`);
+
+/* 定義詳細 */
+// 名前空間、オブジェクト・項目の API 参照名を定義
+export const onAPPLICATION_OBJECT = nsPrefix + "objApplication__c";
+export const fnATD_DATATYPE_FIELD = nsPrefix + "DataType__c";
+export const fnATD_OPTIONS_FIELD = nsPrefix + "Options__c";
+export const fnATD_VALUE_FIELD = nsPrefix + "Value__c";
+export const fnATD_TEXT_FIELD = nsPrefix + "Text__c";
+export const fnATD_REQUIRED_FIELD = nsPrefix + "Required__c";
+export const fnATD_ROW_NUMBER = nsPrefix + "RowNumber__c";
+export const fnATD_PAGE_NUMBER = nsPrefix + "PageNumber__c";
+export const fnATD_NAME_FIELD = "Name";
+export const fnATD_CATEGORY_FIELD = nsPrefix + "Category__c";
+export const fnATD_STDCOLUMNNAME_FIELD = nsPrefix + "StdColumnName__c";
+export const fnATD_ISTEXT_FIELD = nsPrefix + "isText__c";
+export const fnATD_ISLONGTEXTAREA_FIELD = nsPrefix + "isLongTextArea__c";
+export const fnATD_ISNUMBER_FIELD = nsPrefix + "isNumber__c";
+export const fnATD_ISMAIL_FIELD = nsPrefix + "isMail__c";
+export const fnATD_ISURL_FIELD = nsPrefix + "isURL__c";
+export const fnATD_ISDATE_FIELD = nsPrefix + "isDate__c";
+export const fnATD_ISTIME_FIELD = nsPrefix + "isTime__c";
+export const fnATD_ISCURRENCY_FIELD = nsPrefix + "isCurrency__c";
+export const fnATD_ISCHECKBOX_FIELD = nsPrefix + "isCheckbox__c";
+export const fnATD_ISPICKLIST_FIELD = nsPrefix + "isPicklist__c";
+
+export const fnAD_TEXT_FIELD = nsPrefix + "Text__c";
+export const fnAD_LONGTEXTAREA_FIELD = nsPrefix + "LongTextArea__c";
+export const fnAD_NUMBER_FIELD = nsPrefix + "Number__c";
+export const fnAD_APP_FIELD = nsPrefix + "objApplication__c";
+export const fnAD_APPTEMPDET_FIELD = nsPrefix + "objApplicationTemplateDetail__c";
+export const fnA_APPTEMP_FIELD = nsPrefix + "objApplicationTemplate__c";

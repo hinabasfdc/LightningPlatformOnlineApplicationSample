@@ -69,7 +69,9 @@ public with sharing class DAF_RecordOperationApexController {
         isTime__c,
         isCheckbox__c,
         isCurrency__c,
-        isPicklist__c
+        isPicklist__c,
+        PageNumber__c,
+        RowNumber__c
       FROM objApplicationTemplateDetail__c
       WHERE objApplicationTemplate__c = :recordId
       ORDER BY SortOrder__c ASC

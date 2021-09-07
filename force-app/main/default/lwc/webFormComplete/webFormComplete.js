@@ -15,15 +15,15 @@ export default class WebFormComplete extends LightningElement {
   buttonNextEnabled = true;
 
   @api createdAppRecordId;
-  @api applicationTemplate;
+  @api appTemplate;
   askcode;
 
   // 申請定義の各種項目値を返す getter
   get message() {
-    return this.applicationTemplate.fields[fnAT_THANKYOUPAGEDESCRIPTION_FIELD]
+    return this.appTemplate.fields[fnAT_THANKYOUPAGEDESCRIPTION_FIELD]
       .value
       ? this._decodeHtml(
-          this.applicationTemplate.fields[fnAT_THANKYOUPAGEDESCRIPTION_FIELD]
+          this.appTemplate.fields[fnAT_THANKYOUPAGEDESCRIPTION_FIELD]
             .value
         )
       : false;

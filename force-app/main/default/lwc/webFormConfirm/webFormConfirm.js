@@ -4,34 +4,31 @@ import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import upsertApplication from "@salesforce/apex/DAF_RecordOperationApexController.upsertApplication";
 import upsertApplicationDetails from "@salesforce/apex/DAF_RecordOperationApexController.upsertApplicationDetails";
 import createContentDocumentLink from "@salesforce/apex/DAF_FileAttachementApexController.createContentDocumentLink";
-
-// 名前空間、項目の API 参照名を定義
-const nsPrefix = "";
-const fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD =
-  nsPrefix + "isConfirmationCheckboxEnabled__c";
-const fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD =
-  nsPrefix + "ConfirmationCheckDescription__c";
-const fnAT_ISFILEUPLOADACCEPTED_FIELD = nsPrefix + "isFileUploadAccepted__c";
-const onAPPLICATION_OBJECT = nsPrefix + "objApplication__c";
-const fnATD_VALUE_FIELD = nsPrefix + "Value__c";
-const fnATD_CATEGORY_FIELD = nsPrefix + "Category__c";
-const fnATD_STDCOLUMNNAME_FIELD = nsPrefix + "StdColumnName__c";
-const fnATD_ISTEXT_FIELD = nsPrefix + "isText__c";
-const fnATD_ISLONGTEXTAREA_FIELD = nsPrefix + "isLongTextArea__c";
-const fnATD_ISNUMBER_FIELD = nsPrefix + "isNumber__c";
-const fnATD_ISMAIL_FIELD = nsPrefix + "isMail__c";
-const fnATD_ISURL_FIELD = nsPrefix + "isURL__c";
-const fnATD_ISDATE_FIELD = nsPrefix + "isDate__c";
-const fnATD_ISTIME_FIELD = nsPrefix + "isTime__c";
-const fnATD_ISCURRENCY_FIELD = nsPrefix + "isCurrency__c";
-const fnATD_ISCHECKBOX_FIELD = nsPrefix + "isCheckbox__c";
-const fnATD_ISPICKLIST_FIELD = nsPrefix + "isPicklist__c";
-const fnAD_TEXT_FIELD = nsPrefix + "Text__c";
-const fnAD_LONGTEXTAREA_FIELD = nsPrefix + "LongTextArea__c";
-const fnAD_NUMBER_FIELD = nsPrefix + "Number__c";
-const fnAD_APP_FIELD = nsPrefix + "objApplication__c";
-const fnAD_APPTEMPDET_FIELD = nsPrefix + "objApplicationTemplateDetail__c";
-const fnA_APPTEMP_FIELD = nsPrefix + "objApplicationTemplate__c";
+import {
+  onAPPLICATION_OBJECT,
+  fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD,
+  fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD,
+  fnAT_ISFILEUPLOADACCEPTED_FIELD,
+  fnA_APPTEMP_FIELD,
+  fnATD_CATEGORY_FIELD,
+  fnATD_STDCOLUMNNAME_FIELD,
+  fnATD_VALUE_FIELD,
+  fnAD_APP_FIELD,
+  fnAD_APPTEMPDET_FIELD,
+  fnATD_ISTEXT_FIELD,
+  fnAD_TEXT_FIELD,
+  fnATD_ISLONGTEXTAREA_FIELD,
+  fnAD_LONGTEXTAREA_FIELD,
+  fnATD_ISNUMBER_FIELD,
+  fnAD_NUMBER_FIELD,
+  fnATD_ISMAIL_FIELD,
+  fnATD_ISURL_FIELD,
+  fnATD_ISDATE_FIELD,
+  fnATD_ISTIME_FIELD,
+  fnATD_ISCURRENCY_FIELD,
+  fnATD_ISCHECKBOX_FIELD,
+  fnATD_ISPICKLIST_FIELD
+} from "c/appTemplateSchema";
 
 export default class WebFormConfirm extends LightningElement {
   buttonPreviousEnabled = true;
@@ -40,30 +37,26 @@ export default class WebFormConfirm extends LightningElement {
   @api inputData;
   @api selectedAppId;
   @api uploadedFileDocumentIds;
-  @api applicationTemplate;
+  @api appTemplate;
   columns;
   objectApiName = onAPPLICATION_OBJECT;
   createdAppRecordId;
 
   // 申請定義の各種項目値を返す getter
   get checkboxConfirmEnabled() {
-    return this.applicationTemplate.fields[
-      fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD
-    ].value
+    return this.appTemplate.fields[fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD]
+      .value
       ? true
       : false;
   }
   get checkboxConfirmText() {
-    return this.applicationTemplate.fields[
-      fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD
-    ].value
-      ? this.applicationTemplate.fields[fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD]
-          .value
+    return this.appTemplate.fields[fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD]
+      .value
+      ? this.appTemplate.fields[fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD].value
       : "内容を確認しました";
   }
   get isFileUploadAccepted() {
-    return this.applicationTemplate.fields[fnAT_ISFILEUPLOADACCEPTED_FIELD]
-      .value
+    return this.appTemplate.fields[fnAT_ISFILEUPLOADACCEPTED_FIELD].value
       ? true
       : false;
   }
@@ -146,10 +139,10 @@ export default class WebFormConfirm extends LightningElement {
           // 一項目分のデータを格納するオブジェクトを作成し、申請および申請定義明細のレコード ID を設定
           let custom = {};
           custom[fnAD_APP_FIELD] = recordId;
-          custom[fnAD_APPTEMPDET_FIELD] = this.columns[i]["Id"];
+          custom[fnAD_APPTEMPDET_FIELD] = this.columns[i].Id;
           // データがすでに作成されている場合は更新用に ID を設定
-          if (this.columns[i]["detailRecordId"])
-            custom["Id"] = this.columns[i]["detailRecordId"];
+          if (this.columns[i].detailRecordId)
+            custom.Id = this.columns[i].detailRecordId;
 
           // データ型に応じて、適切な項目に値を代入
           if (this.columns[i][fnATD_ISTEXT_FIELD])
@@ -194,13 +187,13 @@ export default class WebFormConfirm extends LightningElement {
           let createdRecords = {};
           for (let i = 0; i < retvals.length; i++)
             createdRecords[retvals[i][fnAD_APPTEMPDET_FIELD]] =
-              retvals[i]["Id"];
+              retvals[i].Id;
 
           // データ保管用オブジェクト配列に作成された申請明細レコードの ID を設定
           for (let j = 0; j < this.columns.length; j++)
             if (this.columns[j][fnATD_CATEGORY_FIELD] === "カスタム")
-              this.columns[j]["detailRecordId"] =
-                createdRecords[this.columns[j]["Id"]];
+              this.columns[j].detailRecordId =
+                createdRecords[this.columns[j].Id];
 
           resolve();
         })
