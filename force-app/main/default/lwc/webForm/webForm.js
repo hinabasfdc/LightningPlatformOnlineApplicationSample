@@ -1,5 +1,7 @@
-import { LightningElement, api } from "lwc";
-
+import { LightningElement, api, wire, track } from "lwc";
+import { getRecord } from "lightning/uiRecordApi";
+import { GETRECORD_FIELDS } from "c/appTemplateSchema";
+import { ShowToastEvent } from "lightning/platformShowToastEvent";
 const PAGE_SELECTOR = "selector";
 const PAGE_OVERVIEW = "overview";
 const PAGE_DATA_ENTRY = "dataentry";
@@ -7,24 +9,75 @@ const PAGE_ATTACH_FILE = "attachfile";
 const PAGE_CONFIRM = "confirm";
 const PAGE_COMPLETE = "complete";
 
+const STEP_OVERVIEW = "手続き概要";
+const STEP_FILE_ATTACH = "ファイル添付";
+const STEP_CONFIRM = "確認";
+const STEP_COMPLETE = "完了";
+
+const NEXT = "next";
+const PREV = "previous"
+
 export default class WebForm extends LightningElement {
   // WebFormAppSelector に渡す。true の場合は下書きのものも選択肢に含める(動作確認用)
   @api includeDraftApp = false;
   // WebFormAttachFile に渡す。プレビュー画像表示 URL を書き換える
   @api isCommunityPage = false;
+  @api previewFor;
+  @api recordId;
 
   // 矢羽の表示ラベルと現在位置の初期化
-  activeSteps = "手続き概要,入力,ファイル添付,確認,完了";
-  currentStep = "手続き概要";
+  @track
+  activeSteps = [];
+  @track
+  appTemplate;
+  @track
+  inputPages = [];
+  currentStep = "";
 
   // サブコンポーネントにまたがって使用する変数を定義 & 初期化
   currentPage = PAGE_SELECTOR; // ページ遷移現在位置
   selectedAppId = ""; // 選択された手続きの SalesforceID
-  applicationTemplate = {}; // 選択された手続き定義を格納 (getRecord での取得形式)
   inputData = ""; // 入力された値を格納しておく。JSON 化するので文字列
   createdAppRecordId = ""; // 作成された申請レコードの SalesforceID
   uploadedFileDocumentIds = ""; // アップロードしたファイルの SalesforceID を格納しておく。JSON 化するので文字列
   pages;
+
+
+  /**
+   * @description : 選択された申請手続きのレコードを取得する(実運用においては状態や有効期限をチェックして処理を行うべき。その場合は uiRecordApi ではなくカスタム Apex メソッドの方が適しているかもしれない)
+   */
+  @wire(getRecord, { recordId: "$recordId", fields: GETRECORD_FIELDS })
+  wiredGetRecord({ data, error }) {
+    if (data) {
+      // 申請定義が見つかった場合
+      console.log("got data", data, data.childRelationships);
+      this.appTemplate = data;
+
+      const inputPages =
+        this.appTemplate?.fields?.InputPageNames__c?.value?.split(",") ?? [];
+      console.log(inputPages);
+      if (inputPages.length === 0) {
+        inputPages.push("入力");
+      }
+      this.inputPages = inputPages;
+      this.activeSteps = [
+        STEP_OVERVIEW,
+        ...inputPages,
+        STEP_FILE_ATTACH,
+        STEP_CONFIRM,
+        STEP_COMPLETE
+      ];
+      if (this.previewFor) {
+        this.currentStep =
+          this.previewFor === "入力" ? inputPages[0] : STEP_OVERVIEW;
+      }
+    } else if (error) {
+      console.error(error);
+      this._showToast("wiredGetRecordId", error, "error");
+    } else {
+      console.log("nodata noerror");
+    }
+  }
 
   // ページの状態を取得する getter
   get displayPageSelector() {
@@ -61,7 +114,7 @@ export default class WebForm extends LightningElement {
     ];
 
     // URL パラメータ c__templateId をチェックし、直接 overviews 画面に遷移
-    let c__templateId = this._getURLParameter("c__templateId");
+    const c__templateId = this._getURLParameter("c__templateId");
     if (c__templateId) {
       this.currentPage = PAGE_SELECTOR;
       // event オブジェクト構造を模倣
@@ -71,6 +124,11 @@ export default class WebForm extends LightningElement {
         }
       });
     }
+
+    if (this.previewFor) {
+      this.currentPage =
+        this.previewFor === "入力" ? PAGE_DATA_ENTRY : PAGE_OVERVIEW;
+    }
   }
 
   /**
@@ -79,45 +137,42 @@ export default class WebForm extends LightningElement {
   handleNextPage(evt) {
     console.log("handleNextPage");
 
-    const { data } = evt?.detail;
+    if (this.previewFor) {
+      return;
+    }
+
+    const { data } = evt?.detail ?? {};
+    console.log("data", data);
 
     switch (this.currentPage) {
       case PAGE_SELECTOR:
         if (!data) {
           break;
         }
-        this.selectedAppId = data;
+        this.recordId = data;
         // いったん selector まで戻った場合は入力値を空にする
         this.inputData = "";
         break;
-      case PAGE_OVERVIEW:
-        this.applicationTemplate = data;
-        this.currentStep = "入力";
-        break;
       case PAGE_DATA_ENTRY:
         this.inputData = data;
-        this.currentStep = "ファイル添付";
         break;
       case PAGE_ATTACH_FILE:
         this.uploadedFileDocumentIds = data;
-        this.currentStep = "確認";
         break;
       case PAGE_CONFIRM:
         this.createdAppRecordId = data;
-        this.currentStep = "完了";
         break;
       case PAGE_COMPLETE:
         // 完了画面から次へ移動は手続き選択画面のみ。各変数を初期状態へ
-        this.currentStep = "";
-        this.selectedAppId = "";
-        this.applicationTemplate = {};
+        this.recordId = null;
+        this.appTemplate = null;
         this.inputData = "";
         this.createdAppRecordId = "";
         this.uploadedFileDocumentIds = "";
         break;
       default:
     }
-    this._movePage("next");
+    this._movePage(NEXT);
   }
 
   /**
@@ -125,29 +180,13 @@ export default class WebForm extends LightningElement {
    */
   handlePreviousPage() {
     console.log("handlePreviousPage");
-    switch (this.currentPage) {
-      case PAGE_SELECTOR:
-        return;
-      case PAGE_OVERVIEW:
-        this.selectedApplicationId = "";
-        this.currentStep = "";
-        break;
-      case PAGE_DATA_ENTRY:
-        this.currentStep = "手続き概要";
-        break;
-      case PAGE_ATTACH_FILE:
-        this.currentStep = "入力";
-        break;
-      case PAGE_CONFIRM:
-        this.currentStep = "ファイル添付";
-        break;
-      case PAGE_COMPLETE:
-        this.currentStep = "確認";
-        break;
-      default:
-        return;
+    if (this.previewFor) {
+      return;
     }
-    this._movePage("previous");
+    if (this.currentPage === PAGE_OVERVIEW) {
+      this.selectedApplicationId = "";
+    }
+    this._movePage(PREV);
   }
 
   /**
@@ -158,14 +197,43 @@ export default class WebForm extends LightningElement {
     if (pageIndex === -1) {
       return;
     }
-    if (direction === "next") {
+    if (direction === NEXT) {
       this.currentPage =
         pageIndex <= this.pages.length
           ? this.pages[pageIndex + 1]
           : this.pages[0];
-    } else if (direction === "previous") {
+    } else if (direction === PREV) {
       this.currentPage =
         pageIndex === 0 ? this.pages[0] : this.pages[pageIndex - 1];
+    }
+    this.setCurrentStep(direction);
+  }
+
+  setCurrentStep(dir) {
+    switch (this.currentPage) {
+      case PAGE_SELECTOR:
+        this.currentStep = null;
+        break;
+      case PAGE_OVERVIEW:
+        this.currentStep = STEP_OVERVIEW;
+        break;
+      case PAGE_DATA_ENTRY:
+        this.currentStep =
+          dir === NEXT
+            ? this.inputPages[0]
+            : this.inputPages[this.inputPages.length - 1];
+        break;
+      case PAGE_ATTACH_FILE:
+        this.currentStep = STEP_FILE_ATTACH;
+        break;
+      case PAGE_CONFIRM:
+        this.currentStep = STEP_CONFIRM;
+        break;
+      case PAGE_COMPLETE:
+        this.currentStep = STEP_COMPLETE;
+        break;
+      default:
+        break;
     }
   }
 
@@ -174,5 +242,17 @@ export default class WebForm extends LightningElement {
    **/
   _getURLParameter(key) {
     return new URL(window.location.href).searchParams.get(key);
+  }
+
+  /**
+   * @description  : トースト表示
+   **/
+  _showToast(title, message, variant) {
+    const event = new ShowToastEvent({
+      title: title,
+      message: message,
+      variant: variant
+    });
+    this.dispatchEvent(event);
   }
 }

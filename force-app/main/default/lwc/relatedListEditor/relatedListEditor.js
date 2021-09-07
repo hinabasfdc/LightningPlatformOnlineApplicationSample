@@ -2,11 +2,7 @@ import { LightningElement, api, wire, track } from "lwc";
 import { refreshApex } from "@salesforce/apex";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { deleteRecord } from "lightning/uiRecordApi";
-import {
-  formatPages,
-  formatPagesForSave,
-  STATUS_DRAFT
-} from "./utils";
+import { formatPages, formatPagesForSave, STATUS_DRAFT } from "./utils";
 
 import getApplicationTemplateDetailRecordIds from "@salesforce/apex/DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecordIds";
 import saveApplicationTemplateDetails from "@salesforce/apex/DAF_RelatedListEditorApexController.saveApplicationTemplateDetails";

@@ -6,6 +6,7 @@
     <targets>
         <target>lightning__Tab</target>
         <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
     </targets>
@@ -18,6 +19,20 @@
         description="リスト表示に下書きの申請手続きを含める"
         default="true"
       />
+        </targetConfig>
+        <targetConfig targets="lightning__RecordPage">
+            <property
+        name="previewFor"
+        type="String"
+        label="プレビュー画面"
+        required="true"
+        datasource="手続き概要,入力"
+        description="リスト表示に下書きの申請手続きを含める"
+        default="手続き概要"
+      />
+      <objects>
+        <object>objApplicationTemplate__c</object>
+      </objects>
         </targetConfig>
         <targetConfig targets="lightningCommunity__Default">
             <property

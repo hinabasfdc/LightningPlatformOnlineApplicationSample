@@ -20,20 +20,22 @@ export const fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD =
   nsPrefix + "ConfirmationCheckDescription__c";
 export const fnAT_THANKYOUPAGEDESCRIPTION_FIELD =
   nsPrefix + "ThankyouPageDescription__c";
+export const fnAT_PAGE_NAMES_FIELD = nsPrefix + "InputPageNames__c";
 
 // getRecord で取得するようにオブジェクト名を付加した配列を生成
 export const GETRECORD_FIELDS = [
-  "objApplicationTemplate__c." + fnAT_TITLE_FIELD,
-  "objApplicationTemplate__c." + fnAT_CATEGORY_FIELD,
-  "objApplicationTemplate__c." + fnAT_DESCRIPTION_FIELD,
-  "objApplicationTemplate__c." + fnAT_CONDITION_FIELD,
-  "objApplicationTemplate__c." + fnAT_CLOSEDATE_FIELD,
-  "objApplicationTemplate__c." + fnAT_STATUS_FIELD,
-  "objApplicationTemplate__c." + fnAT_ISAGREEMENTCHECKBOXENABLED_FIELD,
-  "objApplicationTemplate__c." + fnAT_AGREEMENTCHECKBOXTEXT_FIELD,
-  "objApplicationTemplate__c." + fnAT_ISFILEUPLOADACCEPTED_FIELD,
-  "objApplicationTemplate__c." + fnAT_FILEUPLOADDESCRIPTION_FIELD,
-  "objApplicationTemplate__c." + fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD,
-  "objApplicationTemplate__c." + fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD,
-  "objApplicationTemplate__c." + fnAT_THANKYOUPAGEDESCRIPTION_FIELD
-];
+  fnAT_TITLE_FIELD,
+  fnAT_CATEGORY_FIELD,
+  fnAT_DESCRIPTION_FIELD,
+  fnAT_CONDITION_FIELD,
+  fnAT_CLOSEDATE_FIELD,
+  fnAT_STATUS_FIELD,
+  fnAT_ISAGREEMENTCHECKBOXENABLED_FIELD,
+  fnAT_AGREEMENTCHECKBOXTEXT_FIELD,
+  fnAT_ISFILEUPLOADACCEPTED_FIELD,
+  fnAT_FILEUPLOADDESCRIPTION_FIELD,
+  fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD,
+  fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD,
+  fnAT_THANKYOUPAGEDESCRIPTION_FIELD,
+  fnAT_PAGE_NAMES_FIELD
+].map((f) => `objApplicationTemplate__c.${f}`);

@@ -1,10 +1,9 @@
 import { LightningElement, api } from "lwc";
 
 export default class ProgressTracker extends LightningElement {
-  steps;
   idxCurrent = 0;
-  @api activeSteps = "手続き概要,入力,ファイル添付,登録内容確認,完了";
-  @api currentStep = "入力";
+  @api activeSteps;
+  @api currentStep;
   @api type = "path";
   @api variant = "base";
   @api isCardStyle = false;
@@ -26,7 +25,7 @@ export default class ProgressTracker extends LightningElement {
   }
 
   renderedCallback() {
-    if (this.type === "path") {
+    if (this.step && this.type === "path") {
       const el = this.template.querySelector(".slds-path__nav");
       if (el && el.scrollWidth > 0 && this.idxCurrent > 3) {
         el.scrollLeft =
@@ -40,36 +39,28 @@ export default class ProgressTracker extends LightningElement {
     }
   }
 
-  connectedCallback() {
-    if (this.activeSteps) {
-      const array = this.activeSteps.split(",");
-      let localSteps = [];
-      let isComplete = array.includes(this.currentStep) ? true : false;
-      let isCurrent = false;
-
-      for (let i = 0; i < array.length; i++) {
-        if (array[i] === this.currentStep) {
-          isComplete = false;
-          isCurrent = true;
+  get steps() {
+    if (this.activeSteps && this.activeSteps.length > 0) {
+      let isDone = true;
+      return this.activeSteps.map((s, i) => {
+        if (s === this.currentStep) {
+          isDone = false;
           this.idxCurrent = i;
         }
-
-        const o = {
-          Id: i,
-          isComplete: isComplete,
-          isCurrent: isCurrent,
-          label: this.sanitize(array[i]),
-          value: this.sanitize(array[i])
+        const sanitized = this.sanitize(s);
+        return {
+          Id: `step_${i}`,
+          isDone: isDone,
+          isCurrent: s === this.currentStep,
+          label: sanitized,
+          value: sanitized
         };
-        localSteps.push(o);
-
-        if (array[i] === this.currentStep) {
-          isCurrent = false;
-        }
-      }
-
-      this.steps = [...localSteps];
+      });
     }
+    return [];
+  }
+
+  connectedCallback() {
     this._isDisplayMoveButton = this.isDisplayMoveButton;
   }
 

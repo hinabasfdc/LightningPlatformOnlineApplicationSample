@@ -387,7 +387,11 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>webFormAppOverview</componentName>
+                <componentInstanceProperties>
+                    <name>previewFor</name>
+                    <value>手続き概要</value>
+                </componentInstanceProperties>
+                <componentName>webForm</componentName>
             </componentInstance>
         </itemInstances>
         <name>Facet-51f4c2e7-7207-4aca-96ae-1f0e87f195f0</name>
@@ -396,7 +400,11 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>webFormDataEntry</componentName>
+                <componentInstanceProperties>
+                    <name>previewFor</name>
+                    <value>入力</value>
+                </componentInstanceProperties>
+                <componentName>webForm</componentName>
             </componentInstance>
         </itemInstances>
         <name>Facet-be62ad6b-c78f-4510-ab0b-f241d9158cf8</name>

@@ -9,13 +9,14 @@
 
   <template if:true={displayPageOverview}>
     <div class="slds-card slds-var-p-around_medium">
+      <h4>{activeSteps.length} - {currentStep}</h4>
       <c-progress-tracker
         active-steps={activeSteps}
         current-step={currentStep}
       ></c-progress-tracker>
     </div>
     <c-web-form-app-overview
-      record-id={selectedAppId}
+      app-template={appTemplate}
       onchangepagenext={handleNextPage}
       onchangepageprevious={handlePreviousPage}
     >

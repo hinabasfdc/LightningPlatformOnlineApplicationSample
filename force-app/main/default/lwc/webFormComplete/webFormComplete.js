@@ -70,8 +70,6 @@ export default class WebFormComplete extends LightningElement {
    * @description : 「次へ」ボタンを押した時の処理(WebForm のメソッドをコール)
    */
   handleClickPageNext() {
-    this.dispatchEvent(
-      new CustomEvent("changepagenext")
-    );
+    this.dispatchEvent(new CustomEvent("changepagenext"));
   }
 }

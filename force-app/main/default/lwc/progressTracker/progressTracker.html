@@ -32,7 +32,7 @@
                     aria-orientation="horizontal"
                   >
                     <template for:each={steps} for:item="step">
-                      <template if:false={step.isComplete}>
+                      <template if:false={step.isDone}>
                         <template if:false={step.isCurrent}>
                           <li
                             key={step.Id}
@@ -80,7 +80,7 @@
                           </li>
                         </template>
                       </template>
-                      <template if:true={step.isComplete}>
+                      <template if:true={step.isDone}>
                         <li
                           key={step.Id}
                           class="slds-path__item slds-is-complete"
