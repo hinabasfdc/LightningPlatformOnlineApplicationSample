@@ -2,7 +2,10 @@ import { LightningElement, api } from "lwc";
 import { showToast } from "c/webFormUtils";
 import getContentVersionListJson from "@salesforce/apex/DAF_FileAttachementApexController.getContentVersionListJson";
 import deleteFile from "@salesforce/apex/DAF_FileAttachementApexController.deleteFile";
-import { fnAT_FILEUPLOADDESCRIPTION_FIELD, fnAT_ISFILEUPLOADACCEPTED_FIELD } from "c/appTemplateSchema";
+import {
+  fnAT_FILEUPLOADDESCRIPTION_FIELD,
+  fnAT_ISFILEUPLOADACCEPTED_FIELD
+} from "c/appTemplateSchema";
 
 // 標準のプレビュー表示用(全ファイル共通とするため rendition に THUMB720BY480 を指定)
 // const BASEURL_THUMNAILIMAGE =
@@ -27,17 +30,14 @@ export default class WebFormAttachFile extends LightningElement {
 
   // 取得した申請定義の項目を返す(特殊文字が変換されているので html 表示ができるように元に戻す(LDS の仕様？))
   get message() {
-    return this.appTemplate.fields[fnAT_FILEUPLOADDESCRIPTION_FIELD]
-      .value
+    return this.appTemplate.fields[fnAT_FILEUPLOADDESCRIPTION_FIELD].value
       ? this._decodeHtml(
-          this.appTemplate.fields[fnAT_FILEUPLOADDESCRIPTION_FIELD]
-            .value
+          this.appTemplate.fields[fnAT_FILEUPLOADDESCRIPTION_FIELD].value
         )
       : false;
   }
   get isFileUploadAccepted() {
-    return this.appTemplate.fields[fnAT_ISFILEUPLOADACCEPTED_FIELD]
-      .value
+    return this.appTemplate.fields[fnAT_ISFILEUPLOADACCEPTED_FIELD].value
       ? true
       : false;
   }
@@ -67,7 +67,7 @@ export default class WebFormAttachFile extends LightningElement {
       };
       deleteFile(params)
         .then(() => {
-          showToast(this,"成功", "ファイルの削除に成功しました", "success");
+          showToast(this, "成功", "ファイルの削除に成功しました", "success");
           // ファイル一覧を更新
           const idx = this.documentIds.indexOf(cdid);
           if (idx >= 0) this.documentIds.splice(idx, 1);
@@ -79,7 +79,8 @@ export default class WebFormAttachFile extends LightningElement {
           }
         })
         .catch((err) => {
-          showToast(this,
+          showToast(
+            this,
             "エラー",
             "ファイルの削除に失敗しました " + err.body.message,
             "error"

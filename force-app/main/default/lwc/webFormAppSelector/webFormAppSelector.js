@@ -39,7 +39,7 @@ export default class WebFormAppSelector extends LightningElement {
         });
     } else if (error) {
       console.log(error);
-      showToast(this,"wiredActiveApplications", error, "error");
+      showToast(this, "wiredActiveApplications", error, "error");
     }
   }
 

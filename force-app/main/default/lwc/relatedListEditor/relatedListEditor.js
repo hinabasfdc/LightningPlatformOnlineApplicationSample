@@ -25,7 +25,7 @@ export default class RelatedListEditor extends LightningElement {
   @api recordId;
   objectApiNameApplicationTemplateDetail = APPLICAATIONTEMPLATEDETAIL_OBJECT;
 
-  @track pages;
+  @track pages = [];
   @track selectedPage;
   @track selectedField;
 
@@ -33,47 +33,44 @@ export default class RelatedListEditor extends LightningElement {
   wiredRelatedRecords;
 
   // 右画面表示パネル制御関連
-  isRecordSelected = false;
-  isCreateRecord = false;
-  selectedRecordId;
   selectedFieldName;
 
   // html でも項目名を使えるように getter 化
   get fieldnameName() {
-    return NAME_FIELD["fieldApiName"];
+    return NAME_FIELD.fieldApiName;
   }
   get fieldnameDescription() {
-    return DESCRIPTION_FIELD["fieldApiName"];
+    return DESCRIPTION_FIELD.fieldApiName;
   }
   get fieldnameCategory() {
-    return CATEGORY_FIELD["fieldApiName"];
+    return CATEGORY_FIELD.fieldApiName;
   }
   get fieldnameStdColumnName() {
-    return STDCOLUMNNAME_FIELD["fieldApiName"];
+    return STDCOLUMNNAME_FIELD.fieldApiName;
   }
   get fieldnameDataType() {
-    return DATATYPE_FIELD["fieldApiName"];
+    return DATATYPE_FIELD.fieldApiName;
   }
   get fieldnameRequired() {
-    return REQUIRED_FIELD["fieldApiName"];
+    return REQUIRED_FIELD.fieldApiName;
   }
   get fieldnameOptions() {
-    return OPTIONS_FIELD["fieldApiName"];
+    return OPTIONS_FIELD.fieldApiName;
   }
   get fieldnameValue() {
-    return VALUE_FIELD["fieldApiName"];
+    return VALUE_FIELD.fieldApiName;
   }
   get fieldnameSortOrder() {
-    return SORTORDER_FIELD["fieldApiName"];
+    return SORTORDER_FIELD.fieldApiName;
   }
   get fieldnameApplicationTemplate() {
-    return APPLICATIONTEMPLATE_FIELD["fieldApiName"];
+    return APPLICATIONTEMPLATE_FIELD.fieldApiName;
   }
   get fieldnameRowNumber() {
-    return ROW_NUMBER_FIELD["fieldApiName"];
+    return ROW_NUMBER_FIELD.fieldApiName;
   }
   get fieldnamePageNumber() {
-    return PAGE_NUMBER_FIELD["fieldApiName"];
+    return PAGE_NUMBER_FIELD.fieldApiName;
   }
 
   // 新規作成時の項目表示制御関連
@@ -128,14 +125,21 @@ export default class RelatedListEditor extends LightningElement {
     this.wiredRelatedRecords = value;
     const { data, error } = value;
 
-    console.log("wiredGetApplicationTemplateDetailRecordIds called");
+    console.log("wiredGetApplicationTemplateDetailRecordIds called", data);
     if (data) {
       const array = JSON.parse(data);
       if (!array || array.length === 0) {
         return;
       }
+
       this.pages = formatPages(array);
       this.selectedPage = this.pages[0] ?? null;
+      console.log(
+        "wiredGetApplicationTemplateDetailRecordIds",
+        array,
+        this.pages,
+        this.selectedPage
+      );
     } else if (error) {
       console.error(error);
     }
@@ -148,8 +152,6 @@ export default class RelatedListEditor extends LightningElement {
     const selected = evt.detail.name;
     const page = this.pages?.find((p) => p.id === selected);
     this.selectedPage = page ?? null;
-    this.selectedRecordId =
-      this.selectedPage?.rows[0]?.fields[0]?.data?.Id ?? null;
     this.selectedFieldName = this.selectedPage?.rows[0]?.fields[0]?.id;
     this.selectedField = this.selectedPage?.rows[0]?.fields[0];
   }
@@ -158,14 +160,6 @@ export default class RelatedListEditor extends LightningElement {
    * @description  : メニューの項目名がクリックされた場合の処理
    **/
   handleSelectField(evt) {
-    // reset record edit form
-    const inputFields = this.template.querySelectorAll("lightning-input-field");
-    if (inputFields) {
-      inputFields.forEach((field) => {
-        field.reset();
-      });
-    }
-
     const fieldId = evt.detail.name;
     let target = null;
     this.selectedPage?.rows?.forEach((r) => {
@@ -177,20 +171,6 @@ export default class RelatedListEditor extends LightningElement {
     });
     if (!target) {
       return;
-    }
-
-    console.log("target", target);
-
-    const selectedRecordId = target.data?.Id;
-
-    if (!selectedRecordId) {
-      this.selectedRecordId = null;
-      this.isCreateRecord = true;
-      this.isRecordSelected = false;
-    } else {
-      this.isCreateRecord = false;
-      this.isRecordSelected = true;
-      this.selectedRecordId = selectedRecordId;
     }
     this.selectedFieldName = target.id;
     this.selectedField = target;
@@ -212,12 +192,6 @@ export default class RelatedListEditor extends LightningElement {
    **/
   handleSuccess() {
     showToast(this, "成功", "レコードの作成・更新に成功しました", "success");
-
-    // 各状態値をデフォルトに
-    this.selectedRecordId = null;
-    this.isCreateRecord = true;
-    this.isRecordSelected = false;
-
     // 更新された値を再読込
     refreshApex(this.wiredRelatedRecords);
   }
@@ -225,58 +199,102 @@ export default class RelatedListEditor extends LightningElement {
   /**
    * @description  : 定義項目削除ボタンが押された時の処理
    **/
-  handleClickDeleteRecord() {
-    // アラートで確認し、キャンセルであれば処理終了
-    if (!window.confirm("項目を削除します。よろしいですか？")) return;
+  async handleClickDeleteField() {
+    if (!this.selectedPage) {
+      return;
+    }
 
-    // Lightning Data Service の delete メソッドを使用して項目削除
-    deleteRecord(this.selectedRecordId)
-      .then(() => {
-        showToast(this, "成功", "項目の削除に成功しました", "success");
-        this.selectedRecordId = null;
-        this.isCreateRecord = false;
-        this.isRecordSelected = false;
-        this.selectedField = null;
-        this.selectedFieldName = null;
-        refreshApex(this.wiredRelatedRecords);
-      })
-      .catch((err) => {
-        showToast(this,"エラー", err.body.message, "error");
-      });
-  }
-
-  handleClickDeleteNewField() {
     // アラートで確認し、キャンセルであれば処理終了
-    if (!window.confirm("項目を削除します。よろしいですか？")) return;
+    if (!window.confirm("項目を削除します。よろしいですか？")) {
+      return;
+    }
+
+    console.log("hello deliting");
 
     // delete field
-    for (let i = 0; i < this.selectedPage.rows.length; i++) {
-      for (let j = 0; j < this.selectedPage.rows[i].fields.length; j++) {
+    const index = { i: null, j: null, detailId: null };
+    for (let i = 0; i < this.selectedPage?.rows.length; i++) {
+      if (!this.selectedPage?.rows[i]?.fields) {
+        continue;
+      }
+      for (let j = 0; j < this.selectedPage?.rows[i]?.fields.length; j++) {
         if (this.selectedPage.rows[i].fields[j].id === this.selectedFieldName) {
-          this.selectedPage.rows[i].fields.splice(j, 1);
-
-          if (this.selectedPage.rows[i].fields.length === 0) {
-            this.selectedPage.rows.splice(i, 1);
+          if (this.selectedPage.rows[i].fields[j].status === "saved") {
+            index.detailId = this.selectedPage.rows[i].fields[j].data.Id;
           }
-          if (this.selectedPage.rows.length > 0) {
-            this.selectedField = this.selectedPage.rows[0].fields[0];
-            this.selectedFieldName = this.selectedPage.rows[0].fields[0].id;
-            this.isRecordSelected =
-              !!this.selectedPage.rows[0].fields[0].data?.Id;
-            this.isCreateRecord = !this.selectedPage.rows[0].fields[0].data?.Id;
-          } else {
-            this.selectedField = null;
-            this.selectedFieldName = null;
-            this.isRecordSelected = false;
-            this.isCreateRecord = false;
-          }
+          index.i = i;
+          index.j = j;
+          break;
         }
       }
+    }
+
+    try {
+      if (index.detailId) {
+        await deleteRecord(index.detailId);
+        refreshApex(this.wiredRelatedRecords);
+      }
+      // 項目削除
+      this.selectedPage.rows[index.i].fields.splice(index.j, 1);
+      // 項目数０の列は消す。
+      if (this.selectedPage.rows[index.i].fields.length === 0) {
+        this.selectedPage.rows.splice(index.i, 1);
+      }
+      // 項目選択
+      this.selectedField =
+        this.selectedPage.rows.length > 0
+          ? this.selectedPage.rows[0].fields[0]
+          : null;
+      this.selectedFieldName =
+        this.selectedPage.rows.length > 0
+          ? this.selectedPage.rows[0].fields[0].id
+          : null;
+      showToast(this, "成功", "項目を削除しました", "success");
+    } catch (err) {
+      console.error(err);
+      // showToast(this, "エラー", err.body.message, "error");
     }
   }
 
   handleClickDeletePage() {
     console.log("delete page");
+
+    // アラートで確認し、キャンセルであれば処理終了
+    if (!window.confirm("ページを削除します。よろしいですか？")) {
+      return;
+    }
+
+    // delete page
+    const index = { i: null, detailId: null };
+    for (let i = 0; i < this.pages.length; i++) {
+      if (this.pages[i].page === this.selectedPage.page) {
+        index.i = i;
+        break;
+      }
+    }
+
+    if (!index.i) {
+      return;
+    }
+
+    this.pages.splice(index.i, 1);
+    // ページがあるか
+    if (this.pages.length > 0) {
+      // あれば０ページ目
+      this.selectedPage = this.pages[0];
+      // 項目があるか
+      if (this.selectedPage.rows.length > 0) {
+        this.selectedField = this.selectedPage.rows[0].fields[0];
+        this.selectedFieldName = this.selectedPage.rows[0].fields[0].id;
+      } else {
+        this.selectedField = null;
+        this.selectedFieldName = null;
+      }
+    } else {
+      this.selectedPage = null;
+      this.selectedField = null;
+      this.selectedFieldName = null;
+    }
   }
 
   handleClickNewPage() {
@@ -308,16 +326,12 @@ export default class RelatedListEditor extends LightningElement {
           id: `field${this.selectedPage.page}_${nextRowNumber}_1`,
           order: 1,
           displayName: `新規項目`,
-          data: {
-            Category__c: "標準"
-          },
+          data: {},
           status: STATUS_DRAFT
         }
       ]
     });
 
-    this.isCreateRecord = true;
-    this.isRecordSelected = false;
     this.selectedFieldName = `field${this.selectedPage.page}_${nextRowNumber}_1`;
     this.selectedField = this.selectedPage?.rows[nextRowNumber - 1];
   }
@@ -326,31 +340,40 @@ export default class RelatedListEditor extends LightningElement {
     const field = e.currentTarget?.dataset?.fieldName;
     const { value, checked } = e.detail;
 
+    console.log(
+      "handleNewFieldInputChange",
+      field,
+      value,
+      checked,
+      this.selectedField,
+      this.selectedField?.data?.Category__c
+    );
+    if (!field || (!value && !checked)) {
+      return;
+    }
     this.selectedPage.rows.forEach((r) => {
       r.fields.forEach((f) => {
         if (f.id === this.selectedFieldName) {
-          f.data[field] = field === this.fieldnameRequired ? checked : value;
+          const v = field === this.fieldnameRequired ? checked : value;
+          console.log(f.data[field], "vs", v);
+          const valueChanged = f.data[field] !== v;
+          f.data[field] = v;
+          if (valueChanged) {
+            f.status = STATUS_DRAFT;
+          }
           if (field === this.fieldnameName) {
             f.displayName = value ?? "新規項目";
           }
+          console.log(field, value, checked, this.fieldnameRequired, f);
         }
       });
     });
   }
 
-  // lightning-record-form
-  // todo replace with custom form?
-  handleExistingRecordSubmit(e) {
-    console.log("submitting", e.detail.fields);
-    e.preventDefault();
-    /*
-    const fields = e.detail.fields;
-        fields.LastName = 'My Custom Last Name'; // modify a field
-        this.template.querySelector('lightning-record-form').submit(fields);
-        */
-  }
-
   handlePageNameInputChange(e) {
+    if (this.selectedPage.name !== e.detail.value) {
+      this.selectedPage.status = STATUS_DRAFT;
+    }
     this.selectedPage.name = e.detail.value;
   }
 
@@ -363,6 +386,25 @@ export default class RelatedListEditor extends LightningElement {
       recordId: this.recordId
     });
     console.log("saveResult", saveResult);
+    refreshApex(this.wiredRelatedRecords);
+  }
+
+  handleClickCancel() {
+    refreshApex(this.wiredRelatedRecords);
+
+    const { data } = this.wiredRelatedRecords;
+    console.log(data, "hello");
+    if (data) {
+      const array = JSON.parse(data);
+      if (!array || array.length === 0) {
+        return;
+      }
+      this.pages = formatPages(array);
+      this.selectedPage = this.pages[0] ?? null;
+    } else {
+      this.pages = [];
+      this.selectedPage = null;
+    }
   }
 
   handleSort(e) {
@@ -402,5 +444,18 @@ export default class RelatedListEditor extends LightningElement {
 
   get isPageNameEdited() {
     return true;
+  }
+
+  get hasPages() {
+    return !!this.pages && this.pages.length > 0;
+  }
+
+  get hasAnyDraft() {
+    return !!this.pages.find((p) => {
+      return (
+        p.status === STATUS_DRAFT ||
+        !!p.rows.find((r) => r.fields.find((f) => f.status === STATUS_DRAFT))
+      );
+    });
   }
 }

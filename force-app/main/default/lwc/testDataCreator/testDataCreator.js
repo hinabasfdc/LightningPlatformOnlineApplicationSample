@@ -6,11 +6,11 @@ export default class TestDataCreator extends LightningElement {
   handleClickCreateTestData() {
     createTestTemplate()
       .then((ret) => {
-        showToast(this,"成功", ret, "success");
+        showToast(this, "成功", ret, "success");
         console.log(ret);
       })
       .catch((err) => {
-        showToast(this,"エラー", err, "error");
+        showToast(this, "エラー", err, "error");
         console.log(err);
       });
   }

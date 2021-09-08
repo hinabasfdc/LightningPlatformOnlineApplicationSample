@@ -4,13 +4,11 @@ import { ShowToastEvent } from "lightning/platformShowToastEvent";
  * @description  : トースト表示
  **/
 export const showToast = (self, title, message, variant) => {
-  console.log(ShowToastEvent);
   const event = new ShowToastEvent({
     title: title,
     message: message,
     variant: variant
   });
-  console.log(event);
   self.dispatchEvent(event);
 };
 

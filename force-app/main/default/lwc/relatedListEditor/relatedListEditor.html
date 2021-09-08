@@ -1,12 +1,28 @@
 <template>
   <div class="slds-var-p-bottom_medium">
-    <div>
-      <lightning-button
-        variant="brand"
-        label="保存"
-        onclick={handleClickSave}
-      ></lightning-button>
-    </div>
+    <template if:true={hasAnyDraft}>
+      <div
+        class="
+          slds-p-horizontal_medium
+          slds-m-top_small
+          slds-m-bottom_x-small
+          slds-grid slds-grid_align-start
+        "
+      >
+        <lightning-button
+          variant="brand"
+          label="保存"
+          onclick={handleClickSave}
+        ></lightning-button>
+
+        <lightning-button
+          class="slds-m-left_medium"
+          variant="neutral"
+          label="キャンセル"
+          onclick={handleClickCancel}
+        ></lightning-button>
+      </div>
+    </template>
     <lightning-layout>
       <lightning-layout-item>
         <!-- ページ エリア-->
@@ -19,7 +35,7 @@
           >
             <lightning-vertical-navigation-section label="ページ">
               <!-- 定義済みの項目をメニューアイテムとして一覧表示 -->
-              <template if:true={pages}>
+              <template if:true={hasPages}>
                 <template for:each={pages} for:item="p">
                   <div class="nav-item-wrapper page-nav" key={p.id}>
                     <div class="sort-wrapper page-sort">
@@ -57,13 +73,18 @@
                   </div>
                 </template>
               </template>
+              <template if:false={hasPages}>
+                <div class="slds-p-horizontal_medium slds-p-top_small">
+                  <span>ページを追加してください</span>
+                </div>
+              </template>
             </lightning-vertical-navigation-section>
           </lightning-vertical-navigation>
           <div class="slds-p-around_medium">
             <!-- 新規ページ追加 -->
             <lightning-button
               label="新規ページ"
-              variant="brand"
+              variant="brand-outline"
               onclick={handleClickNewPage}
             ></lightning-button>
           </div>
@@ -73,6 +94,11 @@
         <!-- 定義詳細項目 エリア -->
         <div class="slds-box">
           <lightning-layout multiple-rows="true">
+            <template if:false={selectedPage}>
+              <lightning-layout-item size="12">
+                <div>ページを選択すると、項目を操作できます。</div>
+              </lightning-layout-item>
+            </template>
             <template if:true={selectedPage}>
               <lightning-layout-item
                 size="12"
@@ -80,6 +106,11 @@
               >
                 <lightning-layout>
                   <lightning-layout-item>
+                    <span class="slds-form-element__label slds-no-flex"
+                      >ページ名</span
+                    >
+                  </lightning-layout-item>
+                  <lightning-layout-item flexibility="grow">
                     <lightning-input
                       type="text"
                       label="ページ名"
@@ -88,20 +119,7 @@
                       onchange={handlePageNameInputChange}
                     ></lightning-input>
                   </lightning-layout-item>
-                  <lightning-layout-item
-                    class="slds-m-left_medium"
-                    flexibility="grow"
-                  >
-                    <!--
-                    <template if:true={isPageNameEdited}>
-                      <lightning-button
-                        label="保存"
-                        variant="brand"
-                      ></lightning-button>
-                    </template>
-                  -->
-                  </lightning-layout-item>
-                  <lightning-layout-item class="slds-m-left_medium">
+                  <lightning-layout-item class="slds-m-left_xx-large">
                     <lightning-button
                       label="ページを削除"
                       variant="destructive"
@@ -110,97 +128,83 @@
                   </lightning-layout-item>
                 </lightning-layout>
               </lightning-layout-item>
-            </template>
-            <lightning-layout-item size="12">
-              <lightning-layout>
-                <lightning-layout-item>
-                  <template if:true={selectedField}>
-                    <!-- ナビゲーションメニューとして表示し、クリックされたら handleSelectField を呼出 -->
-                    <lightning-vertical-navigation
-                      selected-item={selectedFieldName}
-                      onselect={handleSelectField}
-                      class="field-v-nav"
-                    >
-                      <lightning-vertical-navigation-section>
-                        <!-- 定義済みの項目をメニューアイテムとして一覧表示 -->
-                        <template if:true={selectedPage}>
-                          <template for:each={selectedPage.rows} for:item="r">
-                            <template for:each={r.fields} for:item="f">
-                              <div
-                                class="nav-item-wrapper field-nav"
-                                key={f.id}
-                              >
-                                <div class="sort-wrapper field-sort">
-                                  <lightning-button-icon
-                                    icon-name="utility:up"
-                                    size="small"
-                                    variant="bare"
-                                    alternative-text="Sort Up"
-                                    title="Sort Up"
-                                    data-sort-direction="up"
-                                    data-id={f.id}
-                                    data-sort-type="field"
-                                    onclick={handleSort}
-                                  ></lightning-button-icon>
-                                  <lightning-button-icon
-                                    icon-name="utility:down"
-                                    size="small"
-                                    variant="bare"
-                                    alternative-text="Sort down"
-                                    title="Sort down"
-                                    data-sort-direction="down"
-                                    data-id={f.id}
-                                    data-sort-type="field"
-                                    onclick={handleSort}
-                                  ></lightning-button-icon>
-                                </div>
-                                <lightning-vertical-navigation-item
-                                  key={f.id}
-                                  label={f.displayName}
-                                  name={f.id}
-                                  class={f.status}
-                                ></lightning-vertical-navigation-item>
-                              </div>
+
+              <lightning-layout-item size="12">
+                <lightning-layout>
+                  <lightning-layout-item>
+                    <template if:true={selectedField}>
+                      <!-- ナビゲーションメニューとして表示し、クリックされたら handleSelectField を呼出 -->
+                      <lightning-vertical-navigation
+                        selected-item={selectedFieldName}
+                        onselect={handleSelectField}
+                        class="field-v-nav"
+                      >
+                        <lightning-vertical-navigation-section>
+                          <!-- 定義済みの項目をメニューアイテムとして一覧表示 -->
+                          <template if:true={selectedPage}>
+                            <template for:each={selectedPage.rows} for:item="r">
+                              <template if:true={r}>
+                                <template for:each={r.fields} for:item="f">
+                                  <div
+                                    class="nav-item-wrapper field-nav"
+                                    key={f.id}
+                                  >
+                                    <div class="sort-wrapper field-sort">
+                                      <lightning-button-icon
+                                        icon-name="utility:up"
+                                        size="small"
+                                        variant="bare"
+                                        alternative-text="Sort Up"
+                                        title="Sort Up"
+                                        data-sort-direction="up"
+                                        data-id={f.id}
+                                        data-sort-type="field"
+                                        onclick={handleSort}
+                                      ></lightning-button-icon>
+                                      <lightning-button-icon
+                                        icon-name="utility:down"
+                                        size="small"
+                                        variant="bare"
+                                        alternative-text="Sort down"
+                                        title="Sort down"
+                                        data-sort-direction="down"
+                                        data-id={f.id}
+                                        data-sort-type="field"
+                                        onclick={handleSort}
+                                      ></lightning-button-icon>
+                                    </div>
+                                    <lightning-vertical-navigation-item
+                                      key={f.id}
+                                      label={f.displayName}
+                                      name={f.id}
+                                      class={f.status}
+                                    ></lightning-vertical-navigation-item>
+                                  </div>
+                                </template>
+                              </template>
                             </template>
                           </template>
-                        </template>
-                      </lightning-vertical-navigation-section>
-                    </lightning-vertical-navigation>
-                  </template>
-                  <div class="slds-p-around_medium">
-                    <!-- 新規ページ追加 -->
-                    <lightning-button
-                      label="新規項目"
-                      variant="brand"
-                      onclick={handleClickNewField}
-                    ></lightning-button>
-                    <!--
+                        </lightning-vertical-navigation-section>
+                      </lightning-vertical-navigation>
+                    </template>
+                    <div class="slds-p-around_medium">
+                      <!-- 新規ページ追加 -->
+                      <lightning-button
+                        label="新規項目"
+                        variant="brand-outline"
+                        onclick={handleClickNewField}
+                      ></lightning-button>
+                      <!--
                     <lightning-button
                       label="列を追加"
                       variant="neutral"
                       onclick={handleClickNewRow}
                     ></lightning-button>
-                    -->
-                  </div>
-                </lightning-layout-item>
-                <lightning-layout-item flexibility="grow">
-                  <!-- 項目内容表示エリア -->
-                  <div class="slds-box">
-                    <!-- 新規作成パネル -->
-                    <template if:true={isCreateRecord}>
-                      <div
-                        class="
-                          slds-m-bottom_small
-                          slds-grid slds-grid_align-end
-                        "
-                      >
-                        <lightning-button
-                          class="slds-col"
-                          label="項目削除"
-                          variant="destructive"
-                          onclick={handleClickDeleteNewField}
-                        ></lightning-button>
-                      </div>
+                    --></div>
+                  </lightning-layout-item>
+                  <lightning-layout-item flexibility="grow">
+                    <!-- 項目内容表示エリア -->
+                    <div class="slds-box">
                       <lightning-record-edit-form
                         object-api-name={objectApiNameApplicationTemplateDetail}
                         onsubmit={handleSubmit}
@@ -276,61 +280,22 @@
                           field-name={fieldnameSortOrder}
                         ></lightning-input-field>
                         -->
-
-                        <!-- 登録ボタン -->
-                        <!--
-                        <div class="slds-var-m-top_medium">
-                          <lightning-button
-                            variant="brand"
-                            type="submit"
-                            name="save"
-                            label="追加登録"
-                          >
-                          </lightning-button>
-                        </div>
-                      -->
                       </lightning-record-edit-form>
-                    </template>
-
-                    <!-- 既存編集パネル -->
-                    <template if:true={isRecordSelected}>
-                      <lightning-card
-                        title="詳細"
-                        icon-name="standard:custom"
-                        variant="text-destructive"
+                      <div
+                        class="slds-m-top_small slds-grid slds-grid_align-end"
                       >
-                        <div slot="actions">
-                          <lightning-button
-                            label="項目削除"
-                            variant="destructive"
-                            onclick={handleClickDeleteRecord}
-                          ></lightning-button>
-                        </div>
-
-                        <!-- 各項目を表示(標準コンポーネントを使用) -->
-                        <lightning-record-form
-                          record-id={selectedRecordId}
-                          object-api-name={objectApiNameApplicationTemplateDetail}
-                          layout-type="Full"
-                          mode="view"
-                          fields={editRecordColumns}
-                          onsuccess={handleSuccess}
-                          onsubmit={handleExistingRecordSubmit}
-                        >
-                        </lightning-record-form>
-                      </lightning-card>
-                    </template>
-
-                    <!-- 新規作成でも項目選択でもない時(レコード保存時など) -->
-                    <template if:false={isCreateRecord}>
-                      <template if:false={isRecordSelected}>
-                        左メニューより項目を選択してください。
-                      </template>
-                    </template>
-                  </div>
-                </lightning-layout-item>
-              </lightning-layout>
-            </lightning-layout-item>
+                        <lightning-button
+                          class="slds-col"
+                          label="項目削除"
+                          variant="destructive"
+                          onclick={handleClickDeleteField}
+                        ></lightning-button>
+                      </div>
+                    </div>
+                  </lightning-layout-item>
+                </lightning-layout>
+              </lightning-layout-item>
+            </template>
           </lightning-layout>
         </div>
       </lightning-layout-item>

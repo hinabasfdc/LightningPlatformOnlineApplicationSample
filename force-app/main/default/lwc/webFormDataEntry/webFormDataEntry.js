@@ -29,7 +29,7 @@ export default class WebFormDataEntry extends LightningElement {
    * @description : 初期化処理。データが渡された場合はそれを元に入力項目を構成、そうでない場合は申請定義明細を元に構成
    */
   connectedCallback() {
-    console.log('entry connectedCallback', this.inputData);
+    console.log("entry connectedCallback", this.inputData);
     if (this.inputData) {
       // inputData に値が入っている(次ページから戻ってきた)場合には渡された値を代入
       const data = JSON.parse(this.inputData);
@@ -75,9 +75,9 @@ export default class WebFormDataEntry extends LightningElement {
       }
       if (ps[d[fnATD_PAGE_NUMBER] - 1]) {
         if (ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1]) {
-          ps[d[fnATD_PAGE_NUMBER] - 1].rows[
-            d[fnATD_ROW_NUMBER] - 1
-          ].cols.push(d);
+          ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1].cols.push(
+            d
+          );
         } else {
           ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1] = {
             row: d[fnATD_ROW_NUMBER],
@@ -97,7 +97,7 @@ export default class WebFormDataEntry extends LightningElement {
       }
       return ps;
     }, []);
-  }
+  };
 
   getPageCols = (inputPageNumber) => {
     const page = this.pages?.find((p) => p.page === inputPageNumber) ?? null;
@@ -195,5 +195,4 @@ export default class WebFormDataEntry extends LightningElement {
 
     return true;
   }
-
 }

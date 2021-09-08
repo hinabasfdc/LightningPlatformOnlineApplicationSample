@@ -20,11 +20,9 @@ export default class WebFormComplete extends LightningElement {
 
   // 申請定義の各種項目値を返す getter
   get message() {
-    return this.appTemplate.fields[fnAT_THANKYOUPAGEDESCRIPTION_FIELD]
-      .value
+    return this.appTemplate.fields[fnAT_THANKYOUPAGEDESCRIPTION_FIELD].value
       ? this._decodeHtml(
-          this.appTemplate.fields[fnAT_THANKYOUPAGEDESCRIPTION_FIELD]
-            .value
+          this.appTemplate.fields[fnAT_THANKYOUPAGEDESCRIPTION_FIELD].value
         )
       : false;
   }

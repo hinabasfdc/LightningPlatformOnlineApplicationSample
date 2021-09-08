@@ -55,7 +55,6 @@ export default class WebForm extends LightningElement {
    */
   @wire(getRecord, { recordId: "$recordId", fields: GETRECORD_FIELDS })
   wiredGetTemplateRecord({ data, error }) {
-
     if (data) {
       // 申請定義が見つかった場合
       console.log("Template data", data);
@@ -262,5 +261,4 @@ export default class WebForm extends LightningElement {
         break;
     }
   }
-
 }
