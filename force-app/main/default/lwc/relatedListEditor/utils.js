@@ -4,6 +4,7 @@ export const STATUS_SAVED = "saved";
 
 export const formatPages = (raw) => {
   // ページ
+  console.log(raw[0].objApplicationTemplate__r.InputPageNames__c);
   const pageNames =
     raw[0].objApplicationTemplate__r.InputPageNames__c?.split(",")?.map((p) =>
       p.trim()

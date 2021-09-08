@@ -1,6 +1,5 @@
-import { LightningElement, api } from "lwc";
+import { LightningElement, api, track } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
-
 import upsertApplication from "@salesforce/apex/DAF_RecordOperationApexController.upsertApplication";
 import upsertApplicationDetails from "@salesforce/apex/DAF_RecordOperationApexController.upsertApplicationDetails";
 import createContentDocumentLink from "@salesforce/apex/DAF_FileAttachementApexController.createContentDocumentLink";
@@ -35,34 +34,29 @@ export default class WebFormConfirm extends LightningElement {
   buttonNextEnabled = false;
 
   @api inputData;
-  @api selectedAppId;
   @api uploadedFileDocumentIds;
   @api appTemplate;
-  columns;
+  @track columns;
   objectApiName = onAPPLICATION_OBJECT;
   createdAppRecordId;
 
   // 申請定義の各種項目値を返す getter
   get checkboxConfirmEnabled() {
-    return this.appTemplate.fields[fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD]
-      .value
-      ? true
-      : false;
+    return !!this.appTemplate.fields[fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD]
+      .value;
   }
   get checkboxConfirmText() {
-    return this.appTemplate.fields[fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD]
-      .value
-      ? this.appTemplate.fields[fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD].value
-      : "内容を確認しました";
+    return (
+      this.appTemplate.fields[fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD].value ??
+      "内容を確認しました"
+    );
   }
   get isFileUploadAccepted() {
-    return this.appTemplate.fields[fnAT_ISFILEUPLOADACCEPTED_FIELD].value
-      ? true
-      : false;
+    return !!this.appTemplate.fields[fnAT_ISFILEUPLOADACCEPTED_FIELD].value;
   }
   get numOfUploadedFiled() {
-    const a = JSON.parse(this.uploadedFileDocumentIds);
-    return a.length;
+    const files = JSON.parse(this.uploadedFileDocumentIds);
+    return files.length;
   }
 
   /**
@@ -91,19 +85,23 @@ export default class WebFormConfirm extends LightningElement {
   _upsertApplicationSync() {
     return new Promise((resolve, reject) => {
       // 標準項目のデータ登録用オブジェクト作成し、申請手続き ID と、すでに登録されていた場合は ID を設定
-      let std = {};
-      std[fnA_APPTEMP_FIELD] = this.selectedAppId;
-
       // 値格納変数から、標準項目の値を抽出し、データ登録用オブジェクトに追加
-      for (let i = 0; i < this.columns.length; i++)
-        if (
-          this.columns[i][fnATD_CATEGORY_FIELD] === "標準" &&
-          this.columns[i][fnATD_STDCOLUMNNAME_FIELD] &&
-          this.columns[i][fnATD_VALUE_FIELD]
+      const std = this.columns
+        .filter(
+          (c) =>
+            c[fnATD_CATEGORY_FIELD] === "標準" &&
+            c[fnATD_STDCOLUMNNAME_FIELD] &&
+            c[fnATD_VALUE_FIELD]
         )
-          std[this.columns[i][fnATD_STDCOLUMNNAME_FIELD]] =
-            this.columns[i][fnATD_VALUE_FIELD];
+        .reduce(
+          (params, c) => {
+            params[c[fnATD_STDCOLUMNNAME_FIELD]] = c[fnATD_VALUE_FIELD];
+            return params;
+          },
+          { [fnA_APPTEMP_FIELD]: this.appTemplate?.fields?.Id?.value ?? null }
+        );
 
+      console.log(std);
       // データ登録用オブジェクトを JSON 化して、Apex メソッドを呼び出し
       const params = {
         std: JSON.stringify(std)
@@ -130,50 +128,41 @@ export default class WebFormConfirm extends LightningElement {
       console.log("[DEBUG] _upsertApplicationDetails");
 
       // レコードIDが無い場合は終了
-      if (!recordId) resolve();
-
-      // データ登録用の配列を設定
-      let customs = [];
-      for (let i = 0; i < this.columns.length; i++) {
-        if (this.columns[i][fnATD_CATEGORY_FIELD] === "カスタム") {
-          // 一項目分のデータを格納するオブジェクトを作成し、申請および申請定義明細のレコード ID を設定
-          let custom = {};
-          custom[fnAD_APP_FIELD] = recordId;
-          custom[fnAD_APPTEMPDET_FIELD] = this.columns[i].Id;
-          // データがすでに作成されている場合は更新用に ID を設定
-          if (this.columns[i].detailRecordId)
-            custom.Id = this.columns[i].detailRecordId;
-
-          // データ型に応じて、適切な項目に値を代入
-          if (this.columns[i][fnATD_ISTEXT_FIELD])
-            custom[fnAD_TEXT_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
-          else if (this.columns[i][fnATD_ISLONGTEXTAREA_FIELD])
-            custom[fnAD_LONGTEXTAREA_FIELD] =
-              this.columns[i][fnATD_VALUE_FIELD];
-          else if (this.columns[i][fnATD_ISNUMBER_FIELD])
-            custom[fnAD_NUMBER_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
-          else if (this.columns[i][fnATD_ISMAIL_FIELD])
-            custom[fnAD_TEXT_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
-          else if (this.columns[i][fnATD_ISURL_FIELD])
-            custom[fnAD_LONGTEXTAREA_FIELD] =
-              this.columns[i][fnATD_VALUE_FIELD];
-          else if (this.columns[i][fnATD_ISDATE_FIELD])
-            custom[fnAD_TEXT_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
-          else if (this.columns[i][fnATD_ISTIME_FIELD])
-            custom[fnAD_TEXT_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
-          else if (this.columns[i][fnATD_ISCURRENCY_FIELD])
-            custom[fnAD_NUMBER_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
-          else if (this.columns[i][fnATD_ISCHECKBOX_FIELD])
-            custom[fnAD_TEXT_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
-          else if (this.columns[i][fnATD_ISPICKLIST_FIELD])
-            custom[fnAD_TEXT_FIELD] = this.columns[i][fnATD_VALUE_FIELD];
-
-          customs.push(custom);
-        }
+      if (!recordId) {
+        resolve();
       }
 
+      // データ登録用の配列を設定
+      const customs = this.columns
+        .filter((c) => c[fnATD_CATEGORY_FIELD] === "カスタム")
+        .map((c) => {
+          const v = c[fnATD_VALUE_FIELD];
+          return {
+            [fnAD_APP_FIELD]: recordId,
+            [fnAD_APPTEMPDET_FIELD]: c.Id,
+            Id: c.detailRecordId ?? null,
+            [fnAD_TEXT_FIELD]:
+              c[fnATD_ISTEXT_FIELD] ||
+              c[fnATD_ISMAIL_FIELD] ||
+              c[fnATD_ISDATE_FIELD] ||
+              c[fnATD_ISTIME_FIELD] ||
+              c[fnATD_ISCHECKBOX_FIELD] ||
+              c[fnATD_ISPICKLIST_FIELD]
+                ? v
+                : null,
+            [fnAD_LONGTEXTAREA_FIELD]:
+              c[fnATD_ISLONGTEXTAREA_FIELD] || c[fnATD_ISURL_FIELD] ? v : null,
+            [fnAD_NUMBER_FIELD]:
+              c[fnATD_ISNUMBER_FIELD] || c[fnATD_ISCURRENCY_FIELD] ? v : null
+          };
+        });
+
       // カスタム項目が無い場合は終了
-      if (customs.length === 0) resolve();
+      if (customs.length === 0) {
+        resolve();
+      }
+
+      console.log(customs);
 
       // データ登録用オブジェクトの配列を JSON 化して、Apex メソッドを呼び出し
       const params = {
@@ -183,18 +172,20 @@ export default class WebFormConfirm extends LightningElement {
         .then((ret) => {
           const retvals = JSON.parse(ret);
 
-          // 申請明細定義のレコード ID と作成された申請明細レコード ID のマッピングを作成
-          let createdRecords = {};
-          for (let i = 0; i < retvals.length; i++)
-            createdRecords[retvals[i][fnAD_APPTEMPDET_FIELD]] =
-              retvals[i].Id;
-
           // データ保管用オブジェクト配列に作成された申請明細レコードの ID を設定
-          for (let j = 0; j < this.columns.length; j++)
-            if (this.columns[j][fnATD_CATEGORY_FIELD] === "カスタム")
-              this.columns[j].detailRecordId =
-                createdRecords[this.columns[j].Id];
-
+          this.columns = this.columns.map((c) => {
+            if (c[fnATD_CATEGORY_FIELD] !== "カスタム") {
+              return c;
+            }
+            const detailTemplate = retvals.find(
+              (v) => v[fnAD_APPTEMPDET_FIELD] === c.Id
+            );
+            if (!detailTemplate) {
+              return c;
+            }
+            c.detailRecordId = detailTemplate.Id;
+            return c;
+          });
           resolve();
         })
         .catch((err) => {
@@ -240,16 +231,19 @@ export default class WebFormConfirm extends LightningElement {
    */
   async handleClickPageNext() {
     try {
-      //recordId 取得のため、申請オブジェクトへレコードへの書き込み完了を待つ
-
       // 親の申請レコード
       this.createdAppRecordId = await this._upsertApplicationSync();
+      console.log(this.createdAppRecordId);
       // 子の申請明細レコード
       await this._upsertApplicationDetailsSync(this.createdAppRecordId);
       // ファイルの紐付け
       if (this.uploadedFileDocumentIds) {
-        const a = JSON.parse(this.uploadedFileDocumentIds);
-        if (a.length > 0) await this._createAttachmentFileLink();
+        const uploadedFileDocumentIds = JSON.parse(
+          this.uploadedFileDocumentIds
+        );
+        if (uploadedFileDocumentIds.length > 0) {
+          await this._createAttachmentFileLink();
+        }
       }
 
       // WebForm のメソッドを呼び出し

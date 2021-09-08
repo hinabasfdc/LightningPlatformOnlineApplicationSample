@@ -37,7 +37,6 @@ export default class WebForm extends LightningElement {
 
   // サブコンポーネントにまたがって使用する変数を定義 & 初期化
   currentPage = PAGE_SELECTOR; // ページ遷移現在位置
-  selectedAppId = ""; // 選択された手続きの SalesforceID
   inputData = ""; // 入力された値を格納しておく。JSON 化するので文字列
   createdAppRecordId = ""; // 作成された申請レコードの SalesforceID
   uploadedFileDocumentIds = ""; // アップロードしたファイルの SalesforceID を格納しておく。JSON 化するので文字列
