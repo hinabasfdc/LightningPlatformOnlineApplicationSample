@@ -1,13 +1,21 @@
 import { LightningElement, api, wire, track } from "lwc";
 import { getRecord } from "lightning/uiRecordApi";
 import { GETRECORD_FIELDS } from "c/appTemplateSchema";
-import { ShowToastEvent } from "lightning/platformShowToastEvent";
+import { showToast, getURLParameter } from "c/webFormUtils";
 const PAGE_SELECTOR = "selector";
 const PAGE_OVERVIEW = "overview";
 const PAGE_DATA_ENTRY = "dataentry";
 const PAGE_ATTACH_FILE = "attachfile";
 const PAGE_CONFIRM = "confirm";
 const PAGE_COMPLETE = "complete";
+const PAGES = [
+  PAGE_SELECTOR,
+  PAGE_OVERVIEW,
+  PAGE_DATA_ENTRY,
+  PAGE_ATTACH_FILE,
+  PAGE_CONFIRM,
+  PAGE_COMPLETE
+];
 
 const STEP_OVERVIEW = "手続き概要";
 const STEP_FILE_ATTACH = "ファイル添付";
@@ -40,16 +48,17 @@ export default class WebForm extends LightningElement {
   inputData = ""; // 入力された値を格納しておく。JSON 化するので文字列
   createdAppRecordId = ""; // 作成された申請レコードの SalesforceID
   uploadedFileDocumentIds = ""; // アップロードしたファイルの SalesforceID を格納しておく。JSON 化するので文字列
-  pages;
+  pages = PAGES; // ページの順序を初期化
 
   /**
    * @description : 選択された申請手続きのレコードを取得する(実運用においては状態や有効期限をチェックして処理を行うべき。その場合は uiRecordApi ではなくカスタム Apex メソッドの方が適しているかもしれない)
    */
   @wire(getRecord, { recordId: "$recordId", fields: GETRECORD_FIELDS })
-  wiredGetRecord({ data, error }) {
+  wiredGetTemplateRecord({ data, error }) {
+
     if (data) {
       // 申請定義が見つかった場合
-      console.log("got data", data, data.childRelationships);
+      console.log("Template data", data);
       this.appTemplate = data;
 
       const inputPages =
@@ -72,7 +81,7 @@ export default class WebForm extends LightningElement {
       }
     } else if (error) {
       console.error(error);
-      this._showToast("wiredGetRecordId", error, "error");
+      showToast(this, "wiredGetRecordId", error, "error");
     } else {
       console.log("nodata noerror");
     }
@@ -102,18 +111,8 @@ export default class WebForm extends LightningElement {
    * @description: 初期化。行うのはページ表示状態の初期設定のみ
    */
   connectedCallback() {
-    // ページの順序を初期化
-    this.pages = [
-      PAGE_SELECTOR,
-      PAGE_OVERVIEW,
-      PAGE_DATA_ENTRY,
-      PAGE_ATTACH_FILE,
-      PAGE_CONFIRM,
-      PAGE_COMPLETE
-    ];
-
     // URL パラメータ c__templateId をチェックし、直接 overviews 画面に遷移
-    const c__templateId = this._getURLParameter("c__templateId");
+    const c__templateId = getURLParameter("c__templateId");
     if (c__templateId) {
       this.currentPage = PAGE_SELECTOR;
       // event オブジェクト構造を模倣
@@ -160,9 +159,9 @@ export default class WebForm extends LightningElement {
           return;
         }
         // TODO: pageごとに分割
-        console.log('input data', data);
+        console.log("input data", data);
         this.inputData = data;
-        if(inputPage !== this.inputPages.length) {
+        if (inputPage !== this.inputPages.length) {
           this.currentInputPage++;
           return;
         }
@@ -198,14 +197,14 @@ export default class WebForm extends LightningElement {
     const { data, inputPage } = evt?.detail ?? {};
     if (this.currentPage === PAGE_OVERVIEW) {
       this.selectedApplicationId = "";
-    } else if(this.currentPage === PAGE_DATA_ENTRY) {
+    } else if (this.currentPage === PAGE_DATA_ENTRY) {
       if (!inputPage) {
         return;
       }
       // TODO: pageごとに分割
-      console.log('input data', data, inputPage);
+      console.log("input data", data, inputPage);
       this.inputData = data;
-      if(inputPage > 1) {
+      if (inputPage > 1) {
         this.currentInputPage--;
         return;
       }
@@ -248,7 +247,7 @@ export default class WebForm extends LightningElement {
             ? this.inputPages[0]
             : this.inputPages[this.inputPages.length - 1];
         this.currentInputPage = dir === NEXT ? 1 : this.inputPages.length;
-        console.log('cur input page', this.currentStep, this.currentInputPage);
+        console.log("cur input page", this.currentStep, this.currentInputPage);
         break;
       case PAGE_ATTACH_FILE:
         this.currentStep = STEP_FILE_ATTACH;
@@ -264,22 +263,4 @@ export default class WebForm extends LightningElement {
     }
   }
 
-  /**
-   * @description  : 指定された URL パラメータの値を返す(c__XXXX のパラメータ名にする必要あり)
-   **/
-  _getURLParameter(key) {
-    return new URL(window.location.href).searchParams.get(key);
-  }
-
-  /**
-   * @description  : トースト表示
-   **/
-  _showToast(title, message, variant) {
-    const event = new ShowToastEvent({
-      title: title,
-      message: message,
-      variant: variant
-    });
-    this.dispatchEvent(event);
-  }
 }

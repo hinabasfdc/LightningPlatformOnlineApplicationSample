@@ -1,5 +1,4 @@
 import { LightningElement, api, track } from "lwc";
-import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import upsertApplication from "@salesforce/apex/DAF_RecordOperationApexController.upsertApplication";
 import upsertApplicationDetails from "@salesforce/apex/DAF_RecordOperationApexController.upsertApplicationDetails";
 import createContentDocumentLink from "@salesforce/apex/DAF_FileAttachementApexController.createContentDocumentLink";
@@ -257,17 +256,5 @@ export default class WebFormConfirm extends LightningElement {
     } catch (err) {
       console.log(err);
     }
-  }
-
-  /**
-   * @description  : トースト表示
-   **/
-  _showToast(title, message, variant) {
-    const event = new ShowToastEvent({
-      title: title,
-      message: message,
-      variant: variant
-    });
-    this.dispatchEvent(event);
   }
 }

@@ -1,9 +1,8 @@
 import { LightningElement, api, wire, track } from "lwc";
 import { refreshApex } from "@salesforce/apex";
-import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { deleteRecord } from "lightning/uiRecordApi";
 import { formatPages, formatPagesForSave, STATUS_DRAFT } from "./utils";
-
+import { showToast } from "c/webFormUtils";
 import getApplicationTemplateDetailRecordIds from "@salesforce/apex/DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecordIds";
 import saveApplicationTemplateDetails from "@salesforce/apex/DAF_RelatedListEditorApexController.saveApplicationTemplateDetails";
 
@@ -212,7 +211,7 @@ export default class RelatedListEditor extends LightningElement {
    * @description  : 保存処理成功時に呼ばれる処理
    **/
   handleSuccess() {
-    this._showToast("成功", "レコードの作成・更新に成功しました", "success");
+    showToast(this, "成功", "レコードの作成・更新に成功しました", "success");
 
     // 各状態値をデフォルトに
     this.selectedRecordId = null;
@@ -233,7 +232,7 @@ export default class RelatedListEditor extends LightningElement {
     // Lightning Data Service の delete メソッドを使用して項目削除
     deleteRecord(this.selectedRecordId)
       .then(() => {
-        this._showToast("成功", "項目の削除に成功しました", "success");
+        showToast(this, "成功", "項目の削除に成功しました", "success");
         this.selectedRecordId = null;
         this.isCreateRecord = false;
         this.isRecordSelected = false;
@@ -242,7 +241,7 @@ export default class RelatedListEditor extends LightningElement {
         refreshApex(this.wiredRelatedRecords);
       })
       .catch((err) => {
-        this._showToast("エラー", err.body.message, "error");
+        showToast(this,"エラー", err.body.message, "error");
       });
   }
 
@@ -274,18 +273,6 @@ export default class RelatedListEditor extends LightningElement {
         }
       }
     }
-  }
-
-  /**
-   * @description  : トースト表示
-   **/
-  _showToast(title, message, variant) {
-    const evt = new ShowToastEvent({
-      title: title,
-      message: message,
-      variant: variant
-    });
-    this.dispatchEvent(evt);
   }
 
   handleClickDeletePage() {

@@ -1,5 +1,5 @@
 import { LightningElement, api } from "lwc";
-import { ShowToastEvent } from "lightning/platformShowToastEvent";
+import { showToast } from "c/webFormUtils";
 import getContentVersionListJson from "@salesforce/apex/DAF_FileAttachementApexController.getContentVersionListJson";
 import deleteFile from "@salesforce/apex/DAF_FileAttachementApexController.deleteFile";
 import { fnAT_FILEUPLOADDESCRIPTION_FIELD, fnAT_ISFILEUPLOADACCEPTED_FIELD } from "c/appTemplateSchema";
@@ -67,7 +67,7 @@ export default class WebFormAttachFile extends LightningElement {
       };
       deleteFile(params)
         .then(() => {
-          this._showToast("成功", "ファイルの削除に成功しました", "success");
+          showToast(this,"成功", "ファイルの削除に成功しました", "success");
           // ファイル一覧を更新
           const idx = this.documentIds.indexOf(cdid);
           if (idx >= 0) this.documentIds.splice(idx, 1);
@@ -79,7 +79,7 @@ export default class WebFormAttachFile extends LightningElement {
           }
         })
         .catch((err) => {
-          this._showToast(
+          showToast(this,
             "エラー",
             "ファイルの削除に失敗しました " + err.body.message,
             "error"
@@ -217,17 +217,5 @@ export default class WebFormAttachFile extends LightningElement {
         }
       })
     );
-  }
-
-  /**
-   * @description  : トースト表示
-   **/
-  _showToast(title, message, variant) {
-    const event = new ShowToastEvent({
-      title: title,
-      message: message,
-      variant: variant
-    });
-    this.dispatchEvent(event);
   }
 }

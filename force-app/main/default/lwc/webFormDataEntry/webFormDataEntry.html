@@ -5,6 +5,16 @@
         <div class="slds-box">
           <template if:true={columns}>
             <lightning-record-edit-form object-api-name={objectApiName}>
+              <template if:true={zeroColumns}>
+                <div class="slds-p-around_medium">
+                  <lightning-icon
+                    icon-name="utility:warning"
+                    size="small"
+                    variant="warning"
+                  ></lightning-icon>
+                  <span>入力項目が定義されていません。</span>
+                </div>
+              </template>
               <!-- 定義された項目数繰り返し -->
               <template for:each={columns} for:item="column">
                 <div key={column.Id} class="slds-var-m-top_small">

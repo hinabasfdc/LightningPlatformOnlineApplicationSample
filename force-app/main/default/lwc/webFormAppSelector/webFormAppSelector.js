@@ -1,5 +1,5 @@
 import { LightningElement, api, wire } from "lwc";
-import { ShowToastEvent } from "lightning/platformShowToastEvent";
+import { showToast } from "c/webFormUtils";
 
 import getActiveApplications from "@salesforce/apex/DAF_RecordOperationApexController.getActiveApplications";
 
@@ -39,7 +39,7 @@ export default class WebFormAppSelector extends LightningElement {
         });
     } else if (error) {
       console.log(error);
-      this._showToast("wiredActiveApplications", error, "error");
+      showToast(this,"wiredActiveApplications", error, "error");
     }
   }
 
@@ -54,17 +54,5 @@ export default class WebFormAppSelector extends LightningElement {
         }
       })
     );
-  }
-
-  /**
-   * @description  : トースト表示
-   **/
-  _showToast(title, message, variant) {
-    const event = new ShowToastEvent({
-      title: title,
-      message: message,
-      variant: variant
-    });
-    this.dispatchEvent(event);
   }
 }

@@ -1,5 +1,4 @@
 import { LightningElement, api, track } from "lwc";
-import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import {
   onAPPLICATION_OBJECT,
   fnATD_DATATYPE_FIELD,
@@ -37,11 +36,13 @@ export default class WebFormDataEntry extends LightningElement {
       this.pages = this.convertDetailsDataIntoPages(data);
       return;
     }
+    console.log(this.appTemplate?.fields.Id.value);
     getApplicationTemplateDetailsJson({
-      recordId: this.appTemplate.fields.Id.value
+      recordId: this.appTemplate?.fields.Id.value
     })
       .then((ret) => {
-        const data = JSON.parse(ret);
+        console.log(ret);
+        const data = ret ? JSON.parse(ret) : [];
         this.pages = this.convertDetailsDataIntoPages(data);
       })
       .catch((err) => {
@@ -52,6 +53,10 @@ export default class WebFormDataEntry extends LightningElement {
   get columns() {
     const cols = this.getPageCols(this.currentInputPage);
     return cols;
+  }
+
+  get zeroColumns() {
+    return !this.columns || this.columns.length === 0;
   }
 
   convertDetailsDataIntoPages = (data) => {
@@ -191,15 +196,4 @@ export default class WebFormDataEntry extends LightningElement {
     return true;
   }
 
-  /**
-   * @description  : トースト表示
-   **/
-  _showToast(title, message, variant) {
-    const event = new ShowToastEvent({
-      title: title,
-      message: message,
-      variant: variant
-    });
-    this.dispatchEvent(event);
-  }
 }

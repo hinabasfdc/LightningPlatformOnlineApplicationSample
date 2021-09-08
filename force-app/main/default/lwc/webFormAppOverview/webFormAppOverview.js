@@ -28,7 +28,7 @@ export default class WebFormAppOverview extends LightningElement {
   get buttonNextEnabled() {
     return (
       this.agreementButtonChecked ||
-      !this.appTemplate?.fields[fnAT_ISAGREEMENTCHECKBOXENABLED_FIELD]
+      !this.appTemplate?.fields[fnAT_ISAGREEMENTCHECKBOXENABLED_FIELD].value
     );
   }
 

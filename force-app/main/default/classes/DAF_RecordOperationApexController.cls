@@ -76,9 +76,9 @@ public with sharing class DAF_RecordOperationApexController {
       WHERE objApplicationTemplate__c = :recordId
       ORDER BY SortOrder__c ASC
     ];
-    if (atds.size() > 0)
+    if (atds.size() > 0) {
       retval = System.JSON.serialize(atds);
-
+    }
     return retval;
   }
 
