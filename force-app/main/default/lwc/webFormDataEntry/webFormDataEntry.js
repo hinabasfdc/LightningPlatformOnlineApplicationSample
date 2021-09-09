@@ -21,27 +21,23 @@ export default class WebFormDataEntry extends LightningElement {
   @api createdApplicationRecordId;
   @api appTemplate;
 
-  @track
-  pages;
+  @track pages;
   objectApiName = onAPPLICATION_OBJECT;
 
   /**
    * @description : 初期化処理。データが渡された場合はそれを元に入力項目を構成、そうでない場合は申請定義明細を元に構成
    */
   connectedCallback() {
-    console.log("entry connectedCallback", this.inputData);
     if (this.inputData) {
       // inputData に値が入っている(次ページから戻ってきた)場合には渡された値を代入
       const data = JSON.parse(this.inputData);
       this.pages = this.convertDetailsDataIntoPages(data);
       return;
     }
-    console.log(this.appTemplate?.fields.Id.value);
     getApplicationTemplateDetailsJson({
       recordId: this.appTemplate?.fields.Id.value
     })
       .then((ret) => {
-        console.log(ret);
         const data = ret ? JSON.parse(ret) : [];
         this.pages = this.convertDetailsDataIntoPages(data);
       })
@@ -60,43 +56,60 @@ export default class WebFormDataEntry extends LightningElement {
   }
 
   convertDetailsDataIntoPages = (data) => {
-    return data.reduce((ps, d) => {
-      if (d[fnATD_DATATYPE_FIELD] === "チェックボックス") {
-        d.isCheckboxChecked = d[fnATD_TEXT_FIELD] === "true";
-      }
-      // 項目が選択リストだった場合は、選択肢の項目値からコンボボックスの選択肢形式に変換
-      if (d[fnATD_DATATYPE_FIELD] === "選択リスト") {
-        d.PicklistValues = d[fnATD_OPTIONS_FIELD]?.split(",").map((o) => {
-          return {
-            label: o,
-            value: o
-          };
-        });
-      }
-      if (ps[d[fnATD_PAGE_NUMBER] - 1]) {
-        if (ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1]) {
-          ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1].cols.push(
-            d
-          );
+    return data
+      .reduce((ps, d) => {
+        if (d[fnATD_DATATYPE_FIELD] === "チェックボックス") {
+          d.isCheckboxChecked = d[fnATD_TEXT_FIELD] === "true";
+        }
+        // 項目が選択リストだった場合は、選択肢の項目値からコンボボックスの選択肢形式に変換
+        if (d[fnATD_DATATYPE_FIELD] === "選択リスト") {
+          d.PicklistValues = d[fnATD_OPTIONS_FIELD]?.split(",").map((o) => {
+            return {
+              label: o,
+              value: o
+            };
+          });
+        }
+        if (ps[d[fnATD_PAGE_NUMBER] - 1]) {
+          if (ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1]) {
+            ps[d[fnATD_PAGE_NUMBER] - 1].rows[
+              d[fnATD_ROW_NUMBER] - 1
+            ].cols.push(d);
+          } else {
+            ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1] = {
+              row: d[fnATD_ROW_NUMBER],
+              cols: [d]
+            };
+          }
         } else {
+          ps[d[fnATD_PAGE_NUMBER] - 1] = {
+            page: d[fnATD_PAGE_NUMBER],
+            rows: []
+          };
+          // 今は１列１行
           ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1] = {
             row: d[fnATD_ROW_NUMBER],
             cols: [d]
           };
         }
-      } else {
-        ps[d[fnATD_PAGE_NUMBER] - 1] = {
-          page: d[fnATD_PAGE_NUMBER],
-          rows: []
-        };
-        // 今は１列１行
-        ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1] = {
-          row: d[fnATD_ROW_NUMBER],
-          cols: [d]
-        };
-      }
-      return ps;
-    }, []);
+        return ps;
+      }, [])
+      .map((p) => {
+        if (!p) {
+          return null;
+        }
+        const rows = p.rows
+          .map((r) => {
+            if (!r) {
+              return null;
+            }
+            const cols = r.cols.filter((c) => c);
+            return { ...r, cols };
+          })
+          .filter((r) => r);
+        return { ...p, rows };
+      })
+      .filter((p) => p);
   };
 
   getPageCols = (inputPageNumber) => {
@@ -154,15 +167,14 @@ export default class WebFormDataEntry extends LightningElement {
   /**
    * @description : 「次へ」ボタンを押した時の処理(WebForm のメソッドをコール)
    */
-  handleClickPageNext() {
-    console.log("next page", this.columns);
+  handleClickPageNext(e) {
+    e.stopPropagation();
     if (this._isRequiredValuesCheck()) {
       const cols = this.pages.reduce((columns, p) => {
         const pageCols = this.getPageCols(p.page);
         return [...columns, ...pageCols];
       }, []);
 
-      console.log(cols);
       this.dispatchEvent(
         new CustomEvent("changepagenext", {
           detail: {
@@ -180,19 +192,16 @@ export default class WebFormDataEntry extends LightningElement {
    */
   _isRequiredValuesCheck() {
     // 実運用時には、未入力であれば先に進めなくする & より詳細な形式チェックを行うなどをすべき
-    for (let i = 0; i < this.columns.length; i++) {
-      if (
-        this.columns[i][fnATD_REQUIRED_FIELD] === true &&
-        this.columns[i][fnATD_DATATYPE_FIELD] !== "チェックボックス" &&
-        !this.columns[i][fnATD_VALUE_FIELD]
-      ) {
-        const result = confirm(
-          `項目「 ${this.columns[i][fnATD_NAME_FIELD]} 」が入力されていません。このまま続けますか？`
-        );
-        if (!result) return false;
-      }
-    }
-
-    return true;
+    const targetId = this.columns.findIndex(
+      (c) =>
+        c[fnATD_REQUIRED_FIELD] &&
+        c[fnATD_DATATYPE_FIELD] !== "チェックボックス" &&
+        !c[fnATD_VALUE_FIELD]
+    );
+    return targetId >= 0
+      ? confirm(
+          `項目「 ${this.columns[targetId][fnATD_NAME_FIELD]} 」が入力されていません。このまま続けますか？`
+        )
+      : true;
   }
 }

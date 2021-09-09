@@ -11,7 +11,7 @@ export default class TestDataCreator extends LightningElement {
       })
       .catch((err) => {
         showToast(this, "エラー", err, "error");
-        console.log(err);
+        console.error(err);
       });
   }
 }

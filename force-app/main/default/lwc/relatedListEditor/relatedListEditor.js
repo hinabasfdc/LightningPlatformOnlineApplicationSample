@@ -124,8 +124,6 @@ export default class RelatedListEditor extends LightningElement {
   wiredGetApplicationTemplateDetailRecordIds(value) {
     this.wiredRelatedRecords = value;
     const { data, error } = value;
-
-    console.log("wiredGetApplicationTemplateDetailRecordIds called", data);
     if (data) {
       const array = JSON.parse(data);
       if (!array || array.length === 0) {
@@ -134,12 +132,6 @@ export default class RelatedListEditor extends LightningElement {
 
       this.pages = formatPages(array);
       this.selectedPage = this.pages[0] ?? null;
-      console.log(
-        "wiredGetApplicationTemplateDetailRecordIds",
-        array,
-        this.pages,
-        this.selectedPage
-      );
     } else if (error) {
       console.error(error);
     }
@@ -209,8 +201,6 @@ export default class RelatedListEditor extends LightningElement {
       return;
     }
 
-    console.log("hello deliting");
-
     // delete field
     const index = { i: null, j: null, detailId: null };
     for (let i = 0; i < this.selectedPage?.rows.length; i++) {
@@ -257,8 +247,6 @@ export default class RelatedListEditor extends LightningElement {
   }
 
   handleClickDeletePage() {
-    console.log("delete page");
-
     // アラートで確認し、キャンセルであれば処理終了
     if (!window.confirm("ページを削除します。よろしいですか？")) {
       return;
@@ -340,14 +328,6 @@ export default class RelatedListEditor extends LightningElement {
     const field = e.currentTarget?.dataset?.fieldName;
     const { value, checked } = e.detail;
 
-    console.log(
-      "handleNewFieldInputChange",
-      field,
-      value,
-      checked,
-      this.selectedField,
-      this.selectedField?.data?.Category__c
-    );
     if (!field || (!value && !checked)) {
       return;
     }
@@ -355,7 +335,6 @@ export default class RelatedListEditor extends LightningElement {
       r.fields.forEach((f) => {
         if (f.id === this.selectedFieldName) {
           const v = field === this.fieldnameRequired ? checked : value;
-          console.log(f.data[field], "vs", v);
           const valueChanged = f.data[field] !== v;
           f.data[field] = v;
           if (valueChanged) {
@@ -364,7 +343,6 @@ export default class RelatedListEditor extends LightningElement {
           if (field === this.fieldnameName) {
             f.displayName = value ?? "新規項目";
           }
-          console.log(field, value, checked, this.fieldnameRequired, f);
         }
       });
     });
@@ -378,14 +356,13 @@ export default class RelatedListEditor extends LightningElement {
   }
 
   async handleClickSave() {
-    console.log(this.pages);
     const data = formatPagesForSave(this.pages);
-    console.log("submitting", data);
     const saveResult = await saveApplicationTemplateDetails({
       ...data,
       recordId: this.recordId
     });
-    console.log("saveResult", saveResult);
+    console.log(saveResult);
+    showToast(this, "成功", "申請定義の更新に成功しました", "success");
     refreshApex(this.wiredRelatedRecords);
   }
 
@@ -393,7 +370,6 @@ export default class RelatedListEditor extends LightningElement {
     refreshApex(this.wiredRelatedRecords);
 
     const { data } = this.wiredRelatedRecords;
-    console.log(data, "hello");
     if (data) {
       const array = JSON.parse(data);
       if (!array || array.length === 0) {
@@ -454,7 +430,7 @@ export default class RelatedListEditor extends LightningElement {
     return !!this.pages.find((p) => {
       return (
         p.status === STATUS_DRAFT ||
-        !!p.rows.find((r) => r.fields.find((f) => f.status === STATUS_DRAFT))
+        !!p.rows.find((r) => r?.fields.find((f) => f?.status === STATUS_DRAFT))
       );
     });
   }

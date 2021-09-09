@@ -181,7 +181,7 @@ export default class WebFormAttachFile extends LightningElement {
         this.files = [...localFiles];
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   }
 

@@ -100,7 +100,6 @@ export default class WebFormConfirm extends LightningElement {
           { [fnA_APPTEMP_FIELD]: this.appTemplate?.fields?.Id?.value ?? null }
         );
 
-      console.log(std);
       // データ登録用オブジェクトを JSON 化して、Apex メソッドを呼び出し
       const params = {
         std: JSON.stringify(std)
@@ -160,8 +159,6 @@ export default class WebFormConfirm extends LightningElement {
       if (customs.length === 0) {
         resolve();
       }
-
-      console.log(customs);
 
       // データ登録用オブジェクトの配列を JSON 化して、Apex メソッドを呼び出し
       const params = {
@@ -232,7 +229,6 @@ export default class WebFormConfirm extends LightningElement {
     try {
       // 親の申請レコード
       this.createdAppRecordId = await this._upsertApplicationSync();
-      console.log(this.createdAppRecordId);
       // 子の申請明細レコード
       await this._upsertApplicationDetailsSync(this.createdAppRecordId);
       // ファイルの紐付け
@@ -254,7 +250,7 @@ export default class WebFormConfirm extends LightningElement {
         })
       );
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 }

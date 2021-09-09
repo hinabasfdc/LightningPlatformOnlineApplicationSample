@@ -13,8 +13,6 @@ export default class WebFormAppSelector extends LightningElement {
   @wire(getActiveApplications, { includeDraftApp: "$includeDraftApp" })
   wiredActiveApplications({ data, error }) {
     if (data) {
-      console.log(data);
-
       this.applications = data
         .reduce((apps, a) => {
           const o = {

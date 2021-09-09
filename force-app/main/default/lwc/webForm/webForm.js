@@ -57,12 +57,10 @@ export default class WebForm extends LightningElement {
   wiredGetTemplateRecord({ data, error }) {
     if (data) {
       // 申請定義が見つかった場合
-      console.log("Template data", data);
       this.appTemplate = data;
 
       const inputPages =
         this.appTemplate?.fields?.InputPageNames__c?.value?.split(",") ?? [];
-      console.log(inputPages);
       if (inputPages.length === 0) {
         inputPages.push("入力");
       }
@@ -81,8 +79,6 @@ export default class WebForm extends LightningElement {
     } else if (error) {
       console.error(error);
       showToast(this, "wiredGetRecordId", error, "error");
-    } else {
-      console.log("nodata noerror");
     }
   }
 
@@ -132,14 +128,17 @@ export default class WebForm extends LightningElement {
    * @description: 各ページコンポーネントから呼び出される「次へ」相当のボタンが押された時の処理関数
    */
   handleNextPage(evt) {
-    console.log("handleNextPage");
+    const { data, inputPage } = evt?.detail ?? {};
 
     if (this.previewFor) {
+      if (this.currentPage === PAGE_DATA_ENTRY) {
+        this.inputData = data;
+        if (inputPage !== this.inputPages.length) {
+          this.currentInputPage++;
+        }
+      }
       return;
     }
-
-    const { data, inputPage } = evt?.detail ?? {};
-    console.log("data", data);
 
     switch (this.currentPage) {
       case PAGE_SELECTOR:
@@ -151,17 +150,15 @@ export default class WebForm extends LightningElement {
         this.inputData = "";
         break;
       case PAGE_OVERVIEW:
-        console.log(data);
         break;
       case PAGE_DATA_ENTRY:
         if (!inputPage) {
           return;
         }
-        // TODO: pageごとに分割
-        console.log("input data", data);
         this.inputData = data;
         if (inputPage !== this.inputPages.length) {
           this.currentInputPage++;
+          this.currentStep = this.inputPages[this.currentInputPage - 1];
           return;
         }
         break;
@@ -189,19 +186,24 @@ export default class WebForm extends LightningElement {
    * @description: 各ページコンポーネントから呼び出される「戻る」相当のボタンが押された時の処理関数
    */
   handlePreviousPage(evt) {
-    console.log("handlePreviousPage");
+    const { data, inputPage } = evt?.detail ?? {};
     if (this.previewFor) {
+      if (this.currentPage === PAGE_DATA_ENTRY) {
+        this.inputData = data;
+        if (inputPage > 1) {
+          this.currentInputPage--;
+          this.currentStep = this.inputPages[this.currentInputPage - 1];
+        }
+      }
       return;
     }
-    const { data, inputPage } = evt?.detail ?? {};
+
     if (this.currentPage === PAGE_OVERVIEW) {
       this.selectedApplicationId = "";
     } else if (this.currentPage === PAGE_DATA_ENTRY) {
       if (!inputPage) {
         return;
       }
-      // TODO: pageごとに分割
-      console.log("input data", data, inputPage);
       this.inputData = data;
       if (inputPage > 1) {
         this.currentInputPage--;
@@ -246,7 +248,6 @@ export default class WebForm extends LightningElement {
             ? this.inputPages[0]
             : this.inputPages[this.inputPages.length - 1];
         this.currentInputPage = dir === NEXT ? 1 : this.inputPages.length;
-        console.log("cur input page", this.currentStep, this.currentInputPage);
         break;
       case PAGE_ATTACH_FILE:
         this.currentStep = STEP_FILE_ATTACH;
