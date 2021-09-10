@@ -207,6 +207,7 @@ export default class WebForm extends LightningElement {
       this.inputData = data;
       if (inputPage > 1) {
         this.currentInputPage--;
+        this.currentStep = this.inputPages[this.currentInputPage - 1];
         return;
       }
     }
