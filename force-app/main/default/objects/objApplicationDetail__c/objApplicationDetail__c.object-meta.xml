@@ -154,13 +154,13 @@
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>ControlledByParent</externalSharingModel>
     <label>申請明細</label>
-    <pluralLabel>申請明細</pluralLabel>
     <nameField>
         <displayFormat>AD{000000000}</displayFormat>
         <label>管理番号</label>
         <type>AutoNumber</type>
     </nameField>
-    <searchLayouts />
+    <pluralLabel>申請明細</pluralLabel>
+    <searchLayouts></searchLayouts>
     <sharingModel>ControlledByParent</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

@@ -42,6 +42,82 @@ public with sharing class DAF_RelatedListEditorApexController {
   }
 
   @AuraEnabled
+  public static Boolean deletePage(
+    Id templateId,
+    List<Id> detailIds,
+    Integer pageNumber,
+    String pageName
+  ) {
+    try {
+      objApplicationTemplate__c template = [
+        SELECT Id, InputPageNames__c
+        FROM objApplicationTemplate__c
+        WHERE Id = :templateId
+      ];
+
+      if (String.isBlank(template.InputPageNames__c)) {
+        return false;
+      }
+      List<String> pageNames = template.InputPageNames__c.split(',');
+      /*
+      // TODO: 申請定義レイアウトオブジェクトにする。
+      if (pageNames.size() < pageNumber) {
+        return false;
+      }
+      if (pageNames[pageNumber - 1] != pageName) {
+        return false;
+      }
+      */
+
+      Integer pageIndex = null;
+      for (Integer i = 0; i < pageNames.size(); i++) {
+        if (pageName == pageNames[i]) {
+          pageIndex = i;
+        }
+      }
+      if (pageIndex == null) {
+        return false;
+      }
+
+      pageNames.remove(pageIndex);
+      template.InputPageNames__c = String.join(pageNames, ',');
+      update template;
+
+      List<objApplicationTemplateDetail__c> deleteTargetDetails = [
+        SELECT Id
+        FROM objApplicationTemplateDetail__c
+        WHERE Id IN :detailIds
+      ];
+
+      delete deleteTargetDetails;
+
+      List<objApplicationTemplateDetail__c> details = [
+        SELECT Id, PageNumber__c
+        FROM objApplicationTemplateDetail__c
+        WHERE objApplicationTemplate__c = :templateId
+        ORDER BY PageNumber__c ASC
+      ];
+      Integer newPageNum = 0;
+      Integer prevPage = 0;
+      for (objApplicationTemplateDetail__c detail : details) {
+        Integer existingPageNum = Integer.valueOf(detail.PageNumber__c);
+        if (prevPage != existingPageNum) {
+          prevPage = existingPageNum;
+          newPageNum++;
+        }
+
+        detail.PageNumber__c = newPageNum;
+      }
+      update details;
+
+      return true;
+    } catch (Exception e) {
+      System.debug(e);
+      return false;
+    }
+  }
+
+  @AuraEnabled
   public static List<objApplicationTemplateDetail__c> saveApplicationTemplateDetails(
     Id recordId,
     String pageNames,

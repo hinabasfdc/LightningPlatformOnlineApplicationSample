@@ -5,6 +5,7 @@ import { formatPages, formatPagesForSave, STATUS_DRAFT } from "./utils";
 import { showToast } from "c/webFormUtils";
 import getApplicationTemplateDetailRecordIds from "@salesforce/apex/DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecordIds";
 import saveApplicationTemplateDetails from "@salesforce/apex/DAF_RelatedListEditorApexController.saveApplicationTemplateDetails";
+import deletePage from "@salesforce/apex/DAF_RelatedListEditorApexController.deletePage";
 
 //申請定義明細のオブジェクト・各項目のAPI参照名
 import APPLICAATIONTEMPLATEDETAIL_OBJECT from "@salesforce/schema/objApplicationTemplateDetail__c";
@@ -246,9 +247,13 @@ export default class RelatedListEditor extends LightningElement {
     }
   }
 
-  handleClickDeletePage() {
+  handleClickDeletePage = async () => {
     // アラートで確認し、キャンセルであれば処理終了
-    if (!window.confirm("ページを削除します。よろしいですか？")) {
+    if (
+      !window.confirm(
+        "ページと項目を削除します。よろしいですか？\nこの操作は取り消せません。"
+      )
+    ) {
       return;
     }
 
@@ -265,25 +270,23 @@ export default class RelatedListEditor extends LightningElement {
       return;
     }
 
-    this.pages.splice(index.i, 1);
-    // ページがあるか
-    if (this.pages.length > 0) {
-      // あれば０ページ目
-      this.selectedPage = this.pages[0];
-      // 項目があるか
-      if (this.selectedPage.rows.length > 0) {
-        this.selectedField = this.selectedPage.rows[0].fields[0];
-        this.selectedFieldName = this.selectedPage.rows[0].fields[0].id;
-      } else {
-        this.selectedField = null;
-        this.selectedFieldName = null;
-      }
-    } else {
-      this.selectedPage = null;
-      this.selectedField = null;
-      this.selectedFieldName = null;
-    }
-  }
+    const { page: pageNumber, name: pageName, rows } = this.pages[index.i];
+    const fieldIds = rows.reduce(
+      (ids, r) => [...ids, ...r.fields.map((f) => f.data.Id)],
+      []
+    );
+    console.log(fieldIds, pageNumber, pageName, this.recordId);
+
+    const isSuccess = await deletePage({
+      pageNumber: pageNumber,
+      pageName: pageName,
+      templateId: this.recordId,
+      detailIds: fieldIds
+    });
+    console.log(isSuccess);
+    showToast(this, "成功", "ページと項目を削除しました", "success");
+    refreshApex(this.wiredRelatedRecords);
+  };
 
   handleClickNewPage() {
     const nextPageNumber = this.pages.length + 1;
@@ -387,6 +390,38 @@ export default class RelatedListEditor extends LightningElement {
     e.stopPropagation();
     const { sortType, sortDirection, id } = e.currentTarget.dataset;
     console.log(sortType, sortDirection, id);
+
+    if (sortType === "field") {
+      const rIdx = this.selectedPage.rows.findIndex((r) => {
+        return !!r.fields.find((f) => f.id === id);
+      });
+        console.log(rIdx);
+        if (rIdx === -1) {
+          // no match
+          return
+        }
+        if (
+          (sortDirection === "up" && rIdx === 0) ||
+          (sortDirection && rIdx === this.selectedPage.rows.length)
+        ) {
+          // not possible
+          return;
+        }
+        if (sortDirection === "up") {
+          const targetRow = { ...[fi - 1], status: STATUS_DRAFT };
+          const thisField = { ...r.fields[fi], status: STATUS_DRAFT };
+          r.fields[fi] = targetField;
+          r.fields[fi - 1] = thisField;
+        } else if (sortDirection === "down") {
+          const targetField = { ...r.fields[fi + 1], status: STATUS_DRAFT };
+          const thisField = { ...r.fields[fi], status: STATUS_DRAFT };
+          r.fields[fi] = targetField;
+          r.fields[fi + 1] = thisField;
+        }
+        console.log('changed row', r);
+        return r;
+      
+    }
   }
 
   get newFieldValueName() {
