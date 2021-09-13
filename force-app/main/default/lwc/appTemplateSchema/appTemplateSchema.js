@@ -20,7 +20,6 @@ export const fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD =
   nsPrefix + "ConfirmationCheckDescription__c";
 export const fnAT_THANKYOUPAGEDESCRIPTION_FIELD =
   nsPrefix + "ThankyouPageDescription__c";
-export const fnAT_PAGE_NAMES_FIELD = nsPrefix + "InputPageNames__c";
 
 // getRecord で取得するようにオブジェクト名を付加した配列を生成
 export const GETRECORD_FIELDS = [
@@ -37,8 +36,7 @@ export const GETRECORD_FIELDS = [
   fnAT_FILEUPLOADDESCRIPTION_FIELD,
   fnAT_ISCONFIRMATIONCHECKBOXENABLED_FIELD,
   fnAT_CONFIRMATIONCHECKDESCRIPTION_FIELD,
-  fnAT_THANKYOUPAGEDESCRIPTION_FIELD,
-  fnAT_PAGE_NAMES_FIELD
+  fnAT_THANKYOUPAGEDESCRIPTION_FIELD
 ].map((f) => `objApplicationTemplate__c.${f}`);
 
 /* 定義詳細 */
@@ -49,8 +47,6 @@ export const fnATD_OPTIONS_FIELD = nsPrefix + "Options__c";
 export const fnATD_VALUE_FIELD = nsPrefix + "Value__c";
 export const fnATD_TEXT_FIELD = nsPrefix + "Text__c";
 export const fnATD_REQUIRED_FIELD = nsPrefix + "Required__c";
-export const fnATD_ROW_NUMBER = nsPrefix + "RowNumber__c";
-export const fnATD_PAGE_NUMBER = nsPrefix + "PageNumber__c";
 export const fnATD_NAME_FIELD = "Name";
 export const fnATD_CATEGORY_FIELD = nsPrefix + "Category__c";
 export const fnATD_STDCOLUMNNAME_FIELD = nsPrefix + "StdColumnName__c";

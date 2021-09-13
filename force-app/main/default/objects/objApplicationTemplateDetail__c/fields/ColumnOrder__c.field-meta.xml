@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>PageNumber__c</fullName>
+    <fullName>ColumnOrder__c</fullName>
     <externalId>false</externalId>
-    <formula>AppTemplateRow__r.AppTemplatePage__r.Order__c</formula>
-    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>ページ順序</label>
+    <label>列順序</label>
     <precision>18</precision>
-    <required>false</required>
+    <required>true</required>
     <scale>0</scale>
     <trackTrending>false</trackTrending>
     <type>Number</type>

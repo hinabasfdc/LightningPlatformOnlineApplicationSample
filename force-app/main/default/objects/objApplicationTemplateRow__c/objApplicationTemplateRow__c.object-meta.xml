@@ -148,18 +148,18 @@
     <enableFeeds>false</enableFeeds>
     <enableHistory>false</enableHistory>
     <enableLicensing>false</enableLicensing>
-    <enableReports>true</enableReports>
-    <enableSearch>true</enableSearch>
+    <enableReports>false</enableReports>
+    <enableSearch>false</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>ControlledByParent</externalSharingModel>
-    <label>申請明細</label>
+    <label>申請定義行</label>
     <nameField>
-        <displayFormat>AD{000000000}</displayFormat>
-        <label>管理番号</label>
+        <displayFormat>ATR-{0000}</displayFormat>
+        <label>申請定義列</label>
         <type>AutoNumber</type>
     </nameField>
-    <pluralLabel>申請明細</pluralLabel>
+    <pluralLabel>申請定義行</pluralLabel>
     <searchLayouts />
     <sharingModel>ControlledByParent</sharingModel>
     <visibility>Public</visibility>

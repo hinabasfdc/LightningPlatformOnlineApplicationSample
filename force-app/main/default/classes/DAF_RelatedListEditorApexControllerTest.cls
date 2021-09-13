@@ -32,17 +32,16 @@ public with sharing class DAF_RelatedListEditorApexControllerTest {
       WHERE Name = :'テスト用申請手続き'
       LIMIT 1
     ];
-    String ret = DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecordIds(
+    List<objApplicationTemplateDetail__c> records = DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecords(
       at.Id
     );
 
-    List<Object> records = (List<Object>) System.JSON.deserializeUntyped(ret);
     System.assertEquals(2, records.size());
   }
 
   @isTest
   static void testNoParameter() {
-    String ret = DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecordIds(
+    String ret = DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecords(
       ''
     );
     System.assertEquals(true, String.isBlank(ret));
@@ -50,9 +49,9 @@ public with sharing class DAF_RelatedListEditorApexControllerTest {
 
   @isTest
   static void testinvalidParameter() {
-    String ret = DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecordIds(
+    List<objApplicationTemplateDetail__c> records = DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecords(
       'ABCDEFG'
     );
-    System.assertEquals(true, String.isBlank(ret));
+    System.assertEquals(null, records);
   }
 }

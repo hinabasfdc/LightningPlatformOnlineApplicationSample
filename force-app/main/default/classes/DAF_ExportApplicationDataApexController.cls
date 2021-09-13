@@ -31,7 +31,7 @@ public with sharing class DAF_ExportApplicationDataApexController {
       SELECT StdColumnName__c
       FROM objApplicationTemplateDetail__c
       WHERE objApplicationTemplate__c = :recordId AND Category__c = '標準'
-      ORDER BY SortOrder__c ASC
+      ORDER BY ColumnOrder__c ASC
     ];
     if (atds.size() > 0)
       for (Integer i = 0; i < atds.size(); i++)
@@ -42,7 +42,7 @@ public with sharing class DAF_ExportApplicationDataApexController {
     return Database.query(
       'SELECT Id,Name,' +
       DefinedStandardColumns +
-      '(SELECT Id,DataType__c,Text__c,Number__c,LongTextArea__c FROM objApplication__c.objApplicationDetail__r ORDER BY SortOrder__c ASC) FROM objApplication__c WHERE objApplicationTemplate__c =:recordId ORDER BY CreatedDate DESC'
+      '(SELECT Id,DataType__c,Text__c,Number__c,LongTextArea__c FROM objApplication__c.objApplicationDetail__r ORDER BY ColumnOrder__c ASC) FROM objApplication__c WHERE objApplicationTemplate__c =:recordId ORDER BY CreatedDate DESC'
     );
   }
 }

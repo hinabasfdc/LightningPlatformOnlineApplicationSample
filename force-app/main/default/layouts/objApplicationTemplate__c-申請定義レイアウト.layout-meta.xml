@@ -45,10 +45,6 @@
                 <behavior>Edit</behavior>
                 <field>CloseDate__c</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Required</behavior>
-                <field>InputPageNames__c</field>
-            </layoutItems>
         </layoutColumns>
         <style>TwoColumnsLeftToRight</style>
     </layoutSections>
@@ -125,7 +121,8 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
-        <relatedList>objApplicationTemplatePage__c.objApplicationTemplate__c</relatedList>
+        <relatedList
+    >objApplicationTemplatePage__c.objApplicationTemplate__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>

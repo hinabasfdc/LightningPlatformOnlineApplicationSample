@@ -62,11 +62,19 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>AppTemplateRow__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>RowNumber__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
                 <field>PageNumber__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Edit</behavior>
-                <field>RowNumber__c</field>
+                <behavior>Required</behavior>
+                <field>ColumnOrder__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>

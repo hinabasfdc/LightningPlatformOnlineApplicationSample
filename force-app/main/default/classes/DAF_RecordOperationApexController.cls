@@ -46,7 +46,7 @@ public with sharing class DAF_RecordOperationApexController {
       return null;
 
     String retval = '';
-    // SortOrder__c の昇順で並び替えて、データがあれば JSON 化して返り値にセット
+    // ColumnOrder__c の昇順で並び替えて、データがあれば JSON 化して返り値にセット
     List<objApplicationTemplateDetail__c> atds = [
       SELECT
         Id,
@@ -55,7 +55,7 @@ public with sharing class DAF_RecordOperationApexController {
         isStdColumn__c,
         StdColumnName__c,
         Description__c,
-        SortOrder__c,
+        ColumnOrder__c,
         DataType__c,
         Value__c,
         Required__c,
@@ -69,12 +69,10 @@ public with sharing class DAF_RecordOperationApexController {
         isTime__c,
         isCheckbox__c,
         isCurrency__c,
-        isPicklist__c,
-        PageNumber__c,
-        RowNumber__c
+        isPicklist__c
       FROM objApplicationTemplateDetail__c
       WHERE objApplicationTemplate__c = :recordId
-      ORDER BY SortOrder__c ASC
+      ORDER BY PageNumber__c, RowNumber__c, ColumnOrder__c ASC
     ];
     if (atds.size() > 0) {
       retval = System.JSON.serialize(atds);
@@ -89,8 +87,9 @@ public with sharing class DAF_RecordOperationApexController {
    **/
   @AuraEnabled(cacheable=true)
   public static String getApplicationStdColumns(String recordId) {
-    if (String.isBlank(recordId))
+    if (String.isBlank(recordId)) {
       return null;
+    }
 
     String retval = '';
     List<String> arrayColumns = new List<String>();
@@ -110,7 +109,7 @@ public with sharing class DAF_RecordOperationApexController {
         WHERE
           objApplicationTemplate__c = :apps[0].objApplicationTemplate__c
           AND Category__c = '標準'
-        ORDER BY SortOrder__c ASC
+        ORDER BY ColumnOrder__c ASC
       ];
       if (atds.size() > 0)
         for (Integer i = 0; i < atds.size(); i++)
@@ -135,7 +134,7 @@ public with sharing class DAF_RecordOperationApexController {
       return null;
     String retval = '';
 
-    // 申請明細データを SortOrder__c で並べかえ。また、選択肢も画面での編集中に使うので取得して、データがあれば JSON 化して返り値に格納
+    // 申請明細データを ColumnOrder__c で並べかえ。また、選択肢も画面での編集中に使うので取得して、データがあれば JSON 化して返り値に格納
     List<objApplicationDetail__c> ads = [
       SELECT
         Id,
@@ -148,7 +147,7 @@ public with sharing class DAF_RecordOperationApexController {
         objApplicationTemplateDetail__r.Options__c
       FROM objApplicationDetail__c
       WHERE objApplication__c = :recordId
-      ORDER BY SortOrder__c ASC
+      ORDER BY ColumnOrder__c ASC
     ];
     if (ads.size() > 0)
       retval = System.JSON.serialize(ads);

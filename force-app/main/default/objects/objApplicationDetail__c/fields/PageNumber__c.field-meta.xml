@@ -2,9 +2,8 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PageNumber__c</fullName>
     <externalId>false</externalId>
-    <formula>AppTemplateRow__r.AppTemplatePage__r.Order__c</formula>
-    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>ページ順序</label>
+    <formula>objApplicationTemplateDetail__r.PageNumber__c</formula>
+    <label>ページ順</label>
     <precision>18</precision>
     <required>false</required>
     <scale>0</scale>

@@ -10,105 +10,104 @@ public with sharing class DAF_RelatedListEditorApexController {
    * @return String    : JSON 形式 の取得した一覧
    **/
   @AuraEnabled(cacheable=true)
-  public static String getApplicationTemplateDetailRecordIds(String recordId) {
+  public static List<objApplicationTemplateDetail__c> getApplicationTemplateDetailRecords(
+    String recordId
+  ) {
     if (String.isBlank(recordId)) {
       return null;
     }
-
-    String retval = '';
-    List<objApplicationTemplateDetail__c> atds = [
-      SELECT
-        Id,
-        Name,
-        Description__c,
-        Options__c,
-        Required__c,
-        SortOrder__c,
-        RowNumber__c,
-        PageNumber__c,
-        StdColumnName__c,
-        DataType__c,
-        Category__c,
-        Value__c,
-        objApplicationTemplate__r.InputPageNames__c
-      FROM objApplicationTemplateDetail__c
-      WHERE objApplicationTemplate__c = :recordId
-      ORDER BY SortOrder__c ASC
-    ];
-    if (atds.size() > 0) {
-      retval = System.JSON.serialize(atds);
+    try {
+      return [
+        SELECT
+          Id,
+          Name,
+          Description__c,
+          Options__c,
+          Required__c,
+          StdColumnName__c,
+          DataType__c,
+          Category__c,
+          Value__c,
+          ColumnOrder__c,
+          AppTemplateRow__r.Id,
+          AppTemplateRow__r.Order__c,
+          AppTemplateRow__r.AppTemplatePage__r.Id,
+          AppTemplateRow__r.AppTemplatePage__r.Name,
+          AppTemplateRow__r.AppTemplatePage__r.Order__c
+        FROM objApplicationTemplateDetail__c
+        WHERE objApplicationTemplate__c = :recordId
+        ORDER BY
+          AppTemplateRow__r.AppTemplatePage__r.Order__c,
+          AppTemplateRow__r.Order__c,
+          ColumnOrder__c,
+          Id
+      ];
+    } catch (Exception e) {
+      return null;
     }
-    return retval;
   }
 
   @AuraEnabled
-  public static Boolean deletePage(
-    Id templateId,
-    List<Id> detailIds,
-    Integer pageNumber,
-    String pageName
-  ) {
+  public static Boolean deletePage(Id pageId) {
     try {
-      objApplicationTemplate__c template = [
-        SELECT Id, InputPageNames__c
-        FROM objApplicationTemplate__c
-        WHERE Id = :templateId
+      objApplicationTemplatePage__c page = [
+        SELECT Id, (SELECT Id FROM appTemplateRows__r)
+        FROM objApplicationTemplatePage__c
+        WHERE Id = :pageId
       ];
 
-      if (String.isBlank(template.InputPageNames__c)) {
-        return false;
-      }
-      List<String> pageNames = template.InputPageNames__c.split(',');
-      /*
-      // TODO: 申請定義レイアウトオブジェクトにする。
-      if (pageNames.size() < pageNumber) {
-        return false;
-      }
-      if (pageNames[pageNumber - 1] != pageName) {
-        return false;
-      }
-      */
-
-      Integer pageIndex = null;
-      for (Integer i = 0; i < pageNames.size(); i++) {
-        if (pageName == pageNames[i]) {
-          pageIndex = i;
-        }
-      }
-      if (pageIndex == null) {
+      if (page == null || page.appTemplateRows__r == null) {
         return false;
       }
 
-      pageNames.remove(pageIndex);
-      template.InputPageNames__c = String.join(pageNames, ',');
-      update template;
-
-      List<objApplicationTemplateDetail__c> deleteTargetDetails = [
-        SELECT Id
-        FROM objApplicationTemplateDetail__c
-        WHERE Id IN :detailIds
-      ];
-
-      delete deleteTargetDetails;
+      Map<Id, objApplicationTemplateRow__c> rowMap = new Map<Id, objApplicationTemplateRow__c>(
+        page.appTemplateRows__r
+      );
+      List<id> rowIds = new List<Id>(rowMap.keySet());
+      List<objApplicationTemplateRow__c> rows = rowMap.values();
 
       List<objApplicationTemplateDetail__c> details = [
-        SELECT Id, PageNumber__c
+        SELECT Id
         FROM objApplicationTemplateDetail__c
-        WHERE objApplicationTemplate__c = :templateId
-        ORDER BY PageNumber__c ASC
+        WHERE appTemplateRow__r.Id IN :rowIds
       ];
-      Integer newPageNum = 0;
-      Integer prevPage = 0;
-      for (objApplicationTemplateDetail__c detail : details) {
-        Integer existingPageNum = Integer.valueOf(detail.PageNumber__c);
-        if (prevPage != existingPageNum) {
-          prevPage = existingPageNum;
-          newPageNum++;
-        }
 
-        detail.PageNumber__c = newPageNum;
+      delete details;
+      delete rows;
+      delete page;
+
+      return true;
+    } catch (Exception e) {
+      System.debug(e);
+      return false;
+    }
+  }
+
+  @AuraEnabled
+  public static Boolean deleteRow(Id rowId, Boolean shouldDeletePage) {
+    try {
+      objApplicationTemplateRow__c row = [
+        SELECT Id, AppTemplatePage__c, (SELECT Id FROM appTemplateDetails__r)
+        FROM objApplicationTemplateRow__c
+        WHERE Id = :rowId
+      ];
+
+      List<objApplicationTemplateDetail__c> details = row.appTemplateDetails__r;
+
+      if (row == null || row.appTemplateDetails__r == null) {
+        return false;
       }
-      update details;
+
+      delete details;
+      delete row;
+      if (shouldDeletePage) {
+        objApplicationTemplatePage__c page = [
+          SELECT Id
+          FROM objApplicationTemplatePage__c
+          WHERE Id = :row.AppTemplatePage__c
+        ];
+        delete page;
+      }
 
       return true;
     } catch (Exception e) {
@@ -120,7 +119,6 @@ public with sharing class DAF_RelatedListEditorApexController {
   @AuraEnabled
   public static List<objApplicationTemplateDetail__c> saveApplicationTemplateDetails(
     Id recordId,
-    String pageNames,
     String details
   ) {
     try {
@@ -128,13 +126,8 @@ public with sharing class DAF_RelatedListEditorApexController {
         details,
         List<objApplicationTemplateDetail__c>.class
       );
-      objApplicationTemplate__c template = [
-        SELECT Id, InputPageNames__c
-        FROM objApplicationTemplate__c
-        WHERE Id = :recordId
-      ];
-      template.InputPageNames__c = pageNames;
-      update template;
+
+      // TODO: update pages, rows, fields.
 
       for (objApplicationTemplateDetail__c detail : data) {
         if (String.isBlank(detail.objApplicationTemplate__c)) {

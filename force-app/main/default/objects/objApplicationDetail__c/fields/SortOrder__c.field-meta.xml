@@ -2,8 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>SortOrder__c</fullName>
     <externalId>false</externalId>
-    <formula>objApplicationTemplateDetail__r.SortOrder__c</formula>
-    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <formula>1</formula>
     <label>表示順</label>
     <precision>18</precision>
     <required>false</required>
