@@ -1,3 +1,6 @@
+.slds-box {
+  background-color: #fff;
+}
 .nav-item-wrapper {
   position: relative;
 }
@@ -14,10 +17,8 @@
   flex-direction: column;
   justify-content: space-around;
 }
-.field-v-nav {
-  max-width: 200px;
-  display: block;
-  overflow: hidden;
+.page-name-input {
+  max-width: 400px;
 }
 lightning-vertical-navigation-item.draft,
 lightning-vertical-navigation-item-badge.draft {
@@ -30,4 +31,18 @@ lightning-vertical-navigation-item-badge.draft.slds-is-active {
   --lwc-brandPrimaryTransparent10: rgba(255, 255, 0, 0.2);
   --lwc-brandPrimary: rgba(255, 255, 0, 1);
   background-color: rgba(255, 255, 0, 0.1);
+}
+
+lightning-accordion-section.row-section {
+  --sds-c-accordion-section-spacing-inline-end: 0.5rem;
+  --sds-c-accordion-summary-color-background: #efefef;
+}
+lightning-accordion-section.column-section {
+  --sds-c-accordion-section-spacing-inline-end: 0;
+  --sds-c-accordion-summary-color-background: #fff;
+}
+
+lightning-accordion-section.column-section[data-status="draft"] {
+  background-color: #fffce39f;
+  --sds-c-accordion-summary-color-background: #fffce39f;
 }

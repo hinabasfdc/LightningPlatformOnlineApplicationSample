@@ -2,114 +2,167 @@
 export const STATUS_DRAFT = "draft";
 export const STATUS_SAVED = "saved";
 
-export const formatPages = (raw) => {
-  // ページ
-  const pageNames =
-    raw[0].objApplicationTemplate__r.InputPageNames__c?.split(",")?.map((p) =>
-      p.trim()
-    ) ?? [];
-
-  let currentPageIndex = -1;
-  let previousPageNumber = -1;
-  // メニュー表示用にプロパティを追加
-  const ps = raw
-    .sort((a, b) => {
-      const ap = a.PageNumber__c ?? 1;
-      const bp = b.PageNumber__c ?? 1;
-      return ap - bp;
-    })
+export const formatPages = (details) => {
+  // ページと行のデータを持つ詳細のみ表示。
+  console.log(details);
+  if (!details || details.length === 0) {
+    return [];
+  }
+  const ps = details
+    .filter(
+      (d) =>
+        d.AppTemplateRow__r?.AppTemplatePage__r?.Id && d.AppTemplateRow__r?.Id
+    )
     .reduce((pages, d) => {
-      const page = d.PageNumber__c ?? 1;
-      const row = d.RowNumber__c ?? 1;
-      const order = d.SortOrder__c ?? 1;
-      const pageIndex =
-        previousPageNumber === page ? currentPageIndex : ++currentPageIndex;
-      previousPageNumber = page;
-      const rowIndex = row - 1;
-      if (!pages[pageIndex]) {
-        pages[pageIndex] = {
-          id: `page${page}`,
-          status: STATUS_SAVED,
-          page,
-          rows: [],
-          name: pageNames[pageIndex] ?? `入力ページ${page}`,
-          fieldCount: 0
-        };
-      }
-      if (!pages[pageIndex].rows[rowIndex]) {
-        pages[pageIndex].rows[rowIndex] = {
-          row,
-          fields: []
-        };
-      }
-      if (d.objApplicationTemplate__r) {
-        delete d.objApplicationTemplate__r;
-      }
-      pages[pageIndex].rows[rowIndex].fields.push({
-        id: `field${page}_${row}_${order}`,
-        order,
+      const detail = {
+        ...d,
         status: STATUS_SAVED,
-        data: d,
-        displayName: d.Name
-      });
+        get displayName() {
+          return this.Name ?? `項目名未入力 ${this.ColumnOrder__c}`;
+        }
+      };
+      console.log(detail);
+      const page = pages.find(
+        (p) => p.id === d.AppTemplateRow__r.AppTemplatePage__r.Id
+      );
+      if (!page) {
+        pages.push({
+          id: d.AppTemplateRow__r.AppTemplatePage__r.Id,
+          name: d.AppTemplateRow__r.AppTemplatePage__r.Name,
+          get displayName() {
+            return this.name ?? `ページ名未入力 ${this.order}`;
+          },
+          order: d.AppTemplateRow__r.AppTemplatePage__r.Order__c,
+          status: STATUS_SAVED,
+          rows: [
+            {
+              id: d.AppTemplateRow__r.Id,
+              order: d.AppTemplateRow__r.Order__c,
+              columns: [detail],
+              get displayName() {
+                return `${this.order}行目 : ${this.columns.length}個の項目`;
+              }
+            }
+          ]
+        });
+        console.log(pages);
+        return pages;
+      }
+      const row = page.rows.find((r) => r.id === d.AppTemplateRow__r.Id);
+      if (!row) {
+        page.rows.push({
+          id: d.AppTemplateRow__r.Id,
+          order: d.AppTemplateRow__r.Order__c,
+          columns: [detail],
+          get displayName() {
+            return `${this.order}行目 : ${this.columns.length}個の項目`;
+          }
+        });
+        console.log(pages);
+        return pages;
+      }
+      row.columns.push(detail);
+      console.log(pages);
       return pages;
-    }, []);
+    }, [])
+    .map((p) => {
+      p.rows.forEach((r) => {
+        r.columns.sort((a, b) => a.ColumnOrder__c - b.ColumnOrder__c);
+      });
+      p.rows.sort((a, b) => a.order - b.order);
+      return p;
+    });
+  console.log("pages", ps);
+  return ps;
+};
 
-  return ps.map((p) => {
-    const fieldCount = p.rows.reduce((total, r) => {
-      return total + r.fields.length;
-    }, 0);
-    return { ...p, fieldCount };
+export const addNewPage = (pages) => {
+  const lastPage = pages.length > 0 ? pages[pages.length - 1] : { order: 0 };
+  const newPageOrder = lastPage.order + 1;
+  pages.push({
+    id: null,
+    order: newPageOrder,
+    status: STATUS_DRAFT,
+    rows: [],
+    name: `新規ページ${newPageOrder}`,
+    get displayName() {
+      return this.name ?? `ページ名未入力 ${this.order}`;
+    }
+  });
+  return pages;
+};
+export const addNewRow = (rows) => {
+  const lastItem = rows.length > 0 ? rows[rows.length - 1] : { order: 0 };
+  const newOrder = lastItem.order + 1;
+  rows.push({
+    id: null,
+    order: newOrder,
+    status: STATUS_DRAFT,
+    columns: [],
+    get displayName() {
+      return `${this.order}行目 : ${this.columns.length}個の項目`;
+    }
+  });
+  return rows;
+};
+export const addNewColumn = (columns) => {
+  const lastItem =
+    columns.length > 0 ? columns[columns.length - 1] : { ColumnOrder__c: 0 };
+  const newOrder = lastItem.ColumnOrder__c + 1;
+  columns.push({
+    Id: null,
+    status: STATUS_DRAFT,
+    get displayName() {
+      return this.Name ?? `項目名未入力 ${this.ColumnOrder__c}`;
+    },
+    ColumnOrder__c: newOrder,
+    Name: `新規項目${newOrder}`,
+    Description__c: null,
+    Options__c: null,
+    Required__c: null,
+    StdColumnName__c: null,
+    DataType__c: null,
+    Category__c: null,
+    Value__c: null,
+    AppTemplateRow__r: {
+      Order__c: null,
+      AppTemplatePage__r: {
+        Id: null,
+        Name: null,
+        Order__c: null
+      }
+    }
+  });
+  return columns;
+};
+
+export const findAnyDraft = (pages) => {
+  return !!pages?.find((p) => {
+    return (
+      p &&
+      (p.status === STATUS_DRAFT ||
+        !!p.rows.find((r) => r.columns.find((f) => f.status === STATUS_DRAFT)))
+    );
   });
 };
 
 export const formatPagesForSave = (pages) => {
-  const ps = pages.sort((a, b) => a.page - b.page);
-  const pageNames = ps.map((p) => p.name).join(",");
-  const details = ps.reduce((ds, p) => {
-    const rows = p.rows.reduce((rs, r) => {
-      const rfs = r.fields.map((f) => {
-        return { ...f, page: p.page, row: r.row };
-      });
-      return [...rs, ...rfs];
-    }, []);
-    return [...ds, ...rows];
-  }, []);
-
-  // format page numbers
-  let currentPageShouldBe = 0;
-  let prevPage = 0;
-  let currentRowShouldBe = 0;
-  let prevRow = 0;
-  let currentOrderShouldBe = 0;
-
-  // page, row, orderを揃える
-  for (let i = 0; i < details.length; i++) {
-    if (details[i].page !== prevPage) {
-      // 次のページ
-      prevPage = details[i].page;
-      details[i].page = ++currentPageShouldBe;
-      prevRow = 0;
-      currentRowShouldBe = 0;
-    } else {
-      // 前のページと同じ
-      details[i].page = currentPageShouldBe;
-    }
-
-    if (details[i].row !== prevRow) {
-      // 次の列
-      prevRow = details[i].row;
-      details[i].row = ++currentRowShouldBe;
-      currentOrderShouldBe = 0;
-    } else {
-      // 前の列と同じ
-      details[i].row = currentRowShouldBe;
-    }
-    details[i].order = ++currentOrderShouldBe;
-
-    details[i].data.PageNumber__c = details[i].page;
-    details[i].data.RowNumber__c = details[i].row;
-    details[i].data.SortOrder__c = details[i].order;
-  }
-  return { details: JSON.stringify(details.map((d) => d.data)), pageNames };
+  return {
+    pagesStr: JSON.stringify(
+      pages.map((p) => {
+        return {
+          ...p,
+          rows: p.rows.map((r) => {
+            return {
+              ...r,
+              columns: r.columns.map((c) => {
+                delete c.AppTemplateRow__r;
+                return c;
+              })
+            };
+          })
+        };
+      })
+    )
+  };
 };

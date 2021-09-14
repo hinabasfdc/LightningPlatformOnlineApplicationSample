@@ -1,12 +1,20 @@
 import { LightningElement, api, wire, track } from "lwc";
 import { refreshApex } from "@salesforce/apex";
-import { deleteRecord } from "lightning/uiRecordApi";
-import { formatPages, formatPagesForSave, STATUS_DRAFT } from "./utils";
+import {
+  formatPages,
+  formatPagesForSave,
+  addNewPage,
+  addNewRow,
+  addNewColumn,
+  STATUS_DRAFT,
+  findAnyDraft
+} from "./utils";
 import { showToast } from "c/webFormUtils";
-import getApplicationTemplateDetailRecordIds from "@salesforce/apex/DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecordIds";
+import getApplicationTemplateDetailRecords from "@salesforce/apex/DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecords";
 import saveApplicationTemplateDetails from "@salesforce/apex/DAF_RelatedListEditorApexController.saveApplicationTemplateDetails";
 import deletePage from "@salesforce/apex/DAF_RelatedListEditorApexController.deletePage";
-
+import deleteRow from "@salesforce/apex/DAF_RelatedListEditorApexController.deletePage";
+import deleteColumn from "@salesforce/apex/DAF_RelatedListEditorApexController.deleteColumn";
 //申請定義明細のオブジェクト・各項目のAPI参照名
 import APPLICAATIONTEMPLATEDETAIL_OBJECT from "@salesforce/schema/objApplicationTemplateDetail__c";
 import NAME_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.Name";
@@ -17,122 +25,51 @@ import DATATYPE_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.D
 import REQUIRED_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.Required__c";
 import OPTIONS_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.Options__c";
 import VALUE_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.Value__c";
-import PAGE_NUMBER_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.PageNumber__c";
-import ROW_NUMBER_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.RowNumber__c";
-import SORTORDER_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.SortOrder__c";
 import APPLICATIONTEMPLATE_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.objApplicationTemplate__c";
 
 export default class RelatedListEditor extends LightningElement {
   @api recordId;
-  objectApiNameApplicationTemplateDetail = APPLICAATIONTEMPLATEDETAIL_OBJECT;
-
   @track pages = [];
-  @track selectedPage;
-  @track selectedField;
+  @track selectedPage = null;
+  @track selectedRow = null;
+  @track selectedColumn = null;
 
   // refreshApex で利用するための wire データ格納用変数
-  wiredRelatedRecords;
+  wiredDetailRecords;
 
-  // 右画面表示パネル制御関連
-  selectedFieldName;
-
-  // html でも項目名を使えるように getter 化
-  get fieldnameName() {
-    return NAME_FIELD.fieldApiName;
-  }
-  get fieldnameDescription() {
-    return DESCRIPTION_FIELD.fieldApiName;
-  }
-  get fieldnameCategory() {
-    return CATEGORY_FIELD.fieldApiName;
-  }
-  get fieldnameStdColumnName() {
-    return STDCOLUMNNAME_FIELD.fieldApiName;
-  }
-  get fieldnameDataType() {
-    return DATATYPE_FIELD.fieldApiName;
-  }
-  get fieldnameRequired() {
-    return REQUIRED_FIELD.fieldApiName;
-  }
-  get fieldnameOptions() {
-    return OPTIONS_FIELD.fieldApiName;
-  }
-  get fieldnameValue() {
-    return VALUE_FIELD.fieldApiName;
-  }
-  get fieldnameSortOrder() {
-    return SORTORDER_FIELD.fieldApiName;
-  }
-  get fieldnameApplicationTemplate() {
-    return APPLICATIONTEMPLATE_FIELD.fieldApiName;
-  }
-  get fieldnameRowNumber() {
-    return ROW_NUMBER_FIELD.fieldApiName;
-  }
-  get fieldnamePageNumber() {
-    return PAGE_NUMBER_FIELD.fieldApiName;
-  }
-
-  // 新規作成時の項目表示制御関連
-  get isStandardColumn() {
-    return this.selectedField?.data?.Category__c === "標準";
-  }
-  get isCustomColumn() {
-    return this.selectedField?.data?.Category__c === "カスタム";
-  }
-
-  get isCustomColumnPicklist() {
-    return this.selectedField?.data?.DataType__c === "選択リスト";
-  }
-
-  // lightning-record-form で扱う項目の一覧を定義
-  editRecordColumns = [
-    this.fieldnameName,
-    this.fieldnameDescription,
-    this.fieldnameCategory,
-    this.fieldnameStdColumnName,
-    this.fieldnameDataType,
-    this.fieldnameRequired,
-    this.fieldnameOptions,
-    this.fieldnameValue,
-    this.fieldnameSortOrder
-  ];
-
-  onDragStartPageNav(e) {
-    console.log("onDragStartPageNav", e.currentTarget);
-    // e.dataTransfer.setData("text/plain", e.target.id);
-  }
-
-  onDragOverPageNav(e) {
-    console.log("onDragOverPageNav");
-  }
-
-  onDropPageNav(e) {
-    console.log("onDropPageNav");
-  }
-
-  onChangePageName(e) {
-    console.log(e.detail.value);
-  }
+  // fields
+  objectApiNameApplicationTemplateDetail = APPLICAATIONTEMPLATEDETAIL_OBJECT;
+  fieldnameName = NAME_FIELD.fieldApiName;
+  fieldnameDescription = DESCRIPTION_FIELD.fieldApiName;
+  fieldnameCategory = CATEGORY_FIELD.fieldApiName;
+  fieldnameStdColumnName = STDCOLUMNNAME_FIELD.fieldApiName;
+  fieldnameDataType = DATATYPE_FIELD.fieldApiName;
+  fieldnameRequired = REQUIRED_FIELD.fieldApiName;
+  fieldnameOptions = OPTIONS_FIELD.fieldApiName;
+  fieldnameValue = VALUE_FIELD.fieldApiName;
+  fieldnameApplicationTemplate = APPLICATIONTEMPLATE_FIELD.fieldApiName;
 
   /**
    * @description  : メニュー項目表示用に定義済み項目明細を取得する wire
    **/
-  @wire(getApplicationTemplateDetailRecordIds, {
+  @wire(getApplicationTemplateDetailRecords, {
     recordId: "$recordId"
   })
-  wiredGetApplicationTemplateDetailRecordIds(value) {
-    this.wiredRelatedRecords = value;
+  wiredGetApplicationTemplateDetailRecords(value) {
+    this.wiredDetailRecords = value;
     const { data, error } = value;
-    if (data) {
-      const array = JSON.parse(data);
-      if (!array || array.length === 0) {
+    if (data && data.length > 0) {
+      console.log(data);
+      const pages = formatPages(data);
+      if (!pages || pages.length === 0) {
+        console.log("No detail records found");
         return;
       }
-
-      this.pages = formatPages(array);
+      this.pages = pages;
       this.selectedPage = this.pages[0] ?? null;
+      this.selectedRow = this.selectedPage?.rows[0] ?? null;
+      this.selectedColumn = this.selectedRow?.columns[0] ?? null;
+      console.log(this.selectedPage, this.selectedRow, this.selectedColumn);
     } else if (error) {
       console.error(error);
     }
@@ -141,114 +78,38 @@ export default class RelatedListEditor extends LightningElement {
   /**
    * @description  : メニューの項目名がクリックされた場合の処理
    **/
-  handleSelectPage(evt) {
-    const selected = evt.detail.name;
-    const page = this.pages?.find((p) => p.id === selected);
-    this.selectedPage = page ?? null;
-    this.selectedFieldName = this.selectedPage?.rows[0]?.fields[0]?.id;
-    this.selectedField = this.selectedPage?.rows[0]?.fields[0];
-  }
-
-  /**
-   * @description  : メニューの項目名がクリックされた場合の処理
-   **/
-  handleSelectField(evt) {
-    const fieldId = evt.detail.name;
-    let target = null;
-    this.selectedPage?.rows?.forEach((r) => {
-      r?.fields?.forEach((f) => {
-        if (f.id === fieldId) {
-          target = f;
-        }
-      });
-    });
-    if (!target) {
+  handleSelectPage(e) {
+    console.log(e.detail.name);
+    if (!e.detail.name) {
       return;
     }
-    this.selectedFieldName = target.id;
-    this.selectedField = target;
+    const pageOrder = parseInt(e.detail.name, 10);
+    if (this.selectedPage?.order === pageOrder) {
+      return;
+    }
+    const page = this.pages?.find((p) => p.order === pageOrder);
+    console.log(pageOrder);
+    console.log(page);
+    if (!page) {
+      return;
+    }
+    this.selectedPage = page;
+    this.selectedRow = page.rows.length > 0 ? page.rows[0] : null;
+    if (!this.selectedRow) {
+      return;
+    }
+    this.selectedColumn =
+      this.selectedRow.columns.length > 0 ? this.selectedRow.columns[0] : 0;
   }
 
   /**
-   * @description  : 定義内容の保存処理
+   * @description  : ページを削除
    **/
-  handleSubmit(evt) {
-    evt.preventDefault();
-    const fields = evt.detail.fields;
-    fields[this.fieldnameApplicationTemplate] = this.recordId;
-    // フォームタグの submit を呼び出して登録
-    this.template.querySelector("lightning-record-edit-form").submit(fields);
-  }
-
-  /**
-   * @description  : 保存処理成功時に呼ばれる処理
-   **/
-  handleSuccess() {
-    showToast(this, "成功", "レコードの作成・更新に成功しました", "success");
-    // 更新された値を再読込
-    refreshApex(this.wiredRelatedRecords);
-  }
-
-  /**
-   * @description  : 定義項目削除ボタンが押された時の処理
-   **/
-  async handleClickDeleteField() {
+  handleClickDeletePage = async () => {
     if (!this.selectedPage) {
       return;
     }
 
-    // アラートで確認し、キャンセルであれば処理終了
-    if (!window.confirm("項目を削除します。よろしいですか？")) {
-      return;
-    }
-
-    // delete field
-    const index = { i: null, j: null, detailId: null };
-    for (let i = 0; i < this.selectedPage?.rows.length; i++) {
-      if (!this.selectedPage?.rows[i]?.fields) {
-        continue;
-      }
-      for (let j = 0; j < this.selectedPage?.rows[i]?.fields.length; j++) {
-        if (this.selectedPage.rows[i].fields[j].id === this.selectedFieldName) {
-          if (this.selectedPage.rows[i].fields[j].status === "saved") {
-            index.detailId = this.selectedPage.rows[i].fields[j].data.Id;
-          }
-          index.i = i;
-          index.j = j;
-          break;
-        }
-      }
-    }
-
-    try {
-      if (index.detailId) {
-        await deleteRecord(index.detailId);
-        refreshApex(this.wiredRelatedRecords);
-      }
-      // 項目削除
-      this.selectedPage.rows[index.i].fields.splice(index.j, 1);
-      // 項目数０の列は消す。
-      if (this.selectedPage.rows[index.i].fields.length === 0) {
-        this.selectedPage.rows.splice(index.i, 1);
-      }
-      // 項目選択
-      this.selectedField =
-        this.selectedPage.rows.length > 0
-          ? this.selectedPage.rows[0].fields[0]
-          : null;
-      this.selectedFieldName =
-        this.selectedPage.rows.length > 0
-          ? this.selectedPage.rows[0].fields[0].id
-          : null;
-      showToast(this, "成功", "項目を削除しました", "success");
-    } catch (err) {
-      console.error(err);
-      // showToast(this, "エラー", err.body.message, "error");
-    }
-  }
-
-  handleClickDeletePage = async () => {
-    // アラートで確認し、キャンセルであれば処理終了
     if (
       !window.confirm(
         "ページと項目を削除します。よろしいですか？\nこの操作は取り消せません。"
@@ -257,128 +118,370 @@ export default class RelatedListEditor extends LightningElement {
       return;
     }
 
-    // delete page
-    const index = { i: null, detailId: null };
-    for (let i = 0; i < this.pages.length; i++) {
-      if (this.pages[i].page === this.selectedPage.page) {
-        index.i = i;
-        break;
+    // if it's saved in record, delete first.
+    if (this.selectedPage.id) {
+      const isSuccess = await deletePage({
+        pageId: this.selectedPage.id
+      });
+      if (!isSuccess) {
+        showToast(this, "失敗", "ページの削除に失敗しました", "error");
+        return;
+      }
+    }
+    this.pages = this.pages.filter((p) => p.order !== this.selectedPage.order);
+    console.log("dp pages", this.pages);
+    this.selectedPage = this.pages.length > 0 ? this.pages[0] : null;
+    console.log("dp selec page", this.selectedPage);
+    this.selectedRow = this.selectedPage ? this.selectedPage.rows[0] : null;
+    console.log("dp selec r", this.selectedRow);
+    this.selectedColumn = this.selectedRow ? this.selectedRow.columns[0] : null;
+    console.log("dp selec c", this.selectedColumn);
+    showToast(this, "成功", "ページと項目を削除しました", "success");
+    // その他の修正が未確定なので、refreshは行わない。
+  };
+
+  handleClickDeleteRow = async (e) => {
+    const rowOrder = parseInt(e.currentTarget.dataset.rowOrder, 10);
+    console.log(
+      "data",
+      this.selectedPage?.order,
+      this.selectedRow?.order,
+      this.selectedColumn?.ColumnOrder__c,
+      rowOrder
+    );
+    if (!this.selectedPage || !this.selectedRow || !rowOrder) {
+      return;
+    }
+    const targetRow = this.selectedPage.rows.find((r) => r.order === rowOrder);
+
+    console.log(targetRow);
+    if (!targetRow) {
+      return;
+    }
+
+    // レコードとして存在すれば、削除する
+    // 行のないページは存在させないので、一緒に消す。
+    const shouldDeletePage = this.selectedPage.rows.length === 1;
+    if (
+      !window.confirm(
+        shouldDeletePage
+          ? "ページと行を削除します。\nよろしいですか？"
+          : "行を削除します。\nよろしいですか？"
+      )
+    ) {
+      return;
+    }
+
+    if (targetRow.id) {
+      const isSuccess = await deleteRow({
+        rowId: targetRow.id,
+        shouldDeletePage
+      });
+      if (!isSuccess) {
+        showToast(this, "失敗", "行の削除に失敗しました", "error");
+        return;
       }
     }
 
-    if (!index.i) {
-      return;
+    if (shouldDeletePage) {
+      this.pages = this.pages.filter(
+        (p) => p.order !== this.selectedPage.order
+      );
+      this.selectedPage = this.pages.length > 0 ? this.pages[0] : null;
+      console.log("dr shouldDeletePage pages", this.pages);
+    } else {
+      // 行を削除する。
+      this.pages = this.pages.map((p) => {
+        if (p.order !== this.selectedPage.order) {
+          return p;
+        }
+        p.rows = p.rows.filter((r) => r.order !== targetRow.order);
+        return p;
+      });
+      console.log("dr no shouldDeletePage pages", this.pages);
+      console.log("dr no shouldDeletePage selected", this.selectedPage);
     }
 
-    const { page: pageNumber, name: pageName, rows } = this.pages[index.i];
-    const fieldIds = rows.reduce(
-      (ids, r) => [...ids, ...r.fields.map((f) => f.data.Id)],
-      []
-    );
-    console.log(fieldIds, pageNumber, pageName, this.recordId);
+    // 現在選択中の行の場合、別の行を選択する。
+    if (this.selectedRow.order === targetRow.order) {
+      this.selectedRow = this.selectedPage?.rows[0] ?? null;
+      this.selectedColumn = this.selectedRow
+        ? this.selectedRow.columns[0]
+        : null;
+    }
 
-    const isSuccess = await deletePage({
-      pageNumber: pageNumber,
-      pageName: pageName,
-      templateId: this.recordId,
-      detailIds: fieldIds
-    });
-    console.log(isSuccess);
-    showToast(this, "成功", "ページと項目を削除しました", "success");
-    refreshApex(this.wiredRelatedRecords);
+    showToast(
+      this,
+      "成功",
+      shouldDeletePage ? "ページと行を削除しました" : "行を削除しました",
+      "success"
+    );
   };
 
-  handleClickNewPage() {
-    const nextPageNumber = this.pages.length + 1;
-    this.pages.push({
-      id: `page${nextPageNumber}`,
-      page: nextPageNumber,
-      status: STATUS_DRAFT,
-      rows: [],
-      name: `入力ページ${nextPageNumber}`,
-      fieldCount: 0
-    });
-    this.selectedPage = this.pages[nextPageNumber - 1];
+  /**
+   * @description  : 定義項目削除ボタンが押された時の処理
+   **/
+  handleClickDeleteColumn = async (e) => {
+    const colOrder = parseInt(e.currentTarget.dataset.columnOrder, 10);
+    console.log(
+      "data",
+      this.selectedPage?.order,
+      this.selectedRow?.order,
+      this.selectedColumn?.ColumnOrder__c,
+      colOrder
+    );
+    if (
+      !this.selectedPage ||
+      !this.selectedRow ||
+      !this.selectedColumn ||
+      !colOrder
+    ) {
+      return;
+    }
+    const targetCol = this.selectedRow.columns.find(
+      (c) => c.ColumnOrder__c === colOrder
+    );
 
-    this.handleClickNewField();
-  }
-
-  // 新規項目
-  handleClickNewField() {
-    if (!this.selectedPage) {
+    console.log(targetCol);
+    if (!targetCol) {
       return;
     }
 
-    const nextRowNumber = this.selectedPage?.rows?.length + 1;
-    this.selectedPage?.rows?.push({
-      row: nextRowNumber,
-      fields: [
-        {
-          id: `field${this.selectedPage.page}_${nextRowNumber}_1`,
-          order: 1,
-          displayName: `新規項目`,
-          data: {},
-          status: STATUS_DRAFT
-        }
-      ]
-    });
+    // レコードとして存在すれば、削除する
+    // 項目のない行、行のないページは存在させないので、一緒に消す。
+    const shouldDeletePage = this.selectedPage.rows.length === 1;
+    const shouldDeleteRow = this.selectedRow.columns.length === 1;
 
-    this.selectedFieldName = `field${this.selectedPage.page}_${nextRowNumber}_1`;
-    this.selectedField = this.selectedPage?.rows[nextRowNumber - 1];
+    // アラートで確認し、キャンセルであれば処理終了
+    const targets = ["項目"];
+    if (shouldDeleteRow) targets.unshift("行");
+    if (shouldDeletePage) targets.unshift("ページ");
+    if (
+      !window.confirm(`${targets.join("・")}を削除します。よろしいですか？`)
+    ) {
+      return;
+    }
+
+    if (targetCol.Id) {
+      // call apex, delete record
+      const isSuccess = await deleteColumn({
+        columnId: targetCol.Id,
+        shouldDeleteRow,
+        shouldDeletePage
+      });
+      if (!isSuccess) {
+        showToast(this, "失敗", "項目の削除に失敗しました", "error");
+        return;
+      }
+    }
+
+    if (shouldDeletePage) {
+      this.pages = this.pages.filter(
+        (p) => p.order !== this.selectedPage.order
+      );
+      this.selectedPage = this.pages.length > 0 ? this.pages[0] : null;
+    } else if (shouldDeleteRow) {
+      // 行を削除する。
+      this.pages = this.pages.map((p) => {
+        if (p.order !== this.selectedPage.order) {
+          return p;
+        }
+        p.rows = p.rows.filter((r) => r.order !== this.selectedRow.order);
+        return p;
+      });
+      this.selectedRow =
+        this.selectedPage.rows.length > 0 ? this.selectedPage.rows[0] : null;
+    } else {
+      // 項目を削除する
+      this.pages = this.pages.map((p) => {
+        if (p.order !== this.selectedPage.order) {
+          return p;
+        }
+        p.rows = p.rows.map((r) => {
+          if (r.order !== this.selectedRow.order) {
+            return r;
+          }
+          r.columns = r.columns.filter(
+            (c) => c.ColumnOrder__c !== targetCol.ColumnOrder__c
+          );
+          return r;
+        });
+        return p;
+      });
+    }
+
+    // 現在選択中の行の場合、別の行を選択する。
+    if (this.selectedColumn.ColumnOrder__c === targetCol.ColumnOrder__c) {
+      this.selectedColumn = this.selectedRow?.columns[0] ?? null;
+    }
+
+    showToast(this, "成功", `${targets.join("・")}を削除しました`, "success");
+  };
+
+  /**** 新規ページ・行・項目の追加 *****/
+  /**
+   * @description  : ページ追加
+   **/
+  handleClickNewPage() {
+    this.pages = addNewPage(this.pages);
+    this.selectedPage = this.pages[this.pages.length - 1];
+    this.handleClickNewRow();
   }
 
-  handleNewFieldInputChange(e) {
+  /**
+   * @description  : 行を追加
+   **/
+  handleClickNewRow() {
+    this.selectedPage.rows = addNewRow(this.selectedPage.rows);
+    this.selectedRow =
+      this.selectedPage.rows[this.selectedPage.rows.length - 1];
+    this.openRowAccordion(this.selectedRow.order);
+    this.handleClickNewColumn();
+  }
+
+  /**
+   * @description  : 項目をUIから追加
+   **/
+  handleClickNewColumnToRow(e) {
+    console.log(e.currentTarget.dataset);
+    const rowOrder = parseInt(e.currentTarget.dataset.rowOrder, 10);
+    console.log(
+      rowOrder,
+      this.selectedPage?.rows,
+      this.selectedPage.rows.find((r) => r.order === rowOrder)
+    );
+    this.selectedRow = this.selectedPage.rows.find((r) => r.order === rowOrder);
+    console.log(this.selectedRow);
+    console.log(rowOrder, this.selectedRow, this.selectedRow.order);
+    this.openRowAccordion(this.selectedRow.order);
+    this.handleClickNewColumn();
+  }
+
+  /**
+   * @description  : 項目を追加
+   **/
+  handleClickNewColumn() {
+    this.selectedRow.columns = addNewColumn(this.selectedRow.columns);
+    this.selectedColumn =
+      this.selectedRow.columns[this.selectedRow.columns.length - 1];
+    console.log("yay", this.selectedColumn.ColumnOrder__c);
+    this.openColumnAccordion(
+      this.selectedRow.order,
+      this.selectedColumn.ColumnOrder__c
+    );
+  }
+
+  /**
+   * @description  : 行のアコーディオンを開ける
+   **/
+  openRowAccordion(order) {
+    const accordion = this.template.querySelector(`.row-accordion`);
+    this.openAccordion(accordion, order);
+  }
+  /**
+   * @description  : 項目のアコーディオンを開ける
+   **/
+  openColumnAccordion(rowOrder, colOrder) {
+    const accordion = this.template.querySelector(
+      `.column-accordion[data-row-order="${rowOrder}"]`
+    );
+    this.openAccordion(accordion, colOrder);
+  }
+
+  /**
+   * @description  : アコーディオンを開ける
+   * アコーディオンに新しい要素を追加してすぐに選択ができなかったため、ワークアラウンド
+   * renderCallbackも試したが機能しなかったためsetTimeoutで対応。
+   **/
+  openAccordion(accordion, order) {
+    if (!accordion) {
+      return;
+    }
+    setTimeout(() => {
+      accordion.activeSectionName = order;
+    }, 100);
+  }
+
+  /**
+   * @description  : 行のアコーディオンセクションが選択された時
+   **/
+  handleToggleRow(e) {
+    const selectedRowOrder = parseInt(e.detail.openSections, 10);
+    this.selectedRow = this.selectedPage.rows.find(
+      (r) => r.order === selectedRowOrder
+    );
+    this.selectedColumn = this.selectedRow.columns[0] ?? null;
+  }
+
+  /**
+   * @description  : 項目のアコーディオンセクションが選択された時
+   **/
+  handleToggleColumn(e) {
+    const selectedColOrder = parseInt(e.detail.openSections, 10);
+    this.selectedColumn = this.selectedRow.columns.find(
+      (c) => c.ColumnOrder__c === selectedColOrder
+    );
+  }
+
+  /**
+   * @description  : 項目の入力内容が変更された時
+   **/
+  handleColumnInputChange(e) {
     const field = e.currentTarget?.dataset?.fieldName;
     const { value, checked } = e.detail;
-
     if (!field || (!value && !checked)) {
       return;
     }
-    this.selectedPage.rows.forEach((r) => {
-      r.fields.forEach((f) => {
-        if (f.id === this.selectedFieldName) {
-          const v = field === this.fieldnameRequired ? checked : value;
-          const valueChanged = f.data[field] !== v;
-          f.data[field] = v;
-          if (valueChanged) {
-            f.status = STATUS_DRAFT;
-          }
-          if (field === this.fieldnameName) {
-            f.displayName = value ?? "新規項目";
-          }
-        }
-      });
-    });
+    const v = field === this.fieldnameRequired ? checked : value;
+    const valueChanged = this.selectedColumn[field] !== v;
+    this.selectedColumn[field] = v;
+    if (valueChanged) {
+      this.selectedColumn.status = STATUS_DRAFT;
+    }
+    console.log(
+      "handleColumnInputChange",
+      this.selectedColumn,
+      field,
+      checked,
+      value,
+      this.pages
+    );
   }
 
-  handlePageNameInputChange(e) {
+  /**
+   * @description  : 選択されたページ名が変更された時
+   **/
+  handlePageNameChange(e) {
     if (this.selectedPage.name !== e.detail.value) {
       this.selectedPage.status = STATUS_DRAFT;
     }
     this.selectedPage.name = e.detail.value;
   }
 
+  /**
+   * @description  : 定義全体の変更を保存
+   **/
   async handleClickSave() {
     const data = formatPagesForSave(this.pages);
+    console.log("saving...", data);
     const saveResult = await saveApplicationTemplateDetails({
       ...data,
       recordId: this.recordId
     });
     console.log(saveResult);
     showToast(this, "成功", "申請定義の更新に成功しました", "success");
-    refreshApex(this.wiredRelatedRecords);
+    refreshApex(this.wiredDetailRecords);
   }
 
+  /**
+   * @description  : 定義全体の変更をキャンセル・リセット
+   **/
   handleClickCancel() {
-    refreshApex(this.wiredRelatedRecords);
+    refreshApex(this.wiredDetailRecords);
 
-    const { data } = this.wiredRelatedRecords;
-    if (data) {
-      const array = JSON.parse(data);
-      if (!array || array.length === 0) {
-        return;
-      }
-      this.pages = formatPages(array);
+    const { data } = this.wiredDetailRecords;
+    if (data && data.length > 0) {
+      this.pages = formatPages(data);
       this.selectedPage = this.pages[0] ?? null;
     } else {
       this.pages = [];
@@ -386,71 +489,73 @@ export default class RelatedListEditor extends LightningElement {
     }
   }
 
+  /**
+   * @description  : 順番を変更
+   **/
   handleSort(e) {
     e.stopPropagation();
-    const { sortType, sortDirection, id } = e.currentTarget.dataset;
-    console.log(sortType, sortDirection, id);
+    const { sortType, sortDirection, order } = e.currentTarget.dataset;
+    console.log(sortType, sortDirection, order);
 
-    if (sortType === "field") {
-      const rIdx = this.selectedPage.rows.findIndex((r) => {
-        return !!r.fields.find((f) => f.id === id);
-      });
-        console.log(rIdx);
-        if (rIdx === -1) {
-          // no match
-          return
-        }
-        if (
-          (sortDirection === "up" && rIdx === 0) ||
-          (sortDirection && rIdx === this.selectedPage.rows.length)
-        ) {
-          // not possible
-          return;
-        }
-        if (sortDirection === "up") {
-          const targetRow = { ...[fi - 1], status: STATUS_DRAFT };
-          const thisField = { ...r.fields[fi], status: STATUS_DRAFT };
-          r.fields[fi] = targetField;
-          r.fields[fi - 1] = thisField;
-        } else if (sortDirection === "down") {
-          const targetField = { ...r.fields[fi + 1], status: STATUS_DRAFT };
-          const thisField = { ...r.fields[fi], status: STATUS_DRAFT };
-          r.fields[fi] = targetField;
-          r.fields[fi + 1] = thisField;
-        }
-        console.log('changed row', r);
-        return r;
-      
+    switch (sortType) {
+      case "field":
+        break;
+      case "row":
+        break;
+      case "page":
+        break;
+      default:
+        break;
     }
   }
 
-  get newFieldValueName() {
-    return this.selectedField?.data?.Name ?? null;
+  get activeRowName() {
+    return this.selectedRow?.order;
   }
-  get newFieldValueDescription() {
-    return this.selectedField?.data?.Description__c ?? null;
-  }
-  get newFieldValueCategory() {
-    return this.selectedField?.data?.Category__c ?? null;
-  }
-  get newFieldValueStdColumnName() {
-    return this.selectedField?.data?.StdColumnName__c ?? null;
-  }
-  get newFieldValueDataType() {
-    return this.selectedField?.data?.DataType__c ?? null;
-  }
-  get newFieldValueOptions() {
-    return this.selectedField?.data?.Options__c ?? null;
-  }
-  get newFieldValueRequired() {
-    return this.selectedField?.data?.Required__c ?? null;
-  }
-  get newFieldValueDefaultValue() {
-    return this.selectedField?.data?.Value__c ?? null;
+  get activeColumnName() {
+    return this.selectedColumn?.ColumnOrder__c;
   }
 
-  get selectedPageName() {
-    return this.selectedPage?.id ?? null;
+  // 新規作成時の項目表示制御関連
+  get isStandardColumn() {
+    return this.selectedColumn?.Category__c === "標準";
+  }
+  get isCustomColumn() {
+    return this.selectedColumn?.Category__c === "カスタム";
+  }
+
+  get isCustomColumnPicklist() {
+    return this.selectedColumn?.DataType__c === "選択リスト";
+  }
+
+  //
+  get newFieldValueName() {
+    return this.selectedColumn?.Name ?? null;
+  }
+  get newFieldValueDescription() {
+    return this.selectedColumn?.Description__c ?? null;
+  }
+  get newFieldValueCategory() {
+    return this.selectedColumn?.Category__c ?? null;
+  }
+  get newFieldValueStdColumnName() {
+    return this.selectedColumn?.StdColumnName__c ?? null;
+  }
+  get newFieldValueDataType() {
+    return this.selectedColumn?.DataType__c ?? null;
+  }
+  get newFieldValueOptions() {
+    return this.selectedColumn?.Options__c ?? null;
+  }
+  get newFieldValueRequired() {
+    return this.selectedColumn?.Required__c ?? null;
+  }
+  get newFieldValueDefaultValue() {
+    return this.selectedColumn?.Value__c ?? null;
+  }
+
+  get selectedPageOrder() {
+    return this.selectedPage?.order ?? 0;
   }
 
   get isPageNameEdited() {
@@ -462,11 +567,6 @@ export default class RelatedListEditor extends LightningElement {
   }
 
   get hasAnyDraft() {
-    return !!this.pages.find((p) => {
-      return (
-        p.status === STATUS_DRAFT ||
-        !!p.rows.find((r) => r?.fields.find((f) => f?.status === STATUS_DRAFT))
-      );
-    });
+    return findAnyDraft(this.pages);
   }
 }

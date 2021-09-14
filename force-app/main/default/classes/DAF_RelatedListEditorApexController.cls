@@ -117,25 +117,144 @@ public with sharing class DAF_RelatedListEditorApexController {
   }
 
   @AuraEnabled
-  public static List<objApplicationTemplateDetail__c> saveApplicationTemplateDetails(
-    Id recordId,
-    String details
+  public static Boolean deleteColumn(
+    Id columnId,
+    Boolean shouldDeletePage,
+    Boolean shouldDeleteRow
   ) {
     try {
-      List<objApplicationTemplateDetail__c> data = (List<objApplicationTemplateDetail__c>) JSON.deserialize(
-        details,
-        List<objApplicationTemplateDetail__c>.class
+      objApplicationTemplateDetail__c column = [
+        SELECT Id, AppTemplateRow__c, AppTemplateRow__r.AppTemplatePage__c
+        FROM objApplicationTemplateDetail__c
+        WHERE Id = :columnId
+      ];
+
+      if (column == null) {
+        return false;
+      }
+
+      if (shouldDeleteRow && column.AppTemplateRow__c != null) {
+        List<objApplicationTemplateRow__c> page = [
+          SELECT Id
+          FROM objApplicationTemplateRow__c
+          WHERE Id = :column.AppTemplateRow__c
+        ];
+        delete page;
+      }
+
+      if (
+        shouldDeletePage &&
+        column.AppTemplateRow__r != null &&
+        column.AppTemplateRow__r.AppTemplatePage__c != null
+      ) {
+        List<objApplicationTemplatePage__c> page = [
+          SELECT Id
+          FROM objApplicationTemplatePage__c
+          WHERE Id = :column.AppTemplateRow__r.AppTemplatePage__c
+        ];
+        delete page;
+      }
+
+      delete column;
+
+      return true;
+    } catch (Exception e) {
+      System.debug(e);
+      return false;
+    }
+  }
+
+  public class AppPage {
+    @AuraEnabled
+    public String id;
+    @AuraEnabled
+    public String name;
+    @AuraEnabled
+    public Integer order;
+    @AuraEnabled
+    public List<AppRow> rows;
+  }
+
+  public class AppRow {
+    @AuraEnabled
+    public String id;
+    @AuraEnabled
+    public Integer order;
+    @AuraEnabled
+    public List<objApplicationTemplateDetail__c> columns;
+  }
+
+  @AuraEnabled
+  public static List<objApplicationTemplateDetail__c> saveApplicationTemplateDetails(
+    Id recordId,
+    String pagesStr
+  ) {
+    try {
+      List<AppPage> ps = (List<AppPage>) JSON.deserialize(
+        pagesStr,
+        List<AppPage>.class
       );
 
-      // TODO: update pages, rows, fields.
+      List<objApplicationTemplatePage__c> pages = new List<objApplicationTemplatePage__c>();
+      for (AppPage p : ps) {
+        objApplicationTemplatePage__c page = new objApplicationTemplatePage__c();
+        page.Id = p.id;
+        page.Order__c = p.order;
+        page.objApplicationTemplate__c = recordId;
+        page.Name = p.name;
+        pages.add(page);
+      }
 
-      for (objApplicationTemplateDetail__c detail : data) {
-        if (String.isBlank(detail.objApplicationTemplate__c)) {
-          detail.objApplicationTemplate__c = recordId;
+      upsert pages;
+
+      List<objApplicationTemplateRow__c> rows = new List<objApplicationTemplateRow__c>();
+      for (objApplicationTemplatePage__c page : pages) {
+        for (AppPage p : ps) {
+          if (page.Order__c == p.order) {
+            for (AppRow r : p.rows) {
+              objApplicationTemplateRow__c row = new objApplicationTemplateRow__c();
+              row.Id = r.id;
+              row.Order__c = r.order;
+              row.AppTemplatePage__c = page.Id;
+              rows.add(row);
+            }
+          }
         }
       }
-      upsert data;
-      return data;
+      upsert rows;
+
+      System.debug(rows);
+
+      List<objApplicationTemplateDetail__c> cols = new List<objApplicationTemplateDetail__c>();
+      for (AppPage p : ps) {
+        for (objApplicationTemplatePage__c page : pages) {
+          if (page.Order__c != p.order) {
+            continue;
+          }
+          for (objApplicationTemplateRow__c row : rows) {
+            if (row.AppTemplatePage__c != page.Id) {
+              continue;
+            }
+            for (AppRow r : p.rows) {
+              if (r.order != row.Order__c) {
+                continue;
+              }
+              for (objApplicationTemplateDetail__c c : r.columns) {
+                c.AppTemplateRow__c = row.Id;
+                c.objApplicationTemplate__c = recordId;
+                c.Required__c = c.Required__c == true ? true : false;
+                cols.add(c);
+              }
+            }
+          }
+        }
+      }
+      for (objApplicationTemplateDetail__c col : cols) {
+        System.debug(col);
+      }
+      upsert cols;
+
+      return cols;
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }
