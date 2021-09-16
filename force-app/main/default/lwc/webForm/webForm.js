@@ -92,7 +92,7 @@ export default class WebForm extends LightningElement {
     if (data) {
       this.appTemplate = buildTemplateTree(data);
       const inputSteps = this.appTemplate.appTemplatePages__r
-        .map((p) => {
+        ?.map((p) => {
           return {
             id: p.Id,
             label: p.Name,
@@ -101,7 +101,7 @@ export default class WebForm extends LightningElement {
             inputStepOrder: p.Order__c
           };
         })
-        .sort((a, b) => a.inputStepOrder - b.inputStepOrder);
+        .sort((a, b) => a.inputStepOrder - b.inputStepOrder) ?? [];
 
       // テンプレートデータを取得したら、入力ページとそれ以外のページを合体させ、
       // Stepsとして扱う。

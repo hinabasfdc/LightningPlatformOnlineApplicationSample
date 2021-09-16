@@ -18,7 +18,15 @@ export const formatPages = (details) => {
         ...d,
         status: STATUS_SAVED,
         get displayName() {
-          return this.Name ?? `項目名未入力 ${this.ColumnOrder__c}`;
+          const name = this.Name ?? `項目名未入力 ${this.ColumnOrder__c}`;
+          if(!this.Category__c) {
+            return name;
+          }
+          return `${name} [${this.Category__c}] ${
+            this.Category__c === "標準"
+              ? this.StdColumnName__c ?? ''
+              : this.DataType__c ?? ''
+          }`;
         }
       };
       console.log(detail);
@@ -40,7 +48,9 @@ export const formatPages = (details) => {
               order: d.AppTemplateRow__r.Order__c,
               columns: [detail],
               get displayName() {
-                return `${this.order}行目 : ${this.columns.length}個の項目`;
+                return `${this.order}行目 : ${this.columns
+                  .map((c) => c.Name)
+                  .join(", ")}`;
               }
             }
           ]
@@ -55,7 +65,9 @@ export const formatPages = (details) => {
           order: d.AppTemplateRow__r.Order__c,
           columns: [detail],
           get displayName() {
-            return `${this.order}行目 : ${this.columns.length}個の項目`;
+            return `${this.order}行目 : ${this.columns
+              .map((c) => c.Name)
+              .join(", ")}`;
           }
         });
         console.log(pages);
@@ -100,7 +112,9 @@ export const addNewRow = (rows) => {
     status: STATUS_DRAFT,
     columns: [],
     get displayName() {
-      return `${this.order}行目 : ${this.columns.length}個の項目`;
+      return `${this.order}行目 : ${this.columns
+        .map((c) => c.Name)
+        .join(", ")}`;
     }
   });
   return rows;
@@ -113,7 +127,15 @@ export const addNewColumn = (columns) => {
     Id: null,
     status: STATUS_DRAFT,
     get displayName() {
-      return this.Name ?? `項目名未入力 ${this.ColumnOrder__c}`;
+      const name = this.Name ?? `項目名未入力 ${this.ColumnOrder__c}`;
+      if(!this.Category__c) {
+        return name;
+      }
+      return `${name} [${this.Category__c}] ${
+        this.Category__c === "標準"
+          ? this.StdColumnName__c ?? ''
+          : this.DataType__c ?? ''
+      }`;
     },
     ColumnOrder__c: newOrder,
     Name: `新規項目${newOrder}`,
