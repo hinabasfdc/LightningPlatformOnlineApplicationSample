@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>49.0</apiVersion>
-    <isExposed>True</isExposed>
+    <isExposed>true</isExposed>
     <masterLabel>関連リストエディター</masterLabel>
     <targets>
         <target>lightning__RecordPage</target>
