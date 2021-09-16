@@ -65,4 +65,6 @@ export const fnAD_NUMBER_FIELD = nsPrefix + "Number__c";
 export const fnAD_APP_FIELD = nsPrefix + "objApplication__c";
 export const fnAD_APPTEMPDET_FIELD =
   nsPrefix + "objApplicationTemplateDetail__c";
+
 export const fnA_APPTEMP_FIELD = nsPrefix + "objApplicationTemplate__c";
+export const fnA_RELATION = nsPrefix + "objApplicationDetail__r";
