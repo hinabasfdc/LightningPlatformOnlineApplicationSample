@@ -132,15 +132,6 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.SortOrder__c</fieldItem>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
                 <fieldItem>Record.Options__c</fieldItem>
                 <visibilityRule>
                     <criteria>
@@ -159,6 +150,11 @@
         <itemInstances>
             <fieldInstance>
                 <fieldItem>Record.RowNumber__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.ColumnOrder__c</fieldItem>
             </fieldInstance>
         </itemInstances>
         <name>Facet-6ea99965-6b36-4b12-84c5-bfe77191fc28</name>

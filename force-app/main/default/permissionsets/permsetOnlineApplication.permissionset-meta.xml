@@ -82,11 +82,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>objApplicationTemplateDetail__c.SortOrder__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>objApplicationTemplateDetail__c.StdColumnName__c</field>
         <readable>true</readable>
     </fieldPermissions>

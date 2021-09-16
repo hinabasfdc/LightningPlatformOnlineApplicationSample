@@ -39,10 +39,6 @@
                 <behavior>Edit</behavior>
                 <field>Value__c</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>SortOrder__c</field>
-            </layoutItems>
         </layoutColumns>
         <style>OneColumn</style>
     </layoutSections>

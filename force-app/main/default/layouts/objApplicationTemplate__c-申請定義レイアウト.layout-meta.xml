@@ -111,13 +111,10 @@
         <fields>NAME</fields>
         <fields>Description__c</fields>
         <fields>DataType__c</fields>
-        <fields>SortOrder__c</fields>
         <fields>Value__c</fields>
         <fields>Required__c</fields>
         <relatedList
     >objApplicationTemplateDetail__c.objApplicationTemplate__c</relatedList>
-        <sortField>SortOrder__c</sortField>
-        <sortOrder>Asc</sortOrder>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
