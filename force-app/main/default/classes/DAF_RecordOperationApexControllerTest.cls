@@ -98,12 +98,11 @@ public with sharing class DAF_RecordOperationApexControllerTest {
       WHERE FirstnameKanji__c = 'アストロ'
       LIMIT 1
     ];
-    String ret = DAF_RecordOperationApexController.getApplicationStdColumns(
+    List<String> columns = DAF_RecordOperationApexController.getApplicationStdColumns(
       a.Id
     );
 
-    List<Object> records = (List<Object>) System.JSON.deserializeUntyped(ret);
-    System.assertEquals(1, records.size());
+    System.assertEquals(1, columns.size());
   }
 
   @isTest

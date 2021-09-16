@@ -14,10 +14,10 @@ export default class DisplayEntryDataByApp extends LightningElement {
     recordId: "$recordId"
   })
   wiredGetApplicationStdColumns({ data, error }) {
-    if (data) {
-      this.stdColumnNames = JSON.parse(data);
+    if (data && data.length > 0) {
+      this.stdColumnNames = data;
     } else if (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 }

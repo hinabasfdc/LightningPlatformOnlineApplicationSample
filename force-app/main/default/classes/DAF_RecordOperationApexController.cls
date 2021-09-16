@@ -86,14 +86,10 @@ public with sharing class DAF_RecordOperationApexController {
    * @return String    : JSON 化された標準項目の一覧 String 型の配列
    **/
   @AuraEnabled(cacheable=true)
-  public static String getApplicationStdColumns(String recordId) {
+  public static List<String> getApplicationStdColumns(String recordId) {
     if (String.isBlank(recordId)) {
       return null;
     }
-
-    String retval = '';
-    List<String> arrayColumns = new List<String>();
-
     // 申請のレコード詳細画面で使用するので、recordId が申請の ID になるため、申請定義の ID を取得
     List<objApplication__c> apps = [
       SELECT objApplicationTemplate__c
@@ -101,26 +97,28 @@ public with sharing class DAF_RecordOperationApexController {
       WHERE Id = :recordId
       LIMIT 1
     ];
-    if (apps.size() > 0) {
-      // 申請定義明細から標準項目の API 参照名一覧を崇取得して 配列に格納
-      List<objApplicationTemplateDetail__c> atds = [
-        SELECT StdColumnName__c
-        FROM objApplicationTemplateDetail__c
-        WHERE
-          objApplicationTemplate__c = :apps[0].objApplicationTemplate__c
-          AND Category__c = '標準'
-        ORDER BY ColumnOrder__c ASC
-      ];
-      if (atds.size() > 0)
-        for (Integer i = 0; i < atds.size(); i++)
-          arrayColumns.add(atds[i].StdColumnName__c);
-
-      // データがあれば、配列を JSON 化して返り値に格納
-      if (arrayColumns.size() > 0)
-        retval = System.JSON.serialize(arrayColumns);
+    if (apps == null || apps.size() == 0) {
+      return null;
+    }
+    // 申請定義明細から標準項目の API 参照名一覧を崇取得して 配列に格納
+    List<objApplicationTemplateDetail__c> atds = [
+      SELECT StdColumnName__c
+      FROM objApplicationTemplateDetail__c
+      WHERE
+        objApplicationTemplate__c = :apps[0].objApplicationTemplate__c
+        AND Category__c = '標準'
+      ORDER BY ColumnOrder__c ASC
+    ];
+    if (atds == null || atds.size() == 0) {
+      return null;
     }
 
-    return retval;
+    List<String> arrayColumns = new List<String>();
+    for (Integer i = 0; i < atds.size(); i++) {
+      arrayColumns.add(atds[i].StdColumnName__c);
+    }
+
+    return arrayColumns;
   }
 
   /**
