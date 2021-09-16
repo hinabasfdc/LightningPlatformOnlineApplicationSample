@@ -1,7 +1,8 @@
 public with sharing class DAF_TestTemplateCreator {
-  static String APPTEMP_NAME = '市役所市民広場利用申請';
+  private static final String APPTEMP_NAME = '市役所市民広場利用申請';
 
-  // TODO: ページ、行　のシステムにする。
+  private class TestTemplateException extends Exception {}
+
 
   @AuraEnabled
   public static string createTestTemplate() {
@@ -12,7 +13,7 @@ public with sharing class DAF_TestTemplateCreator {
     ];
     System.debug(ats);
     if (ats.size() > 0) {
-      return '作成済みです。';
+      throw new TestTemplateException('作成済みです。');
     }
 
     objApplicationTemplate__c at = new objApplicationTemplate__c(
@@ -92,8 +93,28 @@ public with sharing class DAF_TestTemplateCreator {
         Name = '名',
         Category__c = '標準',
         StdColumnName__c = 'FirstnameKanji__c',
+        AppTemplateRow__c = ar1_1.Id,
+        ColumnOrder__c = 2
+      )
+    );
+    atds.add(
+      new objApplicationTemplateDetail__c(
+        objApplicationTemplate__c = at.Id,
+        Name = 'ヨミ (姓)',
+        Category__c = '標準',
+        StdColumnName__c = 'LastnameYomi__c',
         AppTemplateRow__c = ar1_2.Id,
         ColumnOrder__c = 1
+      )
+    );
+    atds.add(
+      new objApplicationTemplateDetail__c(
+        objApplicationTemplate__c = at.Id,
+        Name = 'ヨミ (名)',
+        Category__c = '標準',
+        StdColumnName__c = 'FirstnameYomi__c',
+        AppTemplateRow__c = ar1_2.Id,
+        ColumnOrder__c = 2
       )
     );
     atds.add(
