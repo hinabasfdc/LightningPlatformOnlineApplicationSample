@@ -68,3 +68,14 @@ export const fnAD_APPTEMPDET_FIELD =
 
 export const fnA_APPTEMP_FIELD = nsPrefix + "objApplicationTemplate__c";
 export const fnA_RELATION = nsPrefix + "objApplicationDetail__r";
+
+export const DATATYPE_TEXT = "テキスト";
+export const DATATYPE_LONG_TEXT_AREA = "ロングテキストエリア";
+export const DATATYPE_EMAIL = "メール";
+export const DATATYPE_URL = "URL";
+export const DATATYPE_NUMBER = "数値";
+export const DATATYPE_CURRENCY = "通貨";
+export const DATATYPE_DATE = "日付";
+export const DATATYPE_TIME = "時間";
+export const DATATYPE_CHECKBOX = "チェックボックス";
+export const DATATYPE_PICKLIST = "選択リスト";

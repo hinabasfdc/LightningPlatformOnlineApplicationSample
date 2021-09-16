@@ -1,8 +1,8 @@
 public with sharing class DAF_TestTemplateCreator {
   private static final String APPTEMP_NAME = '市役所市民広場利用申請';
 
-  private class TestTemplateException extends Exception {}
-
+  private class TestTemplateException extends Exception {
+  }
 
   @AuraEnabled
   public static string createTestTemplate() {

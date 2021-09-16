@@ -36,54 +36,9 @@ public with sharing class DAF_RecordOperationApexController {
   }
 
   /**
-   * @description      : 指定された申請定義の明細を返す
-   * @param recordId   : 申請定義の ID
-   * @return String    : JSON 化された申請定義明細の一覧 オブジェクトの配列
-   **/
-  @AuraEnabled(cacheable=true)
-  public static String getApplicationTemplateDetailsJson(String recordId) {
-    if (String.isBlank(recordId))
-      return null;
-
-    String retval = '';
-    // ColumnOrder__c の昇順で並び替えて、データがあれば JSON 化して返り値にセット
-    List<objApplicationTemplateDetail__c> atds = [
-      SELECT
-        Id,
-        Name,
-        Category__c,
-        isStdColumn__c,
-        StdColumnName__c,
-        Description__c,
-        ColumnOrder__c,
-        DataType__c,
-        Value__c,
-        Required__c,
-        Options__c,
-        isText__c,
-        isLongTextArea__c,
-        isNumber__c,
-        isMail__c,
-        isUrl__c,
-        isDate__c,
-        isTime__c,
-        isCheckbox__c,
-        isCurrency__c,
-        isPicklist__c
-      FROM objApplicationTemplateDetail__c
-      WHERE objApplicationTemplate__c = :recordId
-      ORDER BY PageNumber__c, RowNumber__c, ColumnOrder__c ASC
-    ];
-    if (atds.size() > 0) {
-      retval = System.JSON.serialize(atds);
-    }
-    return retval;
-  }
-
-  /**
    * @description      : 指定された申請定義の明細で定義されている標準項目名を配列にして返す
    * @param recordId   : 申請の ID
-   * @return String    : JSON 化された標準項目の一覧 String 型の配列
+   * @return List<String> : 標準項目の一覧 String 型の配列
    **/
   @AuraEnabled(cacheable=true)
   public static List<String> getApplicationStdColumns(String recordId) {
@@ -124,16 +79,18 @@ public with sharing class DAF_RecordOperationApexController {
   /**
    * @description      : 指定された申請の明細を返す
    * @param recordId   : 申請の ID
-   * @return String    : JSON 化された申請明細の一覧 オブジェクト型の配列
+   * @return List<objApplicationDetail__c> : 申請明細の一覧 オブジェクト型の配列
    **/
   @AuraEnabled(cacheable=true)
-  public static String getApplicationCustomColumns(String recordId) {
-    if (String.isBlank(recordId))
+  public static List<objApplicationDetail__c> getApplicationCustomColumns(
+    String recordId
+  ) {
+    if (String.isBlank(recordId)) {
       return null;
-    String retval = '';
-
-    // 申請明細データを ColumnOrder__c で並べかえ。また、選択肢も画面での編集中に使うので取得して、データがあれば JSON 化して返り値に格納
-    List<objApplicationDetail__c> ads = [
+    }
+    // 申請明細データを ColumnOrder__c で並べかえ。
+    // また、選択肢も画面での編集中に使うので取得。
+    return [
       SELECT
         Id,
         Name,
@@ -147,16 +104,14 @@ public with sharing class DAF_RecordOperationApexController {
       WHERE objApplication__c = :recordId
       ORDER BY ColumnOrder__c ASC
     ];
-    if (ads.size() > 0)
-      retval = System.JSON.serialize(ads);
-
-    return retval;
   }
 
   /**
    * @description      : 申請データを保存する
-   * @param std        : JSON 化された申請オブジェクトのデータ
-   * @return String    : 新たに払い出された、あるいは更新したレコードの SalesforceID
+   * @param app        : 申請オブジェクトのデータ
+   * @param appDetails : 申請詳細オブジェクトのデータ
+   * @param fileDocumentIds : アップロードされたファイルのIDをJSON形式にしたもの
+   * @return objApplication__c : 新たに払い出された申請レコード
    **/
   @AuraEnabled
   public static objApplication__c insertApplication(
@@ -212,12 +167,11 @@ public with sharing class DAF_RecordOperationApexController {
   }
 
   /**
-   * @description      : 申請明細データを保存する
-   * @param customs    : JSON 化された申請明細オブジェクトのデータ オブジェクトの配列
-   * @return String    : 新たに払い出された、あるいは更新したレコードの SalesforceID
+   * @description      : 申請詳細データを保存する
+   * @param appDetails : 申請詳細オブジェクトのデータ
+   * @return List<Id> : 新たに払い出された申請詳細レコードのID（複数）
    **/
-  @AuraEnabled
-  public static List<Id> insertApplicationDetails(
+  private static List<Id> insertApplicationDetails(
     List<objApplicationDetail__c> appDetails
   ) {
     if (appDetails == null || appDetails.size() == 0) {
@@ -225,6 +179,25 @@ public with sharing class DAF_RecordOperationApexController {
     }
     // 保存
     insert appDetails;
+    return new List<Id>(
+      new Map<Id, objApplicationDetail__c>(appDetails).keySet()
+    );
+  }
+
+  /**
+   * @description      : 申請詳細データを更新する
+   * @param appDetails : 申請詳細オブジェクトのデータ
+   * @return String    : 更新した申請詳細レコードの SalesforceID
+   **/
+  @AuraEnabled
+  public static List<Id> updateApplicationDetails(
+    List<objApplicationDetail__c> appDetails
+  ) {
+    if (appDetails == null || appDetails.size() == 0) {
+      return null;
+    }
+    // 保存
+    update appDetails;
     return new List<Id>(
       new Map<Id, objApplicationDetail__c>(appDetails).keySet()
     );
@@ -247,7 +220,6 @@ public with sharing class DAF_RecordOperationApexController {
           Description__c,
           Options__c,
           Required__c,
-          SortOrder__c,
           StdColumnName__c,
           Value__c,
           isCheckbox__c,

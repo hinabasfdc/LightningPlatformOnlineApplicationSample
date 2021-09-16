@@ -7,7 +7,7 @@ public with sharing class DAF_RelatedListEditorApexController {
   /**
    * @description      : 申請に使う項目定義の一覧を返します
    * @param recordId   : 申請定義のレコードID
-   * @return String    : JSON 形式 の取得した一覧
+   * @return List<objApplicationTemplateDetail__c> : 取得した一覧
    **/
   @AuraEnabled(cacheable=true)
   public static List<objApplicationTemplateDetail__c> getApplicationTemplateDetailRecords(
