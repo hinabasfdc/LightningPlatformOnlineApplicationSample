@@ -1,6 +1,8 @@
 public with sharing class DAF_TestTemplateCreator {
   static String APPTEMP_NAME = '市役所市民広場利用申請';
 
+  // TODO: ページ、行　のシステムにする。
+
   @AuraEnabled
   public static string createTestTemplate() {
     List<objApplicationTemplate__c> ats = [

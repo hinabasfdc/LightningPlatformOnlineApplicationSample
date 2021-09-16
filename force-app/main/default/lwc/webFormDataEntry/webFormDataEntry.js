@@ -4,93 +4,72 @@ import {
   fnATD_DATATYPE_FIELD,
   fnATD_TEXT_FIELD,
   fnATD_OPTIONS_FIELD,
-  fnATD_VALUE_FIELD,
-  fnATD_REQUIRED_FIELD,
-  fnATD_NAME_FIELD,
   fnATD_PAGE_NUMBER,
   fnATD_ROW_NUMBER
 } from "c/appTemplateSchema";
-import getApplicationTemplateDetailsJson from "@salesforce/apex/DAF_RecordOperationApexController.getApplicationTemplateDetailsJson";
 
 export default class WebFormDataEntry extends LightningElement {
   buttonPreviousEnabled = true;
   buttonNextEnabled = true;
 
-  @api inputData;
-  @api currentInputPage;
+  @api currentStep;
   @api createdApplicationRecordId;
   @api appTemplate;
 
   @track pages;
   objectApiName = onAPPLICATION_OBJECT;
 
-  /**
-   * @description : 初期化処理。データが渡された場合はそれを元に入力項目を構成、そうでない場合は申請定義明細を元に構成
-   */
-  connectedCallback() {
-    if (this.inputData) {
-      // inputData に値が入っている(次ページから戻ってきた)場合には渡された値を代入
-      const data = JSON.parse(this.inputData);
-      this.pages = this.convertDetailsDataIntoPages(data);
-      return;
-    }
-    getApplicationTemplateDetailsJson({
-      recordId: this.appTemplate?.fields.Id.value
-    })
-      .then((ret) => {
-        const data = ret ? JSON.parse(ret) : [];
-        this.pages = this.convertDetailsDataIntoPages(data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }
-
-  get columns() {
-    const cols = this.getPageCols(this.currentInputPage);
-    return cols;
-  }
-
-  get zeroColumns() {
-    return !this.columns || this.columns.length === 0;
+  get selectedPage() {
+    return this.appTemplate.appTemplatePages__r.find(
+      (p) => p.Id === this.currentStep.id
+    );
   }
 
   convertDetailsDataIntoPages = (data) => {
     return data
       .reduce((ps, d) => {
-        if (d[fnATD_DATATYPE_FIELD] === "チェックボックス") {
-          d.isCheckboxChecked = d[fnATD_TEXT_FIELD] === "true";
+        const detail = { ...d };
+
+        if (detail.DataType__c === "チェックボックス") {
+          detail.isCheckboxChecked = detail[fnATD_TEXT_FIELD] === "true";
         }
         // 項目が選択リストだった場合は、選択肢の項目値からコンボボックスの選択肢形式に変換
-        if (d[fnATD_DATATYPE_FIELD] === "選択リスト") {
-          d.PicklistValues = d[fnATD_OPTIONS_FIELD]?.split(",").map((o) => {
-            return {
-              label: o,
-              value: o
-            };
-          });
+        if (detail[fnATD_DATATYPE_FIELD] === "選択リスト") {
+          detail.PicklistValues = detail[fnATD_OPTIONS_FIELD]
+            ?.split(",")
+            .map((o) => {
+              return {
+                label: o,
+                value: o
+              };
+            });
         }
-        if (ps[d[fnATD_PAGE_NUMBER] - 1]) {
-          if (ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1]) {
-            ps[d[fnATD_PAGE_NUMBER] - 1].rows[
-              d[fnATD_ROW_NUMBER] - 1
-            ].cols.push(d);
+        if (ps[detail[fnATD_PAGE_NUMBER] - 1]) {
+          if (
+            ps[detail[fnATD_PAGE_NUMBER] - 1].rows[detail[fnATD_ROW_NUMBER] - 1]
+          ) {
+            ps[detail[fnATD_PAGE_NUMBER] - 1].rows[
+              detail[fnATD_ROW_NUMBER] - 1
+            ].cols.push(detail);
           } else {
-            ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1] = {
-              row: d[fnATD_ROW_NUMBER],
-              cols: [d]
+            ps[detail[fnATD_PAGE_NUMBER] - 1].rows[
+              detail[fnATD_ROW_NUMBER] - 1
+            ] = {
+              row: detail[fnATD_ROW_NUMBER],
+              cols: [detail]
             };
           }
         } else {
-          ps[d[fnATD_PAGE_NUMBER] - 1] = {
-            page: d[fnATD_PAGE_NUMBER],
+          ps[detail[fnATD_PAGE_NUMBER] - 1] = {
+            page: detail[fnATD_PAGE_NUMBER],
             rows: []
           };
           // 今は１列１行
-          ps[d[fnATD_PAGE_NUMBER] - 1].rows[d[fnATD_ROW_NUMBER] - 1] = {
-            row: d[fnATD_ROW_NUMBER],
-            cols: [d]
-          };
+          ps[detail[fnATD_PAGE_NUMBER] - 1].rows[detail[fnATD_ROW_NUMBER] - 1] =
+            {
+              row: detail[fnATD_ROW_NUMBER],
+              cols: [detail]
+            };
         }
         return ps;
       }, [])
@@ -113,6 +92,7 @@ export default class WebFormDataEntry extends LightningElement {
   };
 
   getPageCols = (inputPageNumber) => {
+    console.log(this.pages);
     const page = this.pages?.find((p) => p.page === inputPageNumber) ?? null;
     if (!page) {
       return [];
@@ -126,63 +106,50 @@ export default class WebFormDataEntry extends LightningElement {
   /**
    * @description  : 入力ページで各項目に値を入力した場合の処理
    **/
-  handleChangeValue(evt) {
-    // 入力された項目の格納変数内での位置を確認。もし見つからなければ終了
-    const cIndex = this.columns.findIndex(
-      (c) => c.Id === evt.target.dataset.id
-    );
-    if (cIndex === -1) {
-      return;
-    }
+  handleChangeValue(e) {
+    console.log("handleChangeValue", e.target.dataset.id, e.target.value);
 
-    const col = this.columns[cIndex];
-    if (col[fnATD_DATATYPE_FIELD] === "チェックボックス") {
-      // データタイプがチェックボックスだった場合のみ、設定する値の取り方を変更
-      col[fnATD_VALUE_FIELD] = evt.target.checked;
-      col.isCheckboxChecked = evt.target.checked;
-    } else {
-      // チェックボックス以外は値をそのまま代入
-      col[fnATD_VALUE_FIELD] = evt.target.value;
-    }
+    const updatedRows = this.selectedPage.appTemplateRows__r.map((r) => {
+      const details = r.appTemplateDetails__r.map((d) => {
+        if (d.Id !== e.target.dataset.id) {
+          return d;
+        }
+
+        const detail = { ...d };
+        if (detail.DataType__c === "チェックボックス") {
+          // データタイプがチェックボックスだった場合のみ、設定する値の取り方を変更
+          detail.Value__c = e.target.checked;
+          detail.isCheckboxChecked = e.target.checked;
+        } else {
+          // チェックボックス以外は値をそのまま代入
+          detail.Value__c = e.target.value;
+        }
+        console.log(detail);
+        return detail;
+      });
+      return { ...r, appTemplateDetails__r: details };
+    });
+
+    this.dispatchEvent(
+      new CustomEvent("changeinput", {
+        detail: { ...this.selectedPage, appTemplateRows__r: updatedRows }
+      })
+    );
   }
 
   /**
    * @description : 「戻る」ボタンを押した時の処理(WebForm のメソッドをコール)
    */
   handleClickPagePrevious() {
-    const cols = this.pages.reduce((columns, p) => {
-      const pageCols = this.getPageCols(p.page);
-      return [...columns, ...pageCols];
-    }, []);
-    this.dispatchEvent(
-      new CustomEvent("changepageprevious", {
-        detail: {
-          inputPage: this.currentInputPage,
-          data: JSON.stringify(cols)
-        }
-      })
-    );
+    this.dispatchEvent(new CustomEvent("changepageprevious"));
   }
 
   /**
    * @description : 「次へ」ボタンを押した時の処理(WebForm のメソッドをコール)
    */
   handleClickPageNext(e) {
-    e.stopPropagation();
     if (this._isRequiredValuesCheck()) {
-      const cols = this.pages.reduce((columns, p) => {
-        const pageCols = this.getPageCols(p.page);
-        return [...columns, ...pageCols];
-      }, []);
-
-      this.dispatchEvent(
-        new CustomEvent("changepagenext", {
-          detail: {
-            inputPage: this.currentInputPage,
-            data: JSON.stringify(cols)
-          }
-        })
-      );
+      this.dispatchEvent(new CustomEvent("changepagenext"));
     }
   }
 
@@ -192,16 +159,22 @@ export default class WebFormDataEntry extends LightningElement {
    */
   _isRequiredValuesCheck() {
     // 実運用時には、未入力であれば先に進めなくする & より詳細な形式チェックを行うなどをすべき
-    const targetId = this.columns.findIndex(
-      (c) =>
-        c[fnATD_REQUIRED_FIELD] &&
-        c[fnATD_DATATYPE_FIELD] !== "チェックボックス" &&
-        !c[fnATD_VALUE_FIELD]
-    );
-    return targetId >= 0
-      ? confirm(
-          `項目「 ${this.columns[targetId][fnATD_NAME_FIELD]} 」が入力されていません。このまま続けますか？`
-        )
-      : true;
+    const rows = this.selectedPage.appTemplateRows__r;
+    for (let i = 0; i < rows.length; i++) {
+      const details = rows[i].appTemplateDetails__r;
+      for (let j = 0; j < details.length; j++) {
+        const d = details[j];
+        if (
+          d.Required__c &&
+          d.DataType__c !== "チェックボックス" &&
+          !d.Value__c
+        ) {
+          return confirm(
+            `項目「${d.Name}」が入力されていません。このまま続けますか？`
+          );
+        }
+      }
+    }
+    return true;
   }
 }

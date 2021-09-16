@@ -2,7 +2,7 @@
   <div>
     <lightning-card title="手続きの選択" icon-name="utility:record_lookup">
       <template if:true={applications}>
-        <div class="slds-var-m-left_medium slds-var-m-right_medium">
+        <div class="slds-m-left_medium slds-m-right_medium">
           <!-- 分類 -->
           <lightning-accordion allow-multiple-sections-open>
             <template for:each={applications} for:item="c">
@@ -23,9 +23,7 @@
                         <lightning-formatted-rich-text
                           value={a.description}
                         ></lightning-formatted-rich-text>
-                        <div
-                          class="slds-text-align_center slds-var-m-top_medium"
-                        >
+                        <div class="slds-text-align_center slds-m-top_medium">
                           <lightning-button
                             label="手続に進む"
                             variant="brand"

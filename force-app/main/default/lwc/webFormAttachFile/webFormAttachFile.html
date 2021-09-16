@@ -1,13 +1,11 @@
 <template>
   <div>
     <lightning-card title="ファイル添付" icon-name="utility:upload">
-      <div class="slds-var-m-left_medium slds-var-m-right_medium">
+      <div class="slds-m-left_medium slds-m-right_medium">
         <template if:true={appTemplate}>
           <!-- メッセージを表示 -->
           <template if:true={message}>
-            <div
-              class="slds-var-p-around_medium slds-var-m-bottom_medium slds-box"
-            >
+            <div class="slds-p-around_medium slds-m-bottom_medium slds-box">
               <lightning-formatted-rich-text
                 value={message}
               ></lightning-formatted-rich-text>
@@ -16,9 +14,7 @@
 
           <template if:true={isFileUploadAccepted}>
             <!-- ファイルアップロードコンポーネントの表示 -->
-            <div
-              class="slds-var-p-around_medium slds-text-align_center slds-box"
-            >
+            <div class="slds-p-around_medium slds-text-align_center slds-box">
               <lightning-file-upload
                 label="ファイルを追加"
                 onuploadfinished={handleUploadFinished}
@@ -28,7 +24,7 @@
 
             <!-- ファイル一覧表示 -->
             <template if:true={files}>
-              <div class="slds-var-m-top_medium">
+              <div class="slds-m-top_medium">
                 <table
                   class="slds-table slds-table_cell-buffer slds-table_bordered"
                 >
@@ -75,7 +71,7 @@
                           <lightning-button-icon
                             icon-name="utility:delete"
                             alternative-text="Delete"
-                            class="slds-var-m-right_xx-small"
+                            class="slds-m-right_xx-small"
                             title="Delete"
                             data-cdid={file.ContentDocumentId}
                             data-cvid={file.Id}
@@ -86,7 +82,7 @@
                             <lightning-button-icon
                               icon-name="utility:preview"
                               alternative-text="Preview"
-                              class="slds-var-m-left_xx-small"
+                              class="slds-m-left_xx-small"
                               title="Preview"
                               data-cdid={file.ContentDocumentId}
                               data-cvid={file.Id}
@@ -99,7 +95,7 @@
                               <lightning-button-icon
                                 icon-name="utility:download"
                                 alternative-text="Download"
-                                class="slds-var-m-left_xx-small"
+                                class="slds-m-left_xx-small"
                                 title="Download"
                                 name={file.Title}
                               ></lightning-button-icon>
@@ -149,7 +145,7 @@
           <div
             class="
               slds-modal__content
-              slds-var-p-around_medium
+              slds-p-around_medium
               slds-text-align_center
             "
             id="modal-content-id-1"

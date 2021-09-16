@@ -161,21 +161,56 @@ public with sharing class DAF_RecordOperationApexController {
    * @return String    : 新たに払い出された、あるいは更新したレコードの SalesforceID
    **/
   @AuraEnabled
-  public static String upsertApplication(String std) {
-    if (String.isBlank(std))
+  public static objApplication__c insertApplication(
+    objApplication__c app,
+    List<objApplicationDetail__c> appDetails,
+    String fileDocumentIds
+  ) {
+    if (app == null) {
       return null;
-    String retval = '';
+    }
+    app.Phase__c = '提出済み';
+    insert app;
+    System.debug(app);
 
-    // JSON を申請オブジェクト型にキャストして upsert し、ID を返り値に格納
-    objApplication__c aps = (objApplication__c) System.JSON.deserialize(
-      std,
-      objApplication__c.class
+    for (objApplicationDetail__c detail : appDetails) {
+      detail.objApplication__c = app.Id;
+    }
+
+    insertApplicationDetails(appDetails);
+
+    DAF_FileAttachementApexController.createContentDocumentLink(
+      app.Id,
+      fileDocumentIds
     );
-    aps.Phase__c = '提出済み';
-    upsert aps;
-    retval = aps.Id;
 
-    return retval;
+    // Nameがないので、再度SOQL
+    return [
+      SELECT
+        Id,
+        Name,
+        ApplicationName__c,
+        Birthdate__c,
+        Building__c,
+        City__c,
+        Comment__c,
+        FirstnameKanji__c,
+        FirstnameYomi__c,
+        Gender__c,
+        JobCategory__c,
+        LastnameKanji__c,
+        LastnameYomi__c,
+        Mail__c,
+        Phase__c,
+        State__c,
+        Status__c,
+        Street__c,
+        Tel__c,
+        Zipcode__c,
+        objApplicationTemplate__c
+      FROM objApplication__c
+      WHERE Id = :app.Id
+    ];
   }
 
   /**
@@ -184,31 +219,87 @@ public with sharing class DAF_RecordOperationApexController {
    * @return String    : 新たに払い出された、あるいは更新したレコードの SalesforceID
    **/
   @AuraEnabled
-  public static String upsertApplicationDetails(String customs) {
-    if (String.isBlank(customs))
+  public static List<Id> insertApplicationDetails(
+    List<objApplicationDetail__c> appDetails
+  ) {
+    if (appDetails == null || appDetails.size() == 0) {
       return null;
-    String retval = '';
-
-    // いったんオブジェクトの配列型にキャスト
-    List<Object> records = (List<Object>) System.JSON.deserializeUntyped(
-      customs
-    );
-    if (records.size() > 0) {
-      // ループしながら申請明細オブジェクト型にキャストし配列に追加
-      List<objApplicationDetail__c> ads = new List<objApplicationDetail__c>();
-      for (Integer i = 0; i < records.size(); i++)
-        ads.add(
-          (objApplicationDetail__c) JSON.deserialize(
-            JSON.serialize(records[i]),
-            objApplicationDetail__c.class
-          )
-        );
-
-      // 保存して、データを JSON 化して返す
-      upsert ads;
-      retval = System.JSON.serialize(ads);
     }
+    // 保存
+    insert appDetails;
+    return new List<Id>(
+      new Map<Id, objApplicationDetail__c>(appDetails).keySet()
+    );
+  }
 
-    return retval;
+  @AuraEnabled(cacheable=true)
+  public static List<objApplicationTemplateDetail__c> getApplicationTemplateDetails(
+    String recordId
+  ) {
+    if (String.isBlank(recordId)) {
+      return null;
+    }
+    try {
+      List<objApplicationTemplateDetail__c> details = [
+        SELECT
+          Id,
+          Name,
+          Category__c,
+          DataType__c,
+          Description__c,
+          Options__c,
+          Required__c,
+          SortOrder__c,
+          StdColumnName__c,
+          Value__c,
+          isCheckbox__c,
+          isCurrency__c,
+          isDate__c,
+          isLongTextArea__c,
+          isMail__c,
+          isNumber__c,
+          isPicklist__c,
+          isStdColumn__c,
+          isText__c,
+          isTime__c,
+          isURL__c,
+          RowNumber__c,
+          PageNumber__c,
+          ColumnOrder__c,
+          AppTemplateRow__r.Id,
+          AppTemplateRow__r.Order__c,
+          AppTemplateRow__r.AppTemplatePage__r.Id,
+          AppTemplateRow__r.AppTemplatePage__r.Name,
+          AppTemplateRow__r.AppTemplatePage__r.Order__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.Id,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.Name,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.Description__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.Category__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.Status__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.Condition__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.CloseDate__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.isAgreementCheckboxEnabled__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.AgreementCheckText__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.isFileUploadAccepted__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.FileUploadDescription__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.isConfirmationCheckboxEnabled__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.ConfirmationCheckDescription__c,
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__r.ThankyouPageDescription__c
+        FROM objApplicationTemplateDetail__c
+        WHERE
+          AppTemplateRow__r.AppTemplatePage__r.objApplicationTemplate__c = :recordId
+        ORDER BY
+          AppTemplateRow__r.AppTemplatePage__r.Order__c,
+          AppTemplateRow__r.Order__c,
+          ColumnOrder__c,
+          Id
+      ];
+
+      return details;
+    } catch (Exception e) {
+      System.debug(e);
+      return null;
+    }
   }
 }

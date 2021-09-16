@@ -30,16 +30,12 @@ export default class WebFormAttachFile extends LightningElement {
 
   // 取得した申請定義の項目を返す(特殊文字が変換されているので html 表示ができるように元に戻す(LDS の仕様？))
   get message() {
-    return this.appTemplate.fields[fnAT_FILEUPLOADDESCRIPTION_FIELD].value
-      ? this._decodeHtml(
-          this.appTemplate.fields[fnAT_FILEUPLOADDESCRIPTION_FIELD].value
-        )
+    return this.appTemplate[fnAT_FILEUPLOADDESCRIPTION_FIELD]
+      ? this._decodeHtml(this.appTemplate[fnAT_FILEUPLOADDESCRIPTION_FIELD])
       : false;
   }
   get isFileUploadAccepted() {
-    return this.appTemplate.fields[fnAT_ISFILEUPLOADACCEPTED_FIELD].value
-      ? true
-      : false;
+    return this.appTemplate[fnAT_ISFILEUPLOADACCEPTED_FIELD] ? true : false;
   }
 
   /**
@@ -198,13 +194,7 @@ export default class WebFormAttachFile extends LightningElement {
    * @description : 「戻る」ボタンを押した時の処理(WebForm のメソッドをコール)
    */
   handleClickPagePrevious() {
-    this.dispatchEvent(
-      new CustomEvent("changepageprevious", {
-        detail: {
-          currentpage: "attachfile"
-        }
-      })
-    );
+    this.dispatchEvent(new CustomEvent("changepageprevious"));
   }
 
   /**

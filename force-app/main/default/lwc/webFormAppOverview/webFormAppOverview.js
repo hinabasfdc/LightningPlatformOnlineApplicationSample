@@ -15,20 +15,21 @@ export default class WebFormAppOverview extends LightningElement {
 
   // 取得した申請定義の内容説明と条件を取得(特殊文字が変換されているので html 表示ができるように元に戻す(LDS の仕様？))
   get description() {
-    return this.appTemplate.fields[fnAT_DESCRIPTION_FIELD].value
-      ? this._decodeHtml(this.appTemplate.fields[fnAT_DESCRIPTION_FIELD].value)
+    return this.appTemplate[fnAT_DESCRIPTION_FIELD]
+      ? this._decodeHtml(this.appTemplate[fnAT_DESCRIPTION_FIELD])
       : "";
   }
   get condition() {
-    return this.appTemplate.fields[fnAT_CONDITION_FIELD].value
-      ? this._decodeHtml(this.appTemplate.fields[fnAT_CONDITION_FIELD].value)
+    return this.appTemplate[fnAT_CONDITION_FIELD]
+      ? this._decodeHtml(this.appTemplate[fnAT_CONDITION_FIELD])
       : "";
   }
 
   get buttonNextEnabled() {
     return (
       this.agreementButtonChecked ||
-      !this.appTemplate?.fields[fnAT_ISAGREEMENTCHECKBOXENABLED_FIELD].value
+      !this.appTemplate ||
+      !this.appTemplate[fnAT_ISAGREEMENTCHECKBOXENABLED_FIELD]
     );
   }
 
