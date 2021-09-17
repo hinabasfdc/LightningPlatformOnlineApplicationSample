@@ -6,6 +6,7 @@
 
   <template if:true={displayPageSelector}>
     <c-web-form-app-selector
+      applications={applications}
       include-draft-app={includeDraftApp}
       onchangepagenext={handleNextPage}
     ></c-web-form-app-selector>

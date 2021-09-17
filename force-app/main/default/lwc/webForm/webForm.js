@@ -1,4 +1,5 @@
 import { LightningElement, api, wire, track } from "lwc";
+import getActiveApplications from "@salesforce/apex/DAF_RecordOperationApexController.getActiveApplications";
 import getApplicationTemplateDetails from "@salesforce/apex/DAF_RecordOperationApexController.getApplicationTemplateDetails";
 import insertApplication from "@salesforce/apex/DAF_RecordOperationApexController.insertApplication";
 import {
@@ -58,6 +59,7 @@ export default class WebForm extends LightningElement {
 
   // 入力データもここに保存。
   @track appTemplate;
+  @track applications = [];
 
   @track steps = []; // ステップ一覧
   @track currentStep = null; // 現在選択されているステップ
@@ -127,6 +129,41 @@ export default class WebForm extends LightningElement {
     } else if (error) {
       console.error(error);
       showToast(this, "[Error] wiredAppTemplateDetails", error, "error");
+    }
+  }
+
+  /**
+   * @description  : 選択できる申請手続きを取得
+   **/
+  @wire(getActiveApplications, { includeDraftApp: "$includeDraftApp" })
+  wiredActiveApplications({ data, error }) {
+    console.log(data, error);
+    if (data) {
+      this.applications = data
+        .reduce((apps, a) => {
+          const o = {
+            Id: a.Id,
+            label: a.Name,
+            description: a.Description__c
+          };
+          const c = apps.find((app) => app.category === a.Category__c);
+          if (c) {
+            c.apps.push(o);
+          } else {
+            apps.push({
+              category: a.Category__c,
+              apps: [o]
+            });
+          }
+          return apps;
+        }, [])
+        .map((a) => {
+          a.label = `${a.category}(${a.apps.length})`;
+          return a;
+        });
+    } else if (error) {
+      showToast(this, "wiredActiveApplications", error, "error");
+      console.error(error);
     }
   }
 
