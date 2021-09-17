@@ -40,7 +40,6 @@ export default class WebFormConfirm extends LightningElement {
   connectedCallback() {
     if (this.appTemplate) {
       this.details = flattenAppTemplate(this.appTemplate);
-      console.log(this.details);
     }
 
     if (!this.checkboxConfirmEnabled) {

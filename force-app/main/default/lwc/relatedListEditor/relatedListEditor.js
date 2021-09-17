@@ -1,5 +1,6 @@
 import { LightningElement, api, wire, track } from "lwc";
 import { refreshApex } from "@salesforce/apex";
+import { getObjectInfo } from "lightning/uiObjectInfoApi";
 import {
   formatPages,
   formatPagesForSave,
@@ -7,7 +8,8 @@ import {
   addNewRow,
   addNewColumn,
   STATUS_DRAFT,
-  findAnyDraft
+  findAnyDraft,
+  sortOrder
 } from "./utils";
 import { showToast } from "c/webFormUtils";
 import getApplicationTemplateDetailRecords from "@salesforce/apex/DAF_RelatedListEditorApexController.getApplicationTemplateDetailRecords";
@@ -15,6 +17,8 @@ import saveApplicationTemplateDetails from "@salesforce/apex/DAF_RelatedListEdit
 import deletePage from "@salesforce/apex/DAF_RelatedListEditorApexController.deletePage";
 import deleteRow from "@salesforce/apex/DAF_RelatedListEditorApexController.deletePage";
 import deleteColumn from "@salesforce/apex/DAF_RelatedListEditorApexController.deleteColumn";
+import APPLICATION_OBJECT from "@salesforce/schema/objApplication__c";
+
 //申請定義明細のオブジェクト・各項目のAPI参照名
 import APPLICAATIONTEMPLATEDETAIL_OBJECT from "@salesforce/schema/objApplicationTemplateDetail__c";
 import NAME_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.Name";
@@ -27,12 +31,20 @@ import OPTIONS_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.Op
 import VALUE_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.Value__c";
 import APPLICATIONTEMPLATE_FIELD from "@salesforce/schema/objApplicationTemplateDetail__c.objApplicationTemplate__c";
 
+const PAGE_DELETE_CONFIRM =
+  "ページと項目を削除します。よろしいですか？\nこの操作は取り消せません。";
+const ROW_DELETE_CONFIRM = "行を削除します。\nよろしいですか？";
+const ROW_DELETE_CONFIRM_WITH_PAGE =
+  "ページと行を削除します。\nよろしいですか？";
+
 export default class RelatedListEditor extends LightningElement {
   @api recordId;
   @track pages = [];
   @track selectedPage = null;
   @track selectedRow = null;
   @track selectedColumn = null;
+
+  sobjApplicationFields = null;
 
   // refreshApex で利用するための wire データ格納用変数
   wiredDetailRecords;
@@ -59,7 +71,6 @@ export default class RelatedListEditor extends LightningElement {
     this.wiredDetailRecords = value;
     const { data, error } = value;
     if (data && data.length > 0) {
-      console.log(data);
       const pages = formatPages(data);
       if (!pages || pages.length === 0) {
         console.log("No detail records found");
@@ -75,11 +86,19 @@ export default class RelatedListEditor extends LightningElement {
     }
   }
 
+  @wire(getObjectInfo, { objectApiName: APPLICATION_OBJECT })
+  sobjAppData({ data, error }) {
+    if (data) {
+      this.sobjApplicationFields = Object.values(data);
+    } else if (error) {
+      console.error(error);
+    }
+  }
+
   /**
    * @description  : メニューの項目名がクリックされた場合の処理
    **/
   handleSelectPage(e) {
-    console.log(e.detail.name);
     if (!e.detail.name) {
       return;
     }
@@ -88,8 +107,6 @@ export default class RelatedListEditor extends LightningElement {
       return;
     }
     const page = this.pages?.find((p) => p.order === pageOrder);
-    console.log(pageOrder);
-    console.log(page);
     if (!page) {
       return;
     }
@@ -110,15 +127,11 @@ export default class RelatedListEditor extends LightningElement {
       return;
     }
 
-    if (
-      !window.confirm(
-        "ページと項目を削除します。よろしいですか？\nこの操作は取り消せません。"
-      )
-    ) {
+    if (!window.confirm(PAGE_DELETE_CONFIRM)) {
       return;
     }
 
-    // if it's saved in record, delete first.
+    // レコードに存在するなら最初に削除
     if (this.selectedPage.id) {
       const isSuccess = await deletePage({
         pageId: this.selectedPage.id
@@ -129,32 +142,19 @@ export default class RelatedListEditor extends LightningElement {
       }
     }
     this.pages = this.pages.filter((p) => p.order !== this.selectedPage.order);
-    console.log("dp pages", this.pages);
     this.selectedPage = this.pages.length > 0 ? this.pages[0] : null;
-    console.log("dp selec page", this.selectedPage);
     this.selectedRow = this.selectedPage ? this.selectedPage.rows[0] : null;
-    console.log("dp selec r", this.selectedRow);
     this.selectedColumn = this.selectedRow ? this.selectedRow.columns[0] : null;
-    console.log("dp selec c", this.selectedColumn);
     showToast(this, "成功", "ページと項目を削除しました", "success");
     // その他の修正が未確定なので、refreshは行わない。
   };
 
   handleClickDeleteRow = async (e) => {
     const rowOrder = parseInt(e.currentTarget.dataset.rowOrder, 10);
-    console.log(
-      "data",
-      this.selectedPage?.order,
-      this.selectedRow?.order,
-      this.selectedColumn?.ColumnOrder__c,
-      rowOrder
-    );
     if (!this.selectedPage || !this.selectedRow || !rowOrder) {
       return;
     }
     const targetRow = this.selectedPage.rows.find((r) => r.order === rowOrder);
-
-    console.log(targetRow);
     if (!targetRow) {
       return;
     }
@@ -164,9 +164,7 @@ export default class RelatedListEditor extends LightningElement {
     const shouldDeletePage = this.selectedPage.rows.length === 1;
     if (
       !window.confirm(
-        shouldDeletePage
-          ? "ページと行を削除します。\nよろしいですか？"
-          : "行を削除します。\nよろしいですか？"
+        shouldDeletePage ? ROW_DELETE_CONFIRM_WITH_PAGE : ROW_DELETE_CONFIRM
       )
     ) {
       return;
@@ -188,7 +186,6 @@ export default class RelatedListEditor extends LightningElement {
         (p) => p.order !== this.selectedPage.order
       );
       this.selectedPage = this.pages.length > 0 ? this.pages[0] : null;
-      console.log("dr shouldDeletePage pages", this.pages);
     } else {
       // 行を削除する。
       this.pages = this.pages.map((p) => {
@@ -198,8 +195,6 @@ export default class RelatedListEditor extends LightningElement {
         p.rows = p.rows.filter((r) => r.order !== targetRow.order);
         return p;
       });
-      console.log("dr no shouldDeletePage pages", this.pages);
-      console.log("dr no shouldDeletePage selected", this.selectedPage);
     }
 
     // 現在選択中の行の場合、別の行を選択する。
@@ -223,13 +218,6 @@ export default class RelatedListEditor extends LightningElement {
    **/
   handleClickDeleteColumn = async (e) => {
     const colOrder = parseInt(e.currentTarget.dataset.columnOrder, 10);
-    console.log(
-      "data",
-      this.selectedPage?.order,
-      this.selectedRow?.order,
-      this.selectedColumn?.ColumnOrder__c,
-      colOrder
-    );
     if (
       !this.selectedPage ||
       !this.selectedRow ||
@@ -241,8 +229,6 @@ export default class RelatedListEditor extends LightningElement {
     const targetCol = this.selectedRow.columns.find(
       (c) => c.ColumnOrder__c === colOrder
     );
-
-    console.log(targetCol);
     if (!targetCol) {
       return;
     }
@@ -343,16 +329,8 @@ export default class RelatedListEditor extends LightningElement {
    * @description  : 項目をUIから追加
    **/
   handleClickNewColumnToRow(e) {
-    console.log(e.currentTarget.dataset);
     const rowOrder = parseInt(e.currentTarget.dataset.rowOrder, 10);
-    console.log(
-      rowOrder,
-      this.selectedPage?.rows,
-      this.selectedPage.rows.find((r) => r.order === rowOrder)
-    );
     this.selectedRow = this.selectedPage.rows.find((r) => r.order === rowOrder);
-    console.log(this.selectedRow);
-    console.log(rowOrder, this.selectedRow, this.selectedRow.order);
     this.openRowAccordion(this.selectedRow.order);
     this.handleClickNewColumn();
   }
@@ -364,7 +342,6 @@ export default class RelatedListEditor extends LightningElement {
     this.selectedRow.columns = addNewColumn(this.selectedRow.columns);
     this.selectedColumn =
       this.selectedRow.columns[this.selectedRow.columns.length - 1];
-    console.log("yay", this.selectedColumn.ColumnOrder__c);
     this.openColumnAccordion(
       this.selectedRow.order,
       this.selectedColumn.ColumnOrder__c
@@ -438,14 +415,6 @@ export default class RelatedListEditor extends LightningElement {
     if (valueChanged) {
       this.selectedColumn.status = STATUS_DRAFT;
     }
-    console.log(
-      "handleColumnInputChange",
-      this.selectedColumn,
-      field,
-      checked,
-      value,
-      this.pages
-    );
   }
 
   /**
@@ -494,19 +463,22 @@ export default class RelatedListEditor extends LightningElement {
    **/
   handleSort(e) {
     e.stopPropagation();
-    const { sortType, sortDirection, order } = e.currentTarget.dataset;
-    console.log(sortType, sortDirection, order);
+    const {
+      sortType,
+      sortDirection,
+      order: orderStr
+    } = e.currentTarget.dataset;
+    const order = parseInt(orderStr, 10);
 
-    switch (sortType) {
-      case "field":
-        break;
-      case "row":
-        break;
-      case "page":
-        break;
-      default:
-        break;
-    }
+    const targetArray =
+      sortType === "column"
+        ? this.selectedRow.columns
+        : sortType === "row"
+        ? this.selectedPage.rows
+        : this.pages;
+    const orderKey = sortType === "column" ? "ColumnOrder__c" : "order";
+
+    sortOrder(sortDirection, order, targetArray, orderKey);
   }
 
   get activeRowName() {

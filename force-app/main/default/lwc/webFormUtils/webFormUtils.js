@@ -23,7 +23,6 @@ export const getURLParameter = (key) => {
  * @description : Template - Page - Row - Detail Tree Structure
  */
 export const buildTemplateTree = (details) => {
-  console.log(details);
   if (details.length === 0) {
     return {};
   }
@@ -76,8 +75,6 @@ export const buildTemplateTree = (details) => {
 
     row.appTemplateDetails__r.push(d);
   }
-  console.log(t);
-
   return t;
 };
 

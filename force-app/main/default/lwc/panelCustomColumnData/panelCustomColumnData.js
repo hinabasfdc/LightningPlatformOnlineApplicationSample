@@ -56,8 +56,6 @@ export default class PanelCustomColumnData extends LightningElement {
         }
         return d;
       });
-
-      console.log("WIRED", this.appDetails);
     } else if (error) {
       console.error(error);
     }

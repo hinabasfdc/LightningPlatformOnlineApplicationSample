@@ -1,7 +1,7 @@
 <template>
   <div>
     <lightning-card title="入力" icon-name="utility:edit_form">
-      <div class="slds-m-left_medium slds-m-right_medium">
+      <div class="slds-m-horizontal_medium slds-m-vertical_small">
         <div class="slds-box">
           <template if:true={selectedPage}>
             <lightning-record-edit-form object-api-name={objectApiName}>
@@ -10,7 +10,7 @@
                   <template for:each={r.appTemplateDetails__r} for:item="d">
                     <lightning-layout-item
                       key={d.Id}
-                      flexibility="grow"
+                      flexibility="auto"
                       padding="horizontal-small"
                     >
                       <div class="slds-m-bottom_small">

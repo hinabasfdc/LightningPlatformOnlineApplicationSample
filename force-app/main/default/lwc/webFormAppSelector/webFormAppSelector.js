@@ -12,6 +12,7 @@ export default class WebFormAppSelector extends LightningElement {
    **/
   @wire(getActiveApplications, { includeDraftApp: "$includeDraftApp" })
   wiredActiveApplications({ data, error }) {
+    console.log(data, error);
     if (data) {
       this.applications = data
         .reduce((apps, a) => {
@@ -36,8 +37,8 @@ export default class WebFormAppSelector extends LightningElement {
           return a;
         });
     } else if (error) {
-      console.log(error);
       showToast(this, "wiredActiveApplications", error, "error");
+      console.error(error);
     }
   }
 

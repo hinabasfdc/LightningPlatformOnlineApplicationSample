@@ -1,6 +1,9 @@
 .slds-box {
   background-color: #fff;
 }
+.page-selector {
+  min-width: 200px;
+}
 .nav-item-wrapper {
   position: relative;
 }

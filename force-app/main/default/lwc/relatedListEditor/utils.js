@@ -4,7 +4,6 @@ export const STATUS_SAVED = "saved";
 
 export const formatPages = (details) => {
   // ページと行のデータを持つ詳細のみ表示。
-  console.log(details);
   if (!details || details.length === 0) {
     return [];
   }
@@ -19,17 +18,16 @@ export const formatPages = (details) => {
         status: STATUS_SAVED,
         get displayName() {
           const name = this.Name ?? `項目名未入力 ${this.ColumnOrder__c}`;
-          if(!this.Category__c) {
+          if (!this.Category__c) {
             return name;
           }
           return `${name} [${this.Category__c}] ${
             this.Category__c === "標準"
-              ? this.StdColumnName__c ?? ''
-              : this.DataType__c ?? ''
+              ? this.StdColumnName__c ?? ""
+              : this.DataType__c ?? ""
           }`;
         }
       };
-      console.log(detail);
       const page = pages.find(
         (p) => p.id === d.AppTemplateRow__r.AppTemplatePage__r.Id
       );
@@ -55,7 +53,6 @@ export const formatPages = (details) => {
             }
           ]
         });
-        console.log(pages);
         return pages;
       }
       const row = page.rows.find((r) => r.id === d.AppTemplateRow__r.Id);
@@ -70,11 +67,9 @@ export const formatPages = (details) => {
               .join(", ")}`;
           }
         });
-        console.log(pages);
         return pages;
       }
       row.columns.push(detail);
-      console.log(pages);
       return pages;
     }, [])
     .map((p) => {
@@ -84,7 +79,6 @@ export const formatPages = (details) => {
       p.rows.sort((a, b) => a.order - b.order);
       return p;
     });
-  console.log("pages", ps);
   return ps;
 };
 
@@ -128,13 +122,13 @@ export const addNewColumn = (columns) => {
     status: STATUS_DRAFT,
     get displayName() {
       const name = this.Name ?? `項目名未入力 ${this.ColumnOrder__c}`;
-      if(!this.Category__c) {
+      if (!this.Category__c) {
         return name;
       }
       return `${name} [${this.Category__c}] ${
         this.Category__c === "標準"
-          ? this.StdColumnName__c ?? ''
-          : this.DataType__c ?? ''
+          ? this.StdColumnName__c ?? ""
+          : this.DataType__c ?? ""
       }`;
     },
     ColumnOrder__c: newOrder,
@@ -187,4 +181,24 @@ export const formatPagesForSave = (pages) => {
       })
     )
   };
+};
+
+export const sortOrder = (dir, order, targetArray, orderKey) => {
+  const indx = targetArray.findIndex((t) => t[orderKey] === order);
+  if (
+    indx === -1 ||
+    (indx === 0 && dir === "up") ||
+    (indx === targetArray.length - 1 && dir === "down")
+  ) {
+    return;
+  }
+  const targetIndex = dir === "up" ? indx - 1 : indx + 1;
+  const swapTarget = targetArray[targetIndex];
+  const swapTargetOrder = targetArray[targetIndex][orderKey];
+  const originalOrder = targetArray[indx][orderKey];
+  targetArray[targetIndex] = targetArray[indx];
+  targetArray[indx] = swapTarget;
+  targetArray[indx][orderKey] = originalOrder;
+  targetArray[targetIndex][orderKey] = swapTargetOrder;
+  targetArray[indx].status = targetArray[targetIndex].status = STATUS_DRAFT;
 };

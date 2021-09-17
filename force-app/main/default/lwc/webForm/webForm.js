@@ -89,19 +89,21 @@ export default class WebForm extends LightningElement {
 
   @wire(getApplicationTemplateDetails, { recordId: "$recordId" })
   wiredAppTemplateDetails({ data, error }) {
+    console.log(data, error);
     if (data) {
       this.appTemplate = buildTemplateTree(data);
-      const inputSteps = this.appTemplate.appTemplatePages__r
-        ?.map((p) => {
-          return {
-            id: p.Id,
-            label: p.Name,
-            page: PAGE_DATA_ENTRY,
-            order: null,
-            inputStepOrder: p.Order__c
-          };
-        })
-        .sort((a, b) => a.inputStepOrder - b.inputStepOrder) ?? [];
+      const inputSteps =
+        this.appTemplate.appTemplatePages__r
+          ?.map((p) => {
+            return {
+              id: p.Id,
+              label: p.Name,
+              page: PAGE_DATA_ENTRY,
+              order: null,
+              inputStepOrder: p.Order__c
+            };
+          })
+          .sort((a, b) => a.inputStepOrder - b.inputStepOrder) ?? [];
 
       // テンプレートデータを取得したら、入力ページとそれ以外のページを合体させ、
       // Stepsとして扱う。
@@ -129,8 +131,6 @@ export default class WebForm extends LightningElement {
   }
 
   updatePageInputData(e) {
-    console.log("updatePageInputData", e.detail);
-
     const pageIndex = this.appTemplate.appTemplatePages__r.findIndex(
       (p) => p.Id === this.currentStep.id
     );
@@ -142,13 +142,11 @@ export default class WebForm extends LightningElement {
 
   async handleFormSubmit() {
     try {
-      console.log("handleFormSubmit");
       const details = flattenAppTemplate(this.appTemplate);
-      console.log(details);
-
+      console.log("Form submitted", details);
       // 申請/申請詳細/関連ファイル作成
       this.createdAppRecord = await this.insertApp(details);
-      console.log(this.createdAppRecord);
+      console.log("AppRecord created", this.createdAppRecord);
       if (!this.createdAppRecord) {
         throw new Error("No Application Template Id");
       }

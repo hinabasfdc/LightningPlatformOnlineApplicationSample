@@ -26,7 +26,7 @@
     <lightning-layout>
       <lightning-layout-item>
         <!-- ページ エリア-->
-        <div class="" style="min-width: 200px">
+        <div class="page-selector">
           <lightning-vertical-navigation
             selected-item={selectedPageOrder}
             onselect={handleSelectPage}
@@ -44,7 +44,7 @@
                         alternative-text="Sort Up"
                         title="Sort Up"
                         data-sort-direction="up"
-                        data-page-order={p.order}
+                        data-order={p.order}
                         data-sort-type="page"
                         onclick={handleSort}
                       ></lightning-button-icon>
@@ -55,7 +55,7 @@
                         alternative-text="Sort down"
                         title="Sort down"
                         data-sort-direction="down"
-                        data-page-order={p.order}
+                        data-order={p.order}
                         data-sort-type="page"
                         onclick={handleSort}
                       ></lightning-button-icon>
@@ -174,7 +174,7 @@
                             alternative-text="Sort Up"
                             title="Sort Up"
                             data-sort-direction="up"
-                            data-row-order={r.order}
+                            data-order={r.order}
                             data-sort-type="row"
                             onclick={handleSort}
                           ></lightning-button-icon>
@@ -184,7 +184,7 @@
                             alternative-text="Sort down"
                             title="Sort down"
                             data-sort-direction="down"
-                            data-row-order={r.order}
+                            data-order={r.order}
                             data-sort-type="row"
                             onclick={handleSort}
                           ></lightning-button-icon>
@@ -219,7 +219,7 @@
                                     title="Sort Up"
                                     data-sort-direction="up"
                                     data-order={c.ColumnOrder__c}
-                                    data-sort-type="field"
+                                    data-sort-type="column"
                                     onclick={handleSort}
                                   ></lightning-button-icon>
                                   <lightning-button-icon
@@ -229,7 +229,7 @@
                                     title="Sort down"
                                     data-sort-direction="down"
                                     data-order={c.ColumnOrder__c}
-                                    data-sort-type="field"
+                                    data-sort-type="column"
                                     onclick={handleSort}
                                   ></lightning-button-icon>
                                   <lightning-button

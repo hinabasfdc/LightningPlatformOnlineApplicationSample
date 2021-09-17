@@ -92,7 +92,6 @@ export default class WebFormDataEntry extends LightningElement {
   };
 
   getPageCols = (inputPageNumber) => {
-    console.log(this.pages);
     const page = this.pages?.find((p) => p.page === inputPageNumber) ?? null;
     if (!page) {
       return [];
@@ -107,8 +106,6 @@ export default class WebFormDataEntry extends LightningElement {
    * @description  : 入力ページで各項目に値を入力した場合の処理
    **/
   handleChangeValue(e) {
-    console.log("handleChangeValue", e.target.dataset.id, e.target.value);
-
     const updatedRows = this.selectedPage.appTemplateRows__r.map((r) => {
       const details = r.appTemplateDetails__r.map((d) => {
         if (d.Id !== e.target.dataset.id) {
@@ -124,7 +121,6 @@ export default class WebFormDataEntry extends LightningElement {
           // チェックボックス以外は値をそのまま代入
           detail.Value__c = e.target.value;
         }
-        console.log(detail);
         return detail;
       });
       return { ...r, appTemplateDetails__r: details };

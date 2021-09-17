@@ -41,7 +41,6 @@ export default class WebFormStepTracker extends LightningElement {
       }
 
       if (!this.isDisplayMoveButton && el.scrollWidth > el.clientWidth) {
-        console.log("[LWC-ProgressTracker] display move button");
         this.isDisplayMoveButton = true;
       }
     }

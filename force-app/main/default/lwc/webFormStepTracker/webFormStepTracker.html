@@ -1,6 +1,6 @@
 <template>
   <template if:true={shouldDisplay}>
-    <div class="slds-card slds-p-around_medium slds-m-bottom_medium">
+    <div class="slds-card slds-p-around_medium slds-m-bottom_small">
       <div class="slds-path">
         <div class="slds-grid slds-path__track slds-has-overflow">
           <div class="slds-grid slds-path__scroller-container">
@@ -9,8 +9,11 @@
                 <!-- 左のボタン -->
                 <template if:true={isDisplayMoveButton}>
                   <div
-                    class="slds-path__scroll-controls slds-m-right_x-small"
-                    style="padding-left: 0px"
+                    class="
+                      slds-path__scroll-controls
+                      slds-m-right_x-small
+                      slds-p-left_none
+                    "
                   >
                     <lightning-button-icon
                       icon-name="utility:jump_to_left"
