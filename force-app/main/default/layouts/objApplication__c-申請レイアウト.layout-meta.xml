@@ -77,7 +77,6 @@
         <fields>Text__c</fields>
         <fields>LongTextArea__c</fields>
         <fields>Number__c</fields>
-        <fields>SortOrder__c</fields>
         <relatedList>objApplicationDetail__c.objApplication__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>

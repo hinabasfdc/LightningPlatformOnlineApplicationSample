@@ -41,10 +41,6 @@
                 <behavior>Readonly</behavior>
                 <field>ColumnName__c</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>SortOrder__c</field>
-            </layoutItems>
         </layoutColumns>
         <style>TwoColumnsLeftToRight</style>
     </layoutSections>
