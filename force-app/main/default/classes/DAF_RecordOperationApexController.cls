@@ -119,7 +119,7 @@ public with sharing class DAF_RecordOperationApexController {
     List<objApplicationDetail__c> appDetails,
     String fileDocumentIds
   ) {
-    if (app == null || appDetails == null || appDetails.size() === 0) {
+    if (app == null || appDetails == null || appDetails.size() == 0) {
       return null;
     }
     app.Phase__c = '提出済み';
