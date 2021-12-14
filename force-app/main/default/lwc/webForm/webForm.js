@@ -1,159 +1,380 @@
-import { LightningElement, api } from 'lwc';
+import { LightningElement, api, wire, track } from "lwc";
+import getActiveApplications from "@salesforce/apex/DAF_RecordOperationApexController.getActiveApplications";
+import getApplicationTemplateDetails from "@salesforce/apex/DAF_RecordOperationApexController.getApplicationTemplateDetails";
+import insertApplication from "@salesforce/apex/DAF_RecordOperationApexController.insertApplication";
+import {
+  showToast,
+  getURLParameter,
+  buildTemplateTree,
+  PAGE_DATA_ENTRY,
+  PAGE_ATTACH_FILE,
+  PAGE_COMPLETE,
+  PAGE_CONFIRM,
+  PAGE_OVERVIEW,
+  PAGE_SELECTOR,
+  STEP_SELECTOR,
+  STEP_COMPLETE,
+  STEP_CONFIRM,
+  STEP_FILE_ATTACH,
+  STEP_OVERVIEW,
+  flattenAppTemplate
+} from "c/webFormUtils";
+import {
+  fnAD_APPTEMPDET_FIELD,
+  fnAD_APP_FIELD,
+  fnAD_LONGTEXTAREA_FIELD,
+  fnAD_NUMBER_FIELD,
+  fnAD_TEXT_FIELD,
+  fnATD_CATEGORY_FIELD,
+  fnATD_ISCHECKBOX_FIELD,
+  fnATD_ISCURRENCY_FIELD,
+  fnATD_ISDATE_FIELD,
+  fnATD_ISNUMBER_FIELD,
+  fnATD_ISPICKLIST_FIELD,
+  fnATD_ISTEXT_FIELD,
+  fnATD_ISTIME_FIELD,
+  fnATD_STDCOLUMNNAME_FIELD,
+  fnATD_VALUE_FIELD,
+  fnA_APPTEMP_FIELD
+} from "c/appTemplateSchema";
+
+const NEXT = "next";
+const PREV = "previous";
 
 export default class WebForm extends LightningElement {
+  // TODO: Pageをやめて、Stepだけにする。
+
   // WebFormAppSelector に渡す。true の場合は下書きのものも選択肢に含める(動作確認用)
   @api includeDraftApp = false;
   // WebFormAttachFile に渡す。プレビュー画像表示 URL を書き換える
   @api isCommunityPage = false;
+  @api previewFor;
+  @api recordId;
 
   // 矢羽の表示ラベルと現在位置の初期化
-  activeSteps = '手続き概要,入力,ファイル添付,確認,完了';
-  currentStep = '手続き概要';
+  @api overviewPageLabel;
+  @api fileAttachPageLabel;
+  @api confirmPageLabel;
+  @api completePageLabel;
 
-  // サブコンポーネントにまたがって使用する変数を定義 & 初期化
-  currentPage = 'selector'; // ページ遷移現在位置
-  selectedAppId = ''; // 選択された手続きの SalesforceID
-  applicationTemplate = {}; // 選択された手続き定義を格納 (getRecord での取得形式)
-  inputData = ''; // 入力された値を格納しておく。JSON 化するので文字列
-  createdAppRecordId = ''; // 作成された申請レコードの SalesforceID
-  uploadedFileDocumentIds = ''; // アップロードしたファイルの SalesforceID を格納しておく。JSON 化するので文字列
-  pages = new Map(); // ページの表示状態を格納しておく
+  // 入力データもここに保存。
+  @track appTemplate;
+  @track applications = [];
 
-  // ページの状態を取得する getter
-  get displayPageSelector() { return this.pages.get('selector'); }
-  get displayPageOverview() { return this.pages.get('overview'); }
-  get displayPageDataEntry() { return this.pages.get('dataentry'); }
-  get displayPageAttachFile() { return this.pages.get('attachfile'); }
-  get displayPageConfirm() { return this.pages.get('confirm'); }
-  get displayPageComplete() { return this.pages.get('complete'); }
+  @track steps = []; // ステップ一覧
+  @track currentStep = null; // 現在選択されているステップ
+
+  createdAppRecord = null; // 作成された申請レコードの SalesforceID
+  uploadedFileDocumentIds = ""; // アップロードしたファイルの SalesforceID を格納しておく。JSON 化するので文字列
 
   /**
-  * @description: 初期化。行うのはページ表示状態の初期設定のみ
-  */
+   * @description: 初期化。行うのはページ表示状態の初期設定のみ
+   */
   connectedCallback() {
-
-    // ページの表示状態を初期化
-    let localPages = new Map();
-    localPages.set('selector', true);
-    localPages.set('overview', false);
-    localPages.set('dataentry', false);
-    localPages.set('attachfile', false);
-    localPages.set('confirm', false);
-    localPages.set('complete', false);
-    this.pages = new Map(localPages);
+    this.initSteps();
 
     // URL パラメータ c__templateId をチェックし、直接 overviews 画面に遷移
-    let c__templateId = this._getURLParameter('c__templateId');
+    const c__templateId = getURLParameter("c__templateId");
     if (c__templateId) {
+      console.log(c__templateId);
       // event オブジェクト構造を模倣
-      const o = {
+      this.handleNextPage({
         detail: {
-          currentpage: 'selector',
-          selectedappid: c__templateId
+          data: c__templateId
+        }
+      });
+      return;
+    }
+
+    this.currentStep = this.steps[0];
+  }
+
+  @wire(getApplicationTemplateDetails, { recordId: "$recordId" })
+  wiredAppTemplateDetails({ data, error }) {
+    console.log(data, error);
+    if (data) {
+      this.appTemplate = buildTemplateTree(data);
+      const inputSteps =
+        this.appTemplate.appTemplatePages__r
+          ?.map((p) => {
+            return {
+              id: p.Id,
+              label: p.Name,
+              page: PAGE_DATA_ENTRY,
+              order: null,
+              inputStepOrder: p.Order__c
+            };
+          })
+          .sort((a, b) => a.inputStepOrder - b.inputStepOrder) ?? [];
+
+      // テンプレートデータを取得したら、入力ページとそれ以外のページを合体させ、
+      // Stepsとして扱う。
+      this.steps = [
+        STEP_SELECTOR,
+        STEP_OVERVIEW,
+        ...inputSteps,
+        STEP_FILE_ATTACH,
+        STEP_CONFIRM,
+        STEP_COMPLETE
+      ].map((s, i) => {
+        s.order = i + 1; // orderを確定させる。
+        return s;
+      });
+
+      if (this.previewFor) {
+        // プレビュー用途は、入力画面の最初のステップ or 概要説明画面を見せる。
+        this.currentStep =
+          this.previewFor === "入力" ? this.steps[2] : this.steps[1];
+      }
+    } else if (error) {
+      console.error(error);
+      showToast(this, "[Error] wiredAppTemplateDetails", error, "error");
+    }
+  }
+
+  /**
+   * @description  : 選択できる申請手続きを取得
+   **/
+  @wire(getActiveApplications, { includeDraftApp: "$includeDraftApp" })
+  wiredActiveApplications({ data, error }) {
+    console.log(data, error);
+    if (data) {
+      this.applications = data
+        .reduce((apps, a) => {
+          const o = {
+            Id: a.Id,
+            label: a.Name,
+            description: a.Description__c
+          };
+          const c = apps.find((app) => app.category === a.Category__c);
+          if (c) {
+            c.apps.push(o);
+          } else {
+            apps.push({
+              category: a.Category__c,
+              apps: [o]
+            });
+          }
+          return apps;
+        }, [])
+        .map((a) => {
+          a.label = `${a.category}(${a.apps.length})`;
+          return a;
+        });
+    } else if (error) {
+      showToast(this, "wiredActiveApplications", error, "error");
+      console.error(error);
+    }
+  }
+
+  updatePageInputData(e) {
+    const pageIndex = this.appTemplate.appTemplatePages__r.findIndex(
+      (p) => p.Id === this.currentStep.id
+    );
+    if (pageIndex === -1) {
+      return;
+    }
+    this.appTemplate.appTemplatePages__r[pageIndex] = e.detail;
+  }
+
+  async handleFormSubmit() {
+    try {
+      const details = flattenAppTemplate(this.appTemplate);
+      console.log("Form submitted", details);
+      // 申請/申請詳細/関連ファイル作成
+      this.createdAppRecord = await this.insertApp(details);
+      console.log("AppRecord created", this.createdAppRecord);
+      if (!this.createdAppRecord) {
+        throw new Error("No Application Template Id");
+      }
+
+      // WebForm のメソッドを呼び出し
+      this.handleNextPage();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // 標準項目のデータ登録用オブジェクト作成し、申請手続き ID と、すでに登録されていた場合は ID を設定
+  // 値格納変数から、標準項目の値を抽出し、データ登録用オブジェクトに追加
+  async insertApp(details) {
+    const app = details
+      .filter(
+        (d) =>
+          d[fnATD_CATEGORY_FIELD] === "標準" &&
+          d[fnATD_STDCOLUMNNAME_FIELD] &&
+          d[fnATD_VALUE_FIELD]
+      )
+      .reduce(
+        (params, d) => {
+          params[d[fnATD_STDCOLUMNNAME_FIELD]] = d[fnATD_VALUE_FIELD];
+          return params;
+        },
+        { Id: null, [fnA_APPTEMP_FIELD]: this.appTemplate?.Id ?? null }
+      );
+
+    // データ登録用の配列を設定
+    const appDetails = details
+      .filter((d) => d[fnATD_CATEGORY_FIELD] === "カスタム")
+      .map((d) => {
+        const v = d[fnATD_VALUE_FIELD];
+        return {
+          [fnAD_APP_FIELD]: null,
+          [fnAD_APPTEMPDET_FIELD]: d.Id,
+          Id: null, // d.detailRecordIdはありえるのか？？
+          [fnAD_TEXT_FIELD]:
+            d[fnATD_ISTEXT_FIELD] ||
+            d.isMail__c ||
+            d[fnATD_ISDATE_FIELD] ||
+            d[fnATD_ISTIME_FIELD] ||
+            d[fnATD_ISCHECKBOX_FIELD] ||
+            d[fnATD_ISPICKLIST_FIELD]
+              ? !!v || v === false || v === 0 // false, 0, number, stringを許容（array, objectは入らない想定)
+                ? "" + v
+                : null
+              : null,
+          [fnAD_LONGTEXTAREA_FIELD]:
+            d.isLongTextArea__c || d.isURL__c ? v : null,
+          [fnAD_NUMBER_FIELD]:
+            d[fnATD_ISNUMBER_FIELD] || d[fnATD_ISCURRENCY_FIELD] ? v : null
+        };
+      });
+
+    // データ登録Apex メソッドを呼び出し
+    try {
+      const appRecord = await insertApplication({
+        app,
+        appDetails,
+        fileDocumentIds: this.uploadedFileDocumentIds
+      });
+      return appRecord;
+    } catch (err) {
+      console.error("Inserting application record failed", err);
+      throw new Error("Inserting application record failed");
+    }
+  }
+
+  /**
+   * @description: 各ページコンポーネントから呼び出される「次へ」相当のボタンが押された時の処理関数
+   */
+  handleNextPage(evt) {
+    const { data } = evt?.detail ?? {};
+    // プレビュー用途では、入力ページの遷移を除いてページングは許容しない。
+    if (this.previewFor) {
+      if (this.currentStep.page === PAGE_DATA_ENTRY) {
+        // 次のステップが入力ページなら、進める
+        const currentStepIndex = this.steps.findIndex(
+          (s) => s.id === this.currentStep.id
+        );
+        if (this.steps[currentStepIndex + 1].page === PAGE_DATA_ENTRY) {
+          this.currentStep = this.steps[currentStepIndex + 1];
         }
       }
-      this.handleNextPage(o);
-    }
-
-  }
-
-  /**
-  * @description: 各ページコンポーネントから呼び出される「次へ」相当のボタンが押された時の処理関数
-  */
-  handleNextPage(evt) {
-    console.log('handleNextPage');
-    let currentPage = evt.detail.currentpage;
-
-    if (currentPage === 'selector') {
-      if (evt.detail['selectedappid']) this.selectedAppId = evt.detail['selectedappid'];
-      else return;
-
-      // いったん selector まで戻った場合は入力値を空にする
-      this.inputData = '';
-    } else if (currentPage === 'overview') {
-      this.applicationTemplate = evt.detail['applicationTemplate'];
-
-      this.currentStep = '入力'
-    } else if (currentPage === 'dataentry') {
-      this.inputData = evt.detail['inputData'];
-
-      this.currentStep = 'ファイル添付'
-    } else if (currentPage === 'attachfile') {
-      this.uploadedFileDocumentIds = evt.detail['uploadedFileDocumentIds'];
-
-      this.currentStep = '確認'
-    } else if (currentPage === 'confirm') {
-      this.createdAppRecordId = evt.detail['createdAppRecordId'];
-
-      this.currentStep = '完了'
-    } else if (currentPage === 'complete') {
-
-      // 完了画面から次へ移動は手続き選択画面のみ。各変数を初期状態へ
-      this.currentStep = '';
-      this.selectedAppId = '';
-      this.applicationTemplate = {};
-      this.inputData = '';
-      this.createdAppRecordId = '';
-      this.uploadedFileDocumentIds = '';
-    }
-    this._movePage(currentPage, 'next');
-  }
-
-  /**
-  * @description: 各ページコンポーネントから呼び出される「戻る」相当のボタンが押された時の処理関数
-  */
-  handlePreviousPage(evt) {
-    console.log('handlePreviousPage');
-    let currentPage = evt.detail['currentpage'];
-
-    if (currentPage === 'selector') {
       return;
-    } else if (currentPage === 'overview') {
-      this.selectedApplicationId = '';
-      this.currentStep = '';
-    } else if (currentPage === 'dataentry') {
-      this.currentStep = '手続き概要'
-    } else if (currentPage === 'attachfile') {
-      this.currentStep = '入力'
-    } else if (currentPage === 'confirm') {
-      this.currentStep = 'ファイル添付'
-    } else if (currentPage === 'complete') {
-      this.currentStep = '確認'
     }
-    this._movePage(currentPage, 'previous');
+
+    switch (this.currentStep.page) {
+      case PAGE_SELECTOR:
+        if (!data) {
+          break;
+        }
+        this.recordId = data;
+        this.appTemplate = null;
+        break;
+      case PAGE_OVERVIEW:
+      case PAGE_DATA_ENTRY:
+      case PAGE_CONFIRM:
+        break;
+      case PAGE_ATTACH_FILE:
+        this.uploadedFileDocumentIds = data;
+        break;
+      case PAGE_COMPLETE:
+        // 完了画面から次へ移動は手続き選択画面のみ。各変数を初期状態へ
+        this.recordId = null;
+        this.appTemplate = null;
+        this.createdAppRecord = null;
+        this.uploadedFileDocumentIds = null;
+        this.initSteps();
+        this.currentStep = this.steps[0];
+        return;
+      default:
+    }
+    this._movePage(NEXT);
   }
 
   /**
-  * @description: ページ移動を処理する内部関数
-  */
-  _movePage(currentPage, direction) {
-    let localPages = new Map(this.pages);
-    let arrayPages = [...localPages.keys()];
-    let currentPageIdx = arrayPages.indexOf(currentPage);
-
-    if (direction === 'next') {
-      if (currentPageIdx >= 0 && (currentPageIdx + 1) < arrayPages.length) {
-        for (let page of localPages.keys()) localPages.set(page, false);
-        localPages.set(arrayPages[currentPageIdx + 1], true);
-      } else if ((currentPageIdx + 1) == arrayPages.length) {
-        for (let page of localPages.keys()) localPages.set(page, false);
-        // 手続き選択ページに戻る
-        localPages.set(arrayPages[0], true);
+   * @description: 各ページコンポーネントから呼び出される「戻る」相当のボタンが押された時の処理関数
+   */
+  handlePreviousPage() {
+    // プレビュー用途では、入力ページの遷移を除いてページングは許容しない。
+    if (this.previewFor) {
+      if (this.currentStep.page === PAGE_DATA_ENTRY) {
+        // 次のステップが入力ページなら、戻る
+        const currentStepIndex = this.steps.findIndex(
+          (s) => s.id === this.currentStep.id
+        );
+        if (this.steps[currentStepIndex - 1].page === PAGE_DATA_ENTRY) {
+          this.currentStep = this.steps[currentStepIndex - 1];
+        }
       }
-    } else if (direction === 'previous') {
-      if (currentPageIdx >= 1 && currentPageIdx < arrayPages.length) {
-        for (let page of localPages.keys()) localPages.set(page, false);
-        localPages.set(arrayPages[currentPageIdx - 1], true);
-      }
+      return;
     }
-    this.pages = new Map(localPages);
+
+    if (this.currentStep.page === PAGE_OVERVIEW) {
+      this.recordId = "";
+    }
+    this._movePage(PREV);
   }
 
   /**
-  * @description  : 指定された URL パラメータの値を返す(c__XXXX のパラメータ名にする必要あり)
-  **/
-  _getURLParameter(key) {
-    return new URL(window.location.href).searchParams.get(key);
+   * @description: ページ移動を処理する内部関数
+   */
+  _movePage(direction) {
+    const currentStepIndex = this.steps.findIndex(
+      (s) => s.id === this.currentStep.id
+    );
+
+    if (currentStepIndex === -1) {
+      return;
+    }
+    if (direction === NEXT) {
+      this.currentStep =
+        currentStepIndex === this.steps.length - 1
+          ? this.steps[0] // 完了時に次へでリセット
+          : this.steps[currentStepIndex + 1]; // +1
+    } else if (direction === PREV) {
+      this.currentStep =
+        currentStepIndex === 0
+          ? this.steps[0] //
+          : this.steps[currentStepIndex - 1]; // Go back
+    }
   }
 
+  initSteps() {
+    this.steps = [STEP_SELECTOR, STEP_OVERVIEW].map((s, i) => {
+      s.order = i + 1; // orderを確定させる。
+      return s;
+    });
+    this.currentStep = this.steps[0];
+  }
+
+  // ページの状態を取得する getter
+  get displayPageSelector() {
+    return this.currentStep?.page === PAGE_SELECTOR;
+  }
+  get displayPageOverview() {
+    return this.currentStep?.page === PAGE_OVERVIEW;
+  }
+  get displayPageDataEntry() {
+    return this.currentStep?.page === PAGE_DATA_ENTRY;
+  }
+  get displayPageAttachFile() {
+    return this.currentStep?.page === PAGE_ATTACH_FILE;
+  }
+  get displayPageConfirm() {
+    return this.currentStep?.page === PAGE_CONFIRM;
+  }
+  get displayPageComplete() {
+    return this.currentStep?.page === PAGE_COMPLETE;
+  }
 }

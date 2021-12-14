@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>SortOrder__c</fullName>
-    <defaultValue>1</defaultValue>
+    <fullName>ColumnOrder__c</fullName>
     <externalId>false</externalId>
-    <label>表示順</label>
+    <formula>objApplicationTemplateDetail__r.ColumnOrder__c</formula>
+    <label>列順</label>
     <precision>18</precision>
     <required>false</required>
     <scale>0</scale>

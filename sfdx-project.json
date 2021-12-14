@@ -1,23 +1,24 @@
 {
-    "packageDirectories": [
-        {
-            "path": "force-app",
-            "default": true,
-            "package": "オンライン申請デモパッケージ",
-            "versionName": "ver 0.4",
-            "versionNumber": "0.4.0.NEXT"
-        }
-    ],
-    "namespace": "jpseps",
-    "sfdcLoginUrl": "https://login.salesforce.com",
-    "sourceApiVersion": "50.0",
-    "packageAliases": {
-        "オンライン申請デモパッケージ": "0Ho2r000000CaSUCA0",
-        "オンライン申請デモパッケージ@0.1.0-1": "04t2r000000HO0nAAG",
-        "オンライン申請デモパッケージ@0.1.0-2": "04t2r000000HO0sAAG",
-        "オンライン申請デモパッケージ@0.1.0-3": "04t2r000000HO0xAAG",
-        "オンライン申請デモパッケージ@0.2.0-1": "04t2r000000HO1CAAW",
-        "オンライン申請デモパッケージ@0.3.0-1": "04t2r000000HO1HAAW",
-        "オンライン申請デモパッケージ@0.4.0-1": "04t2r000000HO1RAAW"
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true,
+      "package": "オンライン申請デモパッケージ",
+      "versionName": "ver 0.4",
+      "versionNumber": "0.4.0.NEXT"
     }
+  ],
+  "name": "LightningPlatformOnlineApplicationSample",
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "52.0",
+  "packageAliases": {
+    "オンライン申請デモパッケージ": "0Ho2r000000CaSUCA0",
+    "オンライン申請デモパッケージ@0.1.0-1": "04t2r000000HO0nAAG",
+    "オンライン申請デモパッケージ@0.1.0-2": "04t2r000000HO0sAAG",
+    "オンライン申請デモパッケージ@0.1.0-3": "04t2r000000HO0xAAG",
+    "オンライン申請デモパッケージ@0.2.0-1": "04t2r000000HO1CAAW",
+    "オンライン申請デモパッケージ@0.3.0-1": "04t2r000000HO1HAAW",
+    "オンライン申請デモパッケージ@0.4.0-1": "04t2r000000HO1RAAW"
+  }
 }

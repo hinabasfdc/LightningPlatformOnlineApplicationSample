@@ -1,27 +1,33 @@
 <template>
   <div>
     <lightning-card title="ファイル添付" icon-name="utility:upload">
-      <div class="slds-var-m-left_medium slds-var-m-right_medium">
-
-        <template if:true={applicationTemplate}>
+      <div class="slds-m-left_medium slds-m-right_medium">
+        <template if:true={appTemplate}>
           <!-- メッセージを表示 -->
           <template if:true={message}>
-            <div class="slds-var-p-around_medium slds-var-m-bottom_medium slds-box">
-              <lightning-formatted-rich-text value={message}></lightning-formatted-rich-text>
+            <div class="slds-p-around_medium slds-m-bottom_medium slds-box">
+              <lightning-formatted-rich-text
+                value={message}
+              ></lightning-formatted-rich-text>
             </div>
           </template>
 
           <template if:true={isFileUploadAccepted}>
             <!-- ファイルアップロードコンポーネントの表示 -->
-            <div class="slds-var-p-around_medium slds-text-align_center slds-box">
-              <lightning-file-upload label="ファイルを追加" onuploadfinished={handleUploadFinished}>
+            <div class="slds-p-around_medium slds-text-align_center slds-box">
+              <lightning-file-upload
+                label="ファイルを追加"
+                onuploadfinished={handleUploadFinished}
+              >
               </lightning-file-upload>
             </div>
 
             <!-- ファイル一覧表示 -->
             <template if:true={files}>
-              <div class="slds-var-m-top_medium">
-                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+              <div class="slds-m-top_medium">
+                <table
+                  class="slds-table slds-table_cell-buffer slds-table_bordered"
+                >
                   <!-- テーブルヘッダー -->
                   <thead>
                     <tr>
@@ -38,33 +44,61 @@
                       <tr key={file.Id}>
                         <!-- 種類アイコン -->
                         <td class="slds-align_absolute-center">
-                          <lightning-icon icon-name={file.IconName}></lightning-icon>
+                          <lightning-icon
+                            icon-name={file.IconName}
+                          ></lightning-icon>
                         </td>
                         <!-- タイトル -->
-                        <td>
-                          {file.Title}
-                        </td>
+                        <td>{file.Title}</td>
                         <!-- 属性(作成日付・サイズ) -->
                         <td>
-                          <lightning-formatted-date-time value={file.ContentModifiedDate} year="numeric" month="2-digit"
-                            day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>,&nbsp;
-                          <lightning-formatted-number value={file.ContentSize}></lightning-formatted-number>
+                          <lightning-formatted-date-time
+                            value={file.ContentModifiedDate}
+                            year="numeric"
+                            month="2-digit"
+                            day="2-digit"
+                            hour="2-digit"
+                            minute="2-digit"
+                          ></lightning-formatted-date-time
+                          >,&nbsp;
+                          <lightning-formatted-number
+                            value={file.ContentSize}
+                          ></lightning-formatted-number>
                           KB,&nbsp;{file.FileType}
                         </td>
                         <!-- 操作 -->
                         <td class="slds-align_absolute-center">
-                          <lightning-button-icon icon-name="utility:delete" alternative-text="Delete"
-                            class="slds-var-m-right_xx-small" title="Delete" data-cdid={file.ContentDocumentId}
-                            data-cvid={file.Id} onclick={handleClickDelete} name={file.Title}></lightning-button-icon>
+                          <lightning-button-icon
+                            icon-name="utility:delete"
+                            alternative-text="Delete"
+                            class="slds-m-right_xx-small"
+                            title="Delete"
+                            data-cdid={file.ContentDocumentId}
+                            data-cvid={file.Id}
+                            onclick={handleClickDelete}
+                            name={file.Title}
+                          ></lightning-button-icon>
                           <template if:true={file.isImage}>
-                            <lightning-button-icon icon-name="utility:preview" alternative-text="Preview"
-                            class="slds-var-m-left_xx-small" title="Preview" data-cdid={file.ContentDocumentId}
-                            data-cvid={file.Id} onclick={handleClickPreview} name={file.Title}></lightning-button-icon>
+                            <lightning-button-icon
+                              icon-name="utility:preview"
+                              alternative-text="Preview"
+                              class="slds-m-left_xx-small"
+                              title="Preview"
+                              data-cdid={file.ContentDocumentId}
+                              data-cvid={file.Id}
+                              onclick={handleClickPreview}
+                              name={file.Title}
+                            ></lightning-button-icon>
                           </template>
                           <template if:false={file.isImage}>
                             <a href={file.downloadUrl}>
-                              <lightning-button-icon icon-name="utility:download" alternative-text="Download"
-                              class="slds-var-m-left_xx-small" title="Download" name={file.Title}></lightning-button-icon>
+                              <lightning-button-icon
+                                icon-name="utility:download"
+                                alternative-text="Download"
+                                class="slds-m-left_xx-small"
+                                title="Download"
+                                name={file.Title}
+                              ></lightning-button-icon>
                             </a>
                           </template>
                         </td>
@@ -78,32 +112,53 @@
 
           <!-- 添付ファイルが必要ない場合 -->
           <template if:false={isFileUploadAccepted}>
-            <p>必要な添付書類はありません。そのまま「次へ」を押して登録内容の確認へ進んでください。</p>
+            <p>
+              必要な添付書類はありません。そのまま「次へ」を押して登録内容の確認へ進んでください。
+            </p>
           </template>
-
         </template>
-
       </div>
       <!--フッター(ボタン部分)表示-->
       <div slot="footer">
-        <c-web-form-footer button-previous-enabled={buttonPreviousEnabled} button-previous-label="戻る"
-          button-next-enabled={buttonNextEnabled} button-next-label="次へ" onclickpageprevious={handleClickPagePrevious}
-          onclickpagenext={handleClickPageNext}></c-web-form-footer>
+        <c-web-form-footer
+          button-previous-enabled={buttonPreviousEnabled}
+          button-previous-label="戻る"
+          button-next-enabled={buttonNextEnabled}
+          button-next-label="次へ"
+          onclickpageprevious={handleClickPagePrevious}
+          onclickpagenext={handleClickPageNext}
+        ></c-web-form-footer>
       </div>
     </lightning-card>
 
     <!-- プレビュー画像表示用モーダル -->
     <template if:true={isDisplayModal}>
-      <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large"
-        aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+      <section
+        role="dialog"
+        tabindex="-1"
+        class="slds-modal slds-fade-in-open slds-modal_large"
+        aria-labelledby="modal-heading-01"
+        aria-modal="true"
+        aria-describedby="modal-content-id-1"
+      >
         <div class="slds-modal__container">
-          <div class="slds-modal__content slds-var-p-around_medium slds-text-align_center" id="modal-content-id-1">
+          <div
+            class="
+              slds-modal__content
+              slds-p-around_medium
+              slds-text-align_center
+            "
+            id="modal-content-id-1"
+          >
             <template if:true={previewUrl}>
               <img src={previewUrl} />
             </template>
           </div>
           <footer class="slds-modal__footer">
-            <lightning-button label="閉じる" onclick={handleClickCloseModal}></lightning-button>
+            <lightning-button
+              label="閉じる"
+              onclick={handleClickCloseModal}
+            ></lightning-button>
           </footer>
         </div>
       </section>

@@ -1,97 +1,332 @@
 <template>
-  <div class="slds-var-p-bottom_medium">
+  <div class="slds-p-bottom_medium">
+    <template if:true={hasAnyDraft}>
+      <div
+        class="
+          slds-p-horizontal_medium
+          slds-m-top_small
+          slds-m-bottom_x-small
+          slds-grid slds-grid_align-start
+        "
+      >
+        <lightning-button
+          variant="brand"
+          label="保存"
+          onclick={handleClickSave}
+        ></lightning-button>
+
+        <lightning-button
+          class="slds-m-left_medium"
+          variant="neutral"
+          label="キャンセル"
+          onclick={handleClickCancel}
+        ></lightning-button>
+      </div>
+    </template>
     <lightning-layout>
-
-      <!-- 左側メニューエリア -->
       <lightning-layout-item>
-        <div class="slds-var-p-left_medium">
-
-          <!-- ナビゲーションメニューとして表示し、クリックされたら handleSelectRecord を呼出 -->
-          <lightning-vertical-navigation onselect={handleSelectRecord} selected-item="new">
-            <lightning-vertical-navigation-section label="一覧">
-
-              <!-- 新規追加のメニューアイテム -->
-              <lightning-vertical-navigation-item label="(新規追加)" name="new"></lightning-vertical-navigation-item>
-
+        <!-- ページ エリア-->
+        <div class="page-selector">
+          <lightning-vertical-navigation
+            selected-item={selectedPageOrder}
+            onselect={handleSelectPage}
+          >
+            <lightning-vertical-navigation-section label="ページ">
               <!-- 定義済みの項目をメニューアイテムとして一覧表示 -->
-              <template if:true={relatedRecords}>
-                <template for:each={relatedRecords} for:item="record">
-                  <lightning-vertical-navigation-item key={record.Id} label={record.DisplayName} name={record.Id}>
-                  </lightning-vertical-navigation-item>
+              <template if:true={hasPages}>
+                <template for:each={pages} for:item="p">
+                  <div class="nav-item-wrapper page-nav" key={p.order}>
+                    <div class="sort-wrapper page-sort">
+                      <lightning-button-icon
+                        icon-name="utility:up"
+                        size="small"
+                        variant="bare"
+                        alternative-text="Sort Up"
+                        title="Sort Up"
+                        data-sort-direction="up"
+                        data-order={p.order}
+                        data-sort-type="page"
+                        onclick={handleSort}
+                      ></lightning-button-icon>
+                      <lightning-button-icon
+                        icon-name="utility:down"
+                        size="small"
+                        variant="bare"
+                        alternative-text="Sort down"
+                        title="Sort down"
+                        data-sort-direction="down"
+                        data-order={p.order}
+                        data-sort-type="page"
+                        onclick={handleSort}
+                      ></lightning-button-icon>
+                    </div>
+                    <lightning-vertical-navigation-item-badge
+                      label={p.displayName}
+                      name={p.order}
+                      badge-count={p.rows.length}
+                      class={p.status}
+                    >
+                    </lightning-vertical-navigation-item-badge>
+                  </div>
                 </template>
               </template>
-
+              <template if:false={hasPages}>
+                <div class="slds-p-horizontal_medium slds-p-top_small">
+                  <span>ページを追加してください</span>
+                </div>
+              </template>
             </lightning-vertical-navigation-section>
           </lightning-vertical-navigation>
+          <!-- 新規ページ追加 -->
+          <div class="slds-p-vertical_medium slds-p-horizontal_small">
+            <lightning-button
+              label="ページを追加"
+              icon-name="utility:add"
+              variant="brand-outline"
+              onclick={handleClickNewPage}
+            ></lightning-button>
+          </div>
         </div>
       </lightning-layout-item>
-
-      <!-- 右側項目表示エリア -->
       <lightning-layout-item flexibility="grow">
-        <div class="slds-box slds-var-m-right_medium">
-
-          <!-- 新規作成パネル -->
-          <template if:true={isCreateRecord}>
-            <lightning-record-edit-form object-api-name={objectApiNameApplicationTemplateDetail} onsubmit={handleSubmit}
-              onsuccess={handleSuccess}>
-              <lightning-messages></lightning-messages>
-
-              <!-- 項目表示名 -->
-              <lightning-input-field field-name={fieldnameName}></lightning-input-field>
-              <!-- 補助説明 -->
-              <lightning-input-field field-name={fieldnameDescription}></lightning-input-field>
-              <!-- 項目カテゴリ -->
-              <lightning-input-field field-name={fieldnameCategory} onchange={handleChangeCategory}>
-              </lightning-input-field>
-              <!-- 標準項目名(項目カテゴリが標準の場合のみ) -->
-              <template if:true={isStandardColumn}>
-                <lightning-input-field field-name={fieldnameStdColumnName}></lightning-input-field>
-              </template>
-              <!-- データ型(項目カテゴリがカスタムの場合のみ) -->
-              <template if:true={isCustomColumn}>
-                <lightning-input-field field-name={fieldnameDataType} onchange={handleChangeDataType}>
-                </lightning-input-field>
-                <!-- 選択肢(データ型が選択肢の場合のみ) -->
-                <template if:true={isCustomColumnPicklist}>
-                  <lightning-input-field field-name={fieldnameOptions}></lightning-input-field>
-                </template>
-              </template>
-              <!-- 必須かどうか -->
-              <lightning-input-field field-name={fieldnameRequired}></lightning-input-field>
-              <!-- デフォルト値 -->
-              <lightning-input-field field-name={fieldnameValue}></lightning-input-field>
-              <!-- 表示順 -->
-              <lightning-input-field field-name={fieldnameSortOrder}></lightning-input-field>
-
-              <!-- 登録ボタン -->
-              <div class="slds-var-m-top_medium">
-                <lightning-button variant="brand" type="submit" name="save" label="追加登録">
-                </lightning-button>
-              </div>
-            </lightning-record-edit-form>
-          </template>
-
-          <!-- 既存編集パネル -->
-          <template if:true={isRecordSelected}>
-            <lightning-card title="詳細" icon-name="standard:custom" variant="text-destructive">
-              <div slot="actions">
-                <lightning-button label="項目削除" onclick={handleClickDeleteRecord}></lightning-button>
-              </div>
-
-              <!-- 各項目を表示(標準コンポーネントを使用) -->
-              <lightning-record-form record-id={selectedRecordId}
-                object-api-name={objectApiNameApplicationTemplateDetail} layout-type="Full" mode="view"
-                fields={editRecordColumns} onsuccess={handleSuccess}>
-              </lightning-record-form>
-            </lightning-card>
-          </template>
-
-          <!-- 新規作成でも項目選択でもない時(レコード保存時など) -->
-          <template if:false={isCreateRecord}>
-            <template if:false={isRecordSelected}>
-              左メニューより項目を選択してください。
+        <!-- 定義詳細項目 エリア -->
+        <div class="slds-box">
+          <lightning-layout multiple-rows="true">
+            <template if:false={selectedPage}>
+              <lightning-layout-item size="12">
+                <div>ページを選択すると、項目を操作できます。</div>
+              </lightning-layout-item>
             </template>
-          </template>
+            <template if:true={selectedPage}>
+              <lightning-layout-item
+                size="12"
+                class="slds-p-top_xx-small slds-p-bottom_x-small"
+              >
+                <lightning-layout vertical-align="center">
+                  <lightning-layout-item>
+                    <span
+                      class="
+                        slds-form-element__label
+                        slds-no-flex
+                        slds-p-top_none
+                        slds-m-bottom_none
+                      "
+                    >
+                      ページ名
+                    </span>
+                  </lightning-layout-item>
+                  <lightning-layout-item flexibility="grow">
+                    <lightning-input
+                      class="page-name-input"
+                      type="text"
+                      label="ページ名"
+                      variant="label-hidden"
+                      value={selectedPage.name}
+                      onchange={handlePageNameChange}
+                    ></lightning-input>
+                  </lightning-layout-item>
+                  <lightning-layout-item>
+                    <lightning-button
+                      class="slds-m-left_xx-large"
+                      label="ページを削除"
+                      icon-name="utility:delete"
+                      variant="destructive-text"
+                      onclick={handleClickDeletePage}
+                    ></lightning-button>
+                  </lightning-layout-item>
+                </lightning-layout>
+                <div class="slds-m-top_small">
+                  <lightning-button
+                    label="行を追加"
+                    icon-name="utility:add"
+                    variant="brand-outline"
+                    onclick={handleClickNewRow}
+                  ></lightning-button>
+                </div>
+              </lightning-layout-item>
+
+              <lightning-layout-item size="12">
+                <template if:true={selectedPage}>
+                  <lightning-accordion
+                    class="row-accordion"
+                    onsectiontoggle={handleToggleRow}
+                    active-section-name={activeRowName}
+                  >
+                    <template for:each={selectedPage.rows} for:item="r">
+                      <lightning-accordion-section
+                        key={r.order}
+                        name={r.order}
+                        label={r.displayName}
+                        class="row-section"
+                      >
+                        <div slot="actions">
+                          <lightning-button
+                            class="slds-m-right_small"
+                            label="項目を追加"
+                            icon-name="utility:add"
+                            variant="brand-outline"
+                            data-row-order={r.order}
+                            onclick={handleClickNewColumnToRow}
+                          ></lightning-button>
+                          <lightning-button-icon
+                            icon-name="utility:up"
+                            class="slds-m-right_xx-small"
+                            alternative-text="Sort Up"
+                            title="Sort Up"
+                            data-sort-direction="up"
+                            data-order={r.order}
+                            data-sort-type="row"
+                            onclick={handleSort}
+                          ></lightning-button-icon>
+                          <lightning-button-icon
+                            icon-name="utility:down"
+                            class="slds-m-right_small"
+                            alternative-text="Sort down"
+                            title="Sort down"
+                            data-sort-direction="down"
+                            data-order={r.order}
+                            data-sort-type="row"
+                            onclick={handleSort}
+                          ></lightning-button-icon>
+                          <lightning-button
+                            icon-name="utility:delete"
+                            variant="destructive-text"
+                            data-row-order={r.order}
+                            label="行を削除"
+                            onclick={handleClickDeleteRow}
+                          ></lightning-button>
+                        </div>
+                        <lightning-accordion
+                          class="column-accordion"
+                          data-row-order={r.order}
+                          onsectiontoggle={handleToggleColumn}
+                          active-section-name={activeColumnName}
+                        >
+                          <template if:true={r.columns}>
+                            <template for:each={r.columns} for:item="c">
+                              <lightning-accordion-section
+                                key={c.ColumnOrder__c}
+                                name={c.ColumnOrder__c}
+                                label={c.displayName}
+                                data-status={c.status}
+                                class="column-section"
+                              >
+                                <div slot="actions">
+                                  <lightning-button-icon
+                                    icon-name="utility:up"
+                                    class="slds-m-right_xx-small"
+                                    alternative-text="Sort Up"
+                                    title="Sort Up"
+                                    data-sort-direction="up"
+                                    data-order={c.ColumnOrder__c}
+                                    data-sort-type="column"
+                                    onclick={handleSort}
+                                  ></lightning-button-icon>
+                                  <lightning-button-icon
+                                    icon-name="utility:down"
+                                    class="slds-m-right_small"
+                                    alternative-text="Sort down"
+                                    title="Sort down"
+                                    data-sort-direction="down"
+                                    data-order={c.ColumnOrder__c}
+                                    data-sort-type="column"
+                                    onclick={handleSort}
+                                  ></lightning-button-icon>
+                                  <lightning-button
+                                    icon-name="utility:delete"
+                                    variant="destructive-text"
+                                    data-column-order={c.ColumnOrder__c}
+                                    label="項目を削除"
+                                    onclick={handleClickDeleteColumn}
+                                  ></lightning-button>
+                                </div>
+                                <template if:true={selectedColumn}>
+                                  <!-- 項目内容表示エリア -->
+                                  <div class="slds-box">
+                                    <lightning-record-edit-form
+                                      object-api-name={objectApiNameApplicationTemplateDetail}
+                                    >
+                                      <!-- エラー表示 -->
+                                      <lightning-messages></lightning-messages>
+
+                                      <!-- 項目表示名 -->
+                                      <lightning-input-field
+                                        onchange={handleColumnInputChange}
+                                        data-field-name={fieldnameName}
+                                        value={newFieldValueName}
+                                        field-name={fieldnameName}
+                                      ></lightning-input-field>
+                                      <!-- 補助説明 -->
+                                      <lightning-input-field
+                                        field-name={fieldnameDescription}
+                                        onchange={handleColumnInputChange}
+                                        data-field-name={fieldnameDescription}
+                                        value={newFieldValueDescription}
+                                      ></lightning-input-field>
+                                      <!-- 項目カテゴリ -->
+                                      <lightning-input-field
+                                        field-name={fieldnameCategory}
+                                        onchange={handleColumnInputChange}
+                                        data-field-name={fieldnameCategory}
+                                        value={newFieldValueCategory}
+                                      ></lightning-input-field>
+                                      <!-- 標準項目名(項目カテゴリが標準の場合のみ) -->
+                                      <template if:true={isStandardColumn}>
+                                        <lightning-input-field
+                                          field-name={fieldnameStdColumnName}
+                                          onchange={handleColumnInputChange}
+                                          data-field-name={fieldnameStdColumnName}
+                                          value={newFieldValueStdColumnName}
+                                        ></lightning-input-field>
+                                      </template>
+                                      <!-- データ型(項目カテゴリがカスタムの場合のみ) -->
+                                      <template if:true={isCustomColumn}>
+                                        <lightning-input-field
+                                          field-name={fieldnameDataType}
+                                          onchange={handleColumnInputChange}
+                                          data-field-name={fieldnameDataType}
+                                          value={newFieldValueDataType}
+                                        ></lightning-input-field>
+                                        <!-- 選択肢(データ型が選択肢の場合のみ) -->
+                                        <template
+                                          if:true={isCustomColumnPicklist}
+                                        >
+                                          <lightning-input-field
+                                            field-name={fieldnameOptions}
+                                            onchange={handleColumnInputChange}
+                                            data-field-name={fieldnameOptions}
+                                            value={newFieldValueOptions}
+                                          ></lightning-input-field>
+                                        </template>
+                                      </template>
+                                      <!-- 必須かどうか -->
+                                      <lightning-input-field
+                                        field-name={fieldnameRequired}
+                                        onchange={handleColumnInputChange}
+                                        data-field-name={fieldnameRequired}
+                                        value={newFieldValueRequired}
+                                      ></lightning-input-field>
+                                      <!-- デフォルト値 -->
+                                      <lightning-input-field
+                                        field-name={fieldnameValue}
+                                        onchange={handleColumnInputChange}
+                                        data-field-name={fieldnameValue}
+                                        value={newFieldValueDefaultValue}
+                                      ></lightning-input-field>
+                                    </lightning-record-edit-form>
+                                  </div>
+                                </template>
+                              </lightning-accordion-section>
+                            </template>
+                          </template>
+                        </lightning-accordion>
+                      </lightning-accordion-section>
+                    </template>
+                  </lightning-accordion>
+                </template>
+              </lightning-layout-item>
+            </template>
+          </lightning-layout>
         </div>
       </lightning-layout-item>
     </lightning-layout>

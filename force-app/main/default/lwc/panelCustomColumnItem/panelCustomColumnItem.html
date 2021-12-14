@@ -1,0 +1,232 @@
+<template>
+  <!-- 表示モード画面 -->
+  <template if:true={isViewMode}>
+    <div class="slds-grid slds-m-bottom_small">
+      <!-- 項目表示エリア -->
+      <div class="slds-col slds-grow slds-align-bottom slds-col_bump-right">
+        <!-- テキスト項目 -->
+        <template if:true={isText}>
+          <div class="slds-border_bottom">
+            <lightning-input
+              type="text"
+              label={item.ColumnName__c}
+              value={item.Text__c}
+              readonly
+            ></lightning-input>
+          </div>
+        </template>
+        <!-- ロングテキストエリア項目 -->
+        <template if:true={isLongTextArea}>
+          <div>
+            <lightning-textarea
+              label={item.ColumnName__c}
+              value={item.LongTextArea__c}
+              read-only
+            ></lightning-textarea>
+          </div>
+        </template>
+        <!-- 数値項目 -->
+        <template if:true={isNumber}>
+          <div class="slds-border_bottom">
+            <lightning-input
+              type="number"
+              label={item.ColumnName__c}
+              value={item.Number__c}
+              readonly
+            ></lightning-input>
+          </div>
+        </template>
+        <!-- 通貨項目 -->
+        <template if:true={isCurrency}>
+          <div class="slds-border_bottom">
+            <lightning-input
+              type="number"
+              label={item.ColumnName__c}
+              value={item.Number__c}
+              formatter="currency"
+              readonly
+            ></lightning-input>
+          </div>
+        </template>
+        <!-- 日付項目 -->
+        <template if:true={isDate}>
+          <div class="slds-border_bottom">
+            <lightning-input
+              type="date"
+              label={item.ColumnName__c}
+              value={item.Text__c}
+              readonly
+            ></lightning-input>
+          </div>
+        </template>
+        <!-- 時間項目 -->
+        <template if:true={isTime}>
+          <div class="">
+            <lightning-input
+              type="time"
+              label={item.ColumnName__c}
+              value={item.Text__c}
+              readonly
+            ></lightning-input>
+          </div>
+        </template>
+        <!-- チェックボックス項目 -->
+        <template if:true={isCheckbox}>
+          <div class="slds-border_bottom slds-p-bottom_xx-small">
+            <!-- チェックボックスの場合、属性への true/false 設定が反映されないので項目自体の表示を切り替えで対応 -->
+            <!-- チェック付きの場合 -->
+            <template if:true={item.isCheckboxChecked}>
+              <lightning-input
+                type="checkbox"
+                label={item.ColumnName__c}
+                checked
+                disabled
+                readonly
+              ></lightning-input
+            ></template>
+            <!-- チェックなしの場合 -->
+            <template if:false={item.isCheckboxChecked}>
+              <lightning-input
+                type="checkbox"
+                label={item.ColumnName__c}
+                readonly
+                disabled
+              ></lightning-input
+            ></template>
+          </div>
+        </template>
+        <!-- 選択リスト項目 -->
+        <template if:true={isPicklist}>
+          <div class="slds-border_bottom">
+            <lightning-input
+              type="text"
+              label={item.ColumnName__c}
+              value={item.Text__c}
+              readonly
+            ></lightning-input>
+          </div>
+        </template>
+      </div>
+      <!-- 鉛筆ボタン表示エリア -->
+      <div
+        class="
+          slds-col slds-grow-none slds-align-bottom
+          slds-grid_align-end
+          slds-m-bottom_xxx-small
+        "
+      >
+        <lightning-button-icon
+          icon-name="utility:edit"
+          icon-class="slds-button__icon_hint"
+          variant="bare"
+          data-id={item.Id}
+          onclick={handleClickEditMode}
+        ></lightning-button-icon>
+      </div>
+    </div>
+  </template>
+  <!-- 表示モード閉じタグ -->
+
+  <!-- 編集モード画面 -->
+  <template if:false={isViewMode}>
+    <div class="slds-m-bottom_small">
+      <!-- テキスト項目 -->
+      <template if:true={isText}>
+        <lightning-input
+          type="text"
+          label={item.ColumnName__c}
+          value={item.Text__c}
+          data-id={item.Id}
+          onchange={handleChangeValue}
+        ></lightning-input>
+      </template>
+      <!-- ロングテキストエリア項目 -->
+      <template if:true={isLongTextArea}>
+        <lightning-textarea
+          label={item.ColumnName__c}
+          value={item.LongTextArea__c}
+          data-id={item.Id}
+          onchange={handleChangeValue}
+        >
+        </lightning-textarea>
+      </template>
+      <!-- 数値項目 -->
+      <template if:true={isNumber}>
+        <lightning-input
+          type="number"
+          label={item.ColumnName__c}
+          value={item.Number__c}
+          data-id={item.Id}
+          onchange={handleChangeValue}
+        >
+        </lightning-input>
+      </template>
+      <!-- 通貨項目 -->
+      <template if:true={isCurrency}>
+        <lightning-input
+          type="number"
+          label={item.ColumnName__c}
+          value={item.Number__c}
+          formatter="currency"
+          data-id={item.Id}
+          onchange={handleChangeValue}
+        ></lightning-input>
+      </template>
+      <!-- 日付項目 -->
+      <template if:true={isDate}>
+        <lightning-input
+          type="date"
+          label={item.ColumnName__c}
+          value={item.Text__c}
+          data-id={item.Id}
+          onchange={handleChangeValue}
+        ></lightning-input>
+      </template>
+      <!-- 時間項目 -->
+      <template if:true={isTime}>
+        <lightning-input
+          type="time"
+          label={item.ColumnName__c}
+          value={item.Text__c}
+          data-id={item.Id}
+          onchange={handleChangeValue}
+        ></lightning-input>
+      </template>
+      <!-- チェックボックス項目 -->
+      <template if:true={isCheckbox}>
+        <!-- チェックボックスの場合、属性への true/false 設定が反映されないので項目自体の表示を切り替えで対応 -->
+        <!-- チェック付きの場合 -->
+        <template if:true={item.isCheckboxChecked}>
+          <lightning-input
+            type="checkbox"
+            label={item.ColumnName__c}
+            data-id={item.Id}
+            onchange={handleChangeValue}
+            checked
+          ></lightning-input>
+        </template>
+        <!-- チェック無しの場合 -->
+        <template if:false={item.isCheckboxChecked}>
+          <lightning-input
+            type="checkbox"
+            label={item.ColumnName__c}
+            data-id={item.Id}
+            onchange={handleChangeValue}
+          ></lightning-input>
+        </template>
+      </template>
+      <!-- 選択リスト項目 -->
+      <template if:true={isPicklist}>
+        <lightning-combobox
+          label={item.ColumnName__c}
+          value={item.Text__c}
+          placeholder=""
+          options={item.PickListValues}
+          data-id={item.Id}
+          onchange={handleChangeValue}
+        ></lightning-combobox>
+      </template>
+    </div>
+  </template>
+  <!-- 編集モード閉じタグ -->
+</template>

@@ -1,0 +1,74 @@
+<template>
+  <template if:true={shouldDisplay}>
+    <div class="slds-card slds-p-around_medium slds-m-bottom_small">
+      <div class="slds-path">
+        <div class="slds-grid slds-path__track slds-has-overflow">
+          <div class="slds-grid slds-path__scroller-container">
+            <div class="slds-path__scroller">
+              <div class="slds-path__scroller_inner">
+                <!-- 左のボタン -->
+                <template if:true={isDisplayMoveButton}>
+                  <div
+                    class="
+                      slds-path__scroll-controls
+                      slds-m-right_x-small
+                      slds-p-left_none
+                    "
+                  >
+                    <lightning-button-icon
+                      icon-name="utility:jump_to_left"
+                      onclick={handleClickLeft}
+                    ></lightning-button-icon>
+                  </div>
+                </template>
+
+                <!-- ステップ表示 -->
+                <ul
+                  class="slds-path__nav slds-grow"
+                  role="listbox"
+                  aria-orientation="horizontal"
+                >
+                  <template for:each={displaySteps} for:item="step">
+                    <li
+                      class={step.className}
+                      role="presentation"
+                      key={step.order}
+                    >
+                      <div
+                        aria-selected="false"
+                        class="slds-path__link"
+                        role="option"
+                        tabindex="-1"
+                      >
+                        <template if:true={step.isDone}>
+                          <span class="slds-path__stage">
+                            <lightning-icon
+                              icon-name="utility:check"
+                              size="x-small"
+                              variant="inverse"
+                            ></lightning-icon>
+                          </span>
+                        </template>
+                        <span class="slds-path__title">{step.label}</span>
+                      </div>
+                    </li>
+                  </template>
+                </ul>
+
+                <!-- 右のボタン -->
+                <template if:true={isDisplayMoveButton}>
+                  <div class="slds-path__scroll-controls">
+                    <lightning-button-icon
+                      icon-name="utility:jump_to_right"
+                      onclick={handleClickRight}
+                    ></lightning-button-icon>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+</template>

@@ -7,8 +7,7 @@
       "enableS1DesktopEnabled": true
     },
     "securitySettings": {
-      "passwordPolicies": {
-      }
+      "passwordPolicies": {}
     },
     "mobileSettings": {
       "enableS1EncryptedStoragePref2": false

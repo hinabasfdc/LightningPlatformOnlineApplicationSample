@@ -4,55 +4,147 @@ public with sharing class DAF_RecordOperationApexControllerTest {
   static void setup() {
     Date closedate = System.Date.today();
 
-    List<jpseps__objApplicationTemplate__c> ats = new List<jpseps__objApplicationTemplate__c>();
-    jpseps__objApplicationTemplate__c at1 = new jpseps__objApplicationTemplate__c(
+    List<objApplicationTemplate__c> ats = new List<objApplicationTemplate__c>();
+    objApplicationTemplate__c at1 = new objApplicationTemplate__c(
       Name = 'テスト用申請手続き1',
-      jpseps__Status__c = '公開中',
-      jpseps__CloseDate__c = closedate.addDays(1)
+      Status__c = '公開中',
+      CloseDate__c = closedate.addDays(1)
     );
     ats.add(at1);
-    jpseps__objApplicationTemplate__c at2 = new jpseps__objApplicationTemplate__c(
+    objApplicationTemplate__c at2 = new objApplicationTemplate__c(
       Name = 'テスト用申請手続き2',
-      jpseps__Status__c = '下書き',
-      jpseps__CloseDate__c = closedate.addDays(1)
+      Status__c = '下書き',
+      CloseDate__c = closedate.addDays(1)
     );
     ats.add(at2);
     insert ats;
 
-    List<jpseps__objApplicationTemplateDetail__c> atds = new List<jpseps__objApplicationTemplateDetail__c>();
-    jpseps__objApplicationTemplateDetail__c atd1 = new jpseps__objApplicationTemplateDetail__c(
-      jpseps__objApplicationTemplate__c = ats[0].Id,
+    List<objApplicationTemplatePage__c> pages = new List<objApplicationTemplatePage__c>();
+    objApplicationTemplatePage__c ap1 = new objApplicationTemplatePage__c(
+      Name = 'ページ1',
+      Order__c = 1,
+      objApplicationTemplate__c = at1.Id
+    );
+    pages.add(ap1);
+    objApplicationTemplatePage__c ap2 = new objApplicationTemplatePage__c(
+      Name = 'ページ2',
+      Order__c = 2,
+      objApplicationTemplate__c = at1.Id
+    );
+    pages.add(ap2);
+    objApplicationTemplatePage__c ap3 = new objApplicationTemplatePage__c(
+      Name = 'ページ1',
+      Order__c = 1,
+      objApplicationTemplate__c = at2.Id
+    );
+    pages.add(ap3);
+    insert pages;
+
+    List<objApplicationTemplateRow__c> rows = new List<objApplicationTemplateRow__c>();
+    objApplicationTemplateRow__c ar1_1 = new objApplicationTemplateRow__c(
+      Order__c = 1,
+      AppTemplatePage__c = ap1.Id
+    );
+    rows.add(ar1_1);
+
+    objApplicationTemplateRow__c ar1_2 = new objApplicationTemplateRow__c(
+      Order__c = 2,
+      AppTemplatePage__c = ap1.Id
+    );
+    rows.add(ar1_2);
+
+    objApplicationTemplateRow__c ar2_1 = new objApplicationTemplateRow__c(
+      Order__c = 1,
+      AppTemplatePage__c = ap2.Id
+    );
+    rows.add(ar2_1);
+
+    objApplicationTemplateRow__c ar1_1_2 = new objApplicationTemplateRow__c(
+      Order__c = 1,
+      AppTemplatePage__c = ap3.Id
+    );
+    rows.add(ar1_1_2);
+
+    insert rows;
+
+    List<objApplicationTemplateDetail__c> atds = new List<objApplicationTemplateDetail__c>();
+    objApplicationTemplateDetail__c atd1 = new objApplicationTemplateDetail__c(
+      objApplicationTemplate__c = ats[0].Id,
       Name = '氏名',
-      jpseps__Category__c = '標準',
-      jpseps__StdColumnName__c = 'FirstnameKanji__c'
+      Category__c = '標準',
+      StdColumnName__c = 'FirstnameKanji__c',
+      AppTemplateRow__c = ar1_1.Id,
+      ColumnOrder__c = 1
     );
     atds.add(atd1);
-    jpseps__objApplicationTemplateDetail__c atd2 = new jpseps__objApplicationTemplateDetail__c(
-      jpseps__objApplicationTemplate__c = ats[0].Id,
+    objApplicationTemplateDetail__c atd2 = new objApplicationTemplateDetail__c(
+      objApplicationTemplate__c = ats[0].Id,
       Name = '事業者名',
-      jpseps__Category__c = 'カスタム',
-      jpseps__DataType__c = 'テキスト'
+      Category__c = 'カスタム',
+      DataType__c = 'テキスト',
+      AppTemplateRow__c = ar1_1.Id,
+      ColumnOrder__c = 2
     );
     atds.add(atd2);
+
+    objApplicationTemplateDetail__c atd3 = new objApplicationTemplateDetail__c(
+      objApplicationTemplate__c = ats[0].Id,
+      Name = '氏名',
+      Category__c = '標準',
+      StdColumnName__c = 'LastnameKanji__c',
+      AppTemplateRow__c = ar1_2.Id,
+      ColumnOrder__c = 1
+    );
+    atds.add(atd3);
+    objApplicationTemplateDetail__c atd4 = new objApplicationTemplateDetail__c(
+      objApplicationTemplate__c = ats[0].Id,
+      Name = '概要',
+      Category__c = 'カスタム',
+      DataType__c = 'ロングテキスト',
+      AppTemplateRow__c = ar1_2.Id,
+      ColumnOrder__c = 2
+    );
+    atds.add(atd4);
+
+    objApplicationTemplateDetail__c atd5 = new objApplicationTemplateDetail__c(
+      objApplicationTemplate__c = ats[0].Id,
+      Name = 'よみ',
+      Category__c = '標準',
+      DataType__c = 'FirstnameYomi__c',
+      AppTemplateRow__c = ar2_1.Id,
+      ColumnOrder__c = 1
+    );
+    atds.add(atd5);
+
+    objApplicationTemplateDetail__c atd6 = new objApplicationTemplateDetail__c(
+      objApplicationTemplate__c = ats[1].Id,
+      Name = 'よみ',
+      Category__c = '標準',
+      DataType__c = 'Mail__c',
+      AppTemplateRow__c = ar1_1_2.Id,
+      ColumnOrder__c = 1
+    );
+    atds.add(atd6);
+
     insert atds;
 
-    jpseps__objApplication__c a = new jpseps__objApplication__c(
-      jpseps__objApplicationTemplate__c = ats[0].Id,
-      jpseps__FirstnameKanji__c = 'アストロ'
+    objApplication__c a = new objApplication__c(
+      objApplicationTemplate__c = ats[0].Id,
+      FirstnameKanji__c = 'アストロ'
     );
     insert a;
 
-    jpseps__objApplicationDetail__c ad = new jpseps__objApplicationDetail__c(
-      jpseps__objApplication__c = a.Id,
-      jpseps__objApplicationTemplateDetail__c = atds[1].Id,
-      jpseps__Text__c = 'アストロフォース'
+    objApplicationDetail__c ad = new objApplicationDetail__c(
+      objApplication__c = a.Id,
+      objApplicationTemplateDetail__c = atds[1].Id,
+      Text__c = 'アストロフォース'
     );
     insert ad;
   }
 
   @isTest
   static void testGetActiveApplications() {
-    List<jpseps__objApplicationTemplate__c> records = DAF_RecordOperationApexController.getActiveApplications(
+    List<objApplicationTemplate__c> records = DAF_RecordOperationApexController.getActiveApplications(
       false
     );
     System.assertEquals(1, records.size());
@@ -60,130 +152,155 @@ public with sharing class DAF_RecordOperationApexControllerTest {
 
   @isTest
   static void testGetActiveApplicationsIncludeDraft() {
-    List<jpseps__objApplicationTemplate__c> records = DAF_RecordOperationApexController.getActiveApplications(
+    List<objApplicationTemplate__c> records = DAF_RecordOperationApexController.getActiveApplications(
       true
     );
     System.assertEquals(2, records.size());
   }
 
   @isTest
-  static void testGetApplicationTemplateDetailsJson() {
-    jpseps__objApplicationTemplate__c at = [
+  static void testGetApplicationTemplateDetails() {
+    objApplicationTemplate__c at = [
       SELECT Id
-      FROM jpseps__objApplicationTemplate__c
+      FROM objApplicationTemplate__c
       WHERE Name = 'テスト用申請手続き1'
       LIMIT 1
     ];
-    String ret = DAF_RecordOperationApexController.getApplicationTemplateDetailsJson(
+    List<objApplicationTemplateDetail__c> records = DAF_RecordOperationApexController.getApplicationTemplateDetails(
       at.Id
     );
 
-    List<Object> records = (List<Object>) System.JSON.deserializeUntyped(ret);
-    System.assertEquals(2, records.size());
+    System.assertEquals(5, records.size());
   }
 
   @isTest
   static void testGetApplicationTemplateDetailsJsonWithNoParameter() {
-    String ret = DAF_RecordOperationApexController.getApplicationTemplateDetailsJson(
+    List<objApplicationTemplateDetail__c> records = DAF_RecordOperationApexController.getApplicationTemplateDetails(
       ''
     );
-    System.assertEquals(true, String.isBlank(ret));
+    System.assertEquals(null, records);
   }
 
   @isTest
   static void testGetApplicationStdColumns() {
-    jpseps__objApplication__c a = [
+    objApplication__c a = [
       SELECT Id
-      FROM jpseps__objApplication__c
-      WHERE jpseps__FirstnameKanji__c = 'アストロ'
+      FROM objApplication__c
+      WHERE FirstnameKanji__c = 'アストロ'
       LIMIT 1
     ];
-    String ret = DAF_RecordOperationApexController.getApplicationStdColumns(
+    List<String> columns = DAF_RecordOperationApexController.getApplicationStdColumns(
       a.Id
     );
 
-    List<Object> records = (List<Object>) System.JSON.deserializeUntyped(ret);
-    System.assertEquals(1, records.size());
+    System.assertEquals(3, columns.size());
   }
 
   @isTest
   static void testGetApplicationStdColumnsWithNoParameter() {
-    String ret = DAF_RecordOperationApexController.getApplicationStdColumns('');
-    System.assertEquals(true, String.isBlank(ret));
+    List<String> ret = DAF_RecordOperationApexController.getApplicationStdColumns(
+      ''
+    );
+    System.assertEquals(ret, null);
+  }
+
+  @isTest
+  static void testGetApplicationStdColumnsWithUnexistingRecord() {
+    List<String> columns = DAF_RecordOperationApexController.getApplicationStdColumns(
+      '適当なやつ'
+    );
+    System.assertEquals(null, columns);
   }
 
   @isTest
   static void testGetApplicationCustomColumns() {
-    jpseps__objApplication__c a = [
+    objApplication__c a = [
       SELECT Id
-      FROM jpseps__objApplication__c
-      WHERE jpseps__FirstnameKanji__c = 'アストロ'
+      FROM objApplication__c
+      WHERE FirstnameKanji__c = 'アストロ'
       LIMIT 1
     ];
-    String ret = DAF_RecordOperationApexController.getApplicationCustomColumns(
+    List<objApplicationDetail__c> records = DAF_RecordOperationApexController.getApplicationCustomColumns(
       a.Id
     );
-
-    List<Object> records = (List<Object>) System.JSON.deserializeUntyped(ret);
     System.assertEquals(1, records.size());
   }
 
   @isTest
   static void testGetApplicationCustomColumnsWithNoParameter() {
-    String ret = DAF_RecordOperationApexController.getApplicationCustomColumns(
+    List<objApplicationDetail__c> ret = DAF_RecordOperationApexController.getApplicationCustomColumns(
       ''
     );
-    System.assertEquals(true, String.isBlank(ret));
+    System.assertEquals(null, ret);
   }
 
   @isTest
   static void testUpsertApplication() {
-    jpseps__objApplicationTemplate__c at = [
+    objApplicationTemplate__c at = [
       SELECT Id
-      FROM jpseps__objApplicationTemplate__c
+      FROM objApplicationTemplate__c
       WHERE Name = 'テスト用申請手続き1'
       LIMIT 1
     ];
-    jpseps__objApplication__c a = new jpseps__objApplication__c(
-      jpseps__objApplicationTemplate__c = at.Id,
-      jpseps__FirstnameKanji__c = 'コーディ'
+    objApplication__c a = new objApplication__c(
+      objApplicationTemplate__c = at.Id,
+      FirstnameKanji__c = 'コーディ'
     );
-    String ret = DAF_RecordOperationApexController.upsertApplication(
-      System.JSON.serialize(a)
-    );
-    System.assertEquals(true, String.isNotBlank(ret));
 
-    jpseps__objApplicationTemplateDetail__c atd = [
+    objApplicationTemplateDetail__c atd = [
       SELECT Id
-      FROM jpseps__objApplicationTemplateDetail__c
+      FROM objApplicationTemplateDetail__c
       WHERE Name = '事業者名'
       LIMIT 1
     ];
-    List<jpseps__objApplicationDetail__c> ads = new List<jpseps__objApplicationDetail__c>();
-    jpseps__objApplicationDetail__c ad = new jpseps__objApplicationDetail__c(
-      jpseps__objApplicationTemplateDetail__c = atd.Id,
-      jpseps__objApplication__c = ret,
-      jpseps__Text__c = 'アストロカンパニー'
+    List<objApplicationDetail__c> ads = new List<objApplicationDetail__c>();
+    objApplicationDetail__c ad = new objApplicationDetail__c(
+      objApplicationTemplateDetail__c = atd.Id,
+      Text__c = 'アストロカンパニー'
     );
     ads.add(ad);
-    String rets = DAF_RecordOperationApexController.upsertApplicationDetails(
-      System.JSON.serialize(ads)
+
+    objApplication__c ret = DAF_RecordOperationApexController.insertApplication(
+      a,
+      ads,
+      null
+    );
+    System.assertEquals(false, String.isBlank(ret.Id));
+  }
+
+  @isTest
+  static void testUpdateApplicationDetails() {
+    List<objApplicationDetail__c> ads = [
+      SELECT Id
+      FROM objApplicationDetail__c
+      WHERE Text__c = 'アストロフォース'
+    ];
+    for (objApplicationDetail__c ad : ads) {
+      ad.Text__c = 'アストロカンパニー';
+    }
+
+    List<Id> detailIds = DAF_RecordOperationApexController.updateApplicationDetails(
+      ads
     );
 
-    List<Object> records = (List<Object>) System.JSON.deserializeUntyped(rets);
-    System.assertEquals(1, records.size());
+    System.assertEquals(1, detailIds.size());
   }
 
   @isTest
   static void testUpsertApplicationWithNoParameter() {
-    String ret = DAF_RecordOperationApexController.upsertApplication('');
-    System.assertEquals(true, String.isBlank(ret));
+    objApplication__c ret = DAF_RecordOperationApexController.insertApplication(
+      null,
+      null,
+      null
+    );
+    System.assertEquals(null, ret);
   }
 
   @isTest
   static void testUpsertApplicationDetailsWithNoParameter() {
-    String ret = DAF_RecordOperationApexController.upsertApplicationDetails('');
-    System.assertEquals(true, String.isBlank(ret));
+    List<Id> ret = DAF_RecordOperationApexController.updateApplicationDetails(
+      null
+    );
+    System.assertEquals(null, ret);
   }
-
 }

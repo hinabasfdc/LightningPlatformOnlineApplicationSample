@@ -34,5 +34,8 @@ ehthumbs.db
 [Dd]esktop.ini
 $RECYCLE.BIN/
 
+# Local environment variables
+.env
+
 .backu
 ./scripts/

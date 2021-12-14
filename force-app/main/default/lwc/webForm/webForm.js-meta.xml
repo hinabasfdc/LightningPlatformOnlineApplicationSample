@@ -1,21 +1,54 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>50.0</apiVersion>
+    <apiVersion>52.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>入力フォームの表示(ルートコンポーネント)</masterLabel>
     <targets>
         <target>lightning__Tab</target>
         <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__AppPage">
-            <property name="includeDraftApp" type="Boolean" label="リスト表示に下書きの申請手続きを含める" description="リスト表示に下書きの申請手続きを含める" default="true" />
+            <property
+        name="includeDraftApp"
+        type="Boolean"
+        label="リスト表示に下書きの申請手続きを含める"
+        description="リスト表示に下書きの申請手続きを含める"
+        default="true"
+      />
+        </targetConfig>
+        <targetConfig targets="lightning__RecordPage">
+            <property
+        name="previewFor"
+        type="String"
+        label="プレビュー画面"
+        required="true"
+        datasource="手続き概要,入力"
+        description="リスト表示に下書きの申請手続きを含める"
+        default="手続き概要"
+      />
+      <objects>
+        <object>objApplicationTemplate__c</object>
+      </objects>
         </targetConfig>
         <targetConfig targets="lightningCommunity__Default">
-            <property name="includeDraftApp" type="Boolean" label="リスト表示に下書きの申請手続きを含める" description="リスト表示に下書きの申請手続きを含める" default="false" />
-            <property name="isCommunityPage" type="Boolean" label="コミュニティページでの使用" description="コミュニティページで使う場合はチェックを入れる" default="true" />
+            <property
+        name="includeDraftApp"
+        type="Boolean"
+        label="リスト表示に下書きの申請手続きを含める"
+        description="リスト表示に下書きの申請手続きを含める"
+        default="false"
+      />
+            <property
+        name="isCommunityPage"
+        type="Boolean"
+        label="コミュニティページでの使用"
+        description="コミュニティページで使う場合はチェックを入れる"
+        default="true"
+      />
         </targetConfig>
     </targetConfigs>      
 </LightningComponentBundle>
