@@ -68,7 +68,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>objApplicationDetail__c.SortOrder__c</field>
+        <field>objApplicationDetail__c.ColumnOrder__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -108,7 +108,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>objApplicationTemplateDetail__c.SortOrder__c</field>
+        <field>objApplicationTemplateDetail__c.ColumnOrder__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
